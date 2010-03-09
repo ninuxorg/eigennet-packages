@@ -1,0 +1,14 @@
+
+config 'wifi-device' 'wifi0'
+	option 'type' 'atheros'
+	option 'channel' 'auto'
+	option 'disabled' '0'
+
+config 'wifi-iface'
+	option 'device' 'wifi0'
+	option 'network' 'wifi0'
+	option 'sw_merge' '1'
+	option 'mode' 'adhoc'
+	option 'ssid' 'eigennet'
+	option 'encryption' 'none'
+
