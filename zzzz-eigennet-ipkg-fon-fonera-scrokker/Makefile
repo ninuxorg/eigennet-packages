@@ -1,13 +1,25 @@
-# 
-# Copyright (C) 2007 Ninux.org <contatti@ninux.org>
 #
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
+#Copyright (C) 2010  Gioacchino Mazzurco <gmazzurco89@gmail.com>
+#
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this file.  If not, see <http://www.gnu.org/licenses/>.
+
+
 
 include $(TOPDIR)/rules.mk
 
-EIGENMODELNAME:="Ubiquiti Bullet2"
-PKG_NAME:=eigennet-ubiquiti-bullet2
+EIGENMODELNAME:="Fonera Scrokker"
+PKG_NAME:=eigennet-fon-fonera-scrokker
 PKG_VERSION:=0.1
 PKG_RELEASE:=beta
 
@@ -20,23 +32,23 @@ PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/ninux-atheros
+define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-madwifi +kmod-ipv6 +ahcpd +olsrd +bash +tcpdump +nano @TARGET_atheros 
+  DEPENDS:=+kmod-madwifi +hostapd-mini +ahcpd +bash +tcpdump +nano +iptables-mod-nat +iptables-mod-nat-extra +kmod-ipt-nat +kmod-ipt-nat-extra +wpa-supplicant @TARGET_atheros 
   TITLE:=EigenNet Community Config Package $(EIGENMODELNAME)
 endef
 
 define Package/$(PKG_NAME)/install
 	$(CP) -a ./files/* $(1)/
-	$(SED) 's,$$$$R,$(REVISION),g' $(1)/etc/banner 
+#	$(SED) 's,$$$$R,$(REVISION),g' $(1)/etc/banner 
 	mkdir -p $(1)/CONTROL
-	$(CP) -a ./ipkg/$(PKG_NAME).postinst $(1)/CONTROL/postinst
-	$(CP) -a ./ipkg/$(PKG_NAME).prerm $(1)/CONTROL/prerm
+#	$(CP) -a ./ipkg/$(PKG_NAME).postinst $(1)/CONTROL/postinst
+#	$(CP) -a ./ipkg/$(PKG_NAME).prerm $(1)/CONTROL/prerm
 endef
 
 define Package/$(PKG_NAME)/description
-  Prepara la $(EIGENMODELNAME) per la rete EigenNet 
+  Prepara la $(EIGENMODELNAME) per lo scrokking
 endef
 
 define Build/Compile
