@@ -25,16 +25,11 @@ CONF_DIR="/etc/config/"
 ipV6Subnet="fd7d:d7bb:2c97:dec3"
 
 supportedHardwareCount=2
-supportedHardware[0]="Ubiquiti Bullet2"
-
-wiredDevice[0]=""
-wirelessDevice[0]=""
-wirelessDeviceTxPower[0]="" # Radio Trasmit Power in dBi
-
 
 wiredDevice[0]="eth0"
 wirelessDevice[0]="ath0"
-wirelessDeviceTxPower[0]="0" # 0 (Default) auto # 15 54Mb/s # 16 48Mb/2 # 18 36Mb/s #  20 24Mb/s
+wirelessDeviceTxPower[0]="" # Radio Trasmit Power in dBi # not used at moment
+# 0 (Default) auto # 15 54Mb/s # 16 48Mb/2 # 18 36Mb/s #  20 24Mb/s ( for bullet )
 
 function getIp6HWAddress()
 {
@@ -50,6 +45,7 @@ function getIp6HWAddress()
 
 function configureNetwork()
 {
+  echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 
   NETWORK_CONF="
 config 'interface' 'loopback'
@@ -60,7 +56,6 @@ config 'interface' 'loopback'
 
 config 'interface' 'lan'
 	option 'ifname' '${wiredDevice[0]}'
-	option 'type' 'bridge'
 	option 'proto' 'static'
 	option 'netmask' '255.255.255.0'
 	option 'dns' ''
@@ -87,7 +82,7 @@ config 'wifi-device' 'wifi0'
 	option 'type' 'atheros'
 	option 'channel' 'auto'
 	option 'disabled' '0'
-	option 'txpower' '${wirelessDeviceTxPower[0]}'
+#	option 'txpower' '${wirelessDeviceTxPower[0]}'
 
 config 'wifi-iface'
 	option 'device' 'wifi0'

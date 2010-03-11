@@ -16,8 +16,8 @@
 
 include $(TOPDIR)/rules.mk
 
-EIGENMODELNAME:="Ubiquiti Bullet2"
-PKG_NAME:=eigennet-ubiquiti-bullet2
+EIGENMODELNAME:="Atheros"
+PKG_NAME:=eigennet-atheros
 PKG_VERSION:=0.1
 PKG_RELEASE:=beta
 
@@ -33,7 +33,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-madwifi +kmod-ipv6 +ahcpd +olsrd +bash +tcpdump +nano @TARGET_atheros 
+  DEPENDS:=+kmod-madwifi +kmod-ipv6 +ahcpd +olsrd +bash +tcpdump +nano +iputils-ping +iputils-ping6 +ip6tables +ip6tables-utils +dnsmasq +dibbler-server +kmod-ipt-nat-extra @TARGET_atheros 
   TITLE:=EigenNet Community Config Package $(EIGENMODELNAME)
 endef
 
@@ -46,7 +46,7 @@ define Package/$(PKG_NAME)/install
 endef
 
 define Package/$(PKG_NAME)/description
-  Prepara la $(EIGENMODELNAME) per la rete EigenNet 
+  Prepare $(EIGENMODELNAME) for EigenNet 
 endef
 
 define Build/Compile

@@ -1,6 +1,0 @@
-config EIGENNET_ATHEROS_FON_FONERA
-	prompt "Questo pacchetto prepara la Fon Fonera per il funzionamento con Eigennet"
-	tristate
-	default m if CONFIG_DEVEL
-	help
-		Per la documentazione visita eigenlab.tk

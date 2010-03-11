@@ -1,6 +1,0 @@
-config EIGENNET_ATHEROS_UBIQUITI_BULLET2
-	prompt "Questo pacchetto prepara la Ubiquiti Bullet2 per il funzionamento con Eigennet"
-	tristate
-	default m if CONFIG_DEVEL
-	help
-		Per la documentazione visita eigenlab.tk
