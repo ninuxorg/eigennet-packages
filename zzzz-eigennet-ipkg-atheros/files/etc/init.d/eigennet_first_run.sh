@@ -22,91 +22,46 @@ COPYRIGHT
 START=99
 
 CONF_DIR="/etc/config/"
-ipV6Subnet="fd7d:d7bb:2c97:dec3"
+meshIpV6Subnet="fd7d:d7bb:2c97:dec3"
+meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
+OLSRHnaIpV6Prefix="fd7d:d7bb:2c97" #this should be combined with macaddress to have only xxxx:xxxx 32bit 2^32 addres range, should appear like this: fd7d:d7bb:2c97:xxxx:xxxx:xxxx:yyyy:yyyy where xxxx:xxxx:xxxx is device mac address and yyyy:yyyy is the ip given by dhcp to the client
 
-supportedHardwareCount=2
+networkDevice[0]=""
+networkDevHWAddr[0]=""
+networkDevHWAddr6[0]=""
+networkDevIsWireless[0]="0"
 
-wiredDevice[0]="eth0"
-wirelessDevice[0]="ath0"
-wirelessDeviceTxPower[0]="" # Radio Trasmit Power in dBi # not used at moment
-# 0 (Default) auto # 15 54Mb/s # 16 48Mb/2 # 18 36Mb/s #  20 24Mb/s ( for bullet )
 
-function getIp6HWAddress()
+function loadDevicesInfo()
 {
-  #Get device name as param
+  local ind=0
+  for device in `ifconfig -a | grep ^[a-z] | grep "encap:Ethernet" | awk '{ print $1 }'`
+  do
+      networkDevice[$ind]=$device
+      if [ "`iwconfig $device | grep ^[a-z] | awk '{ print $2 }'`" == "IEEE" ]
+      then
+	networkDevIsWireless[$ind]="1"
+      else
+	networkDevIsWireless[$ind]="0"
+      fi
+      ((ind++))
+  done
+  
+  ind=0
+  for mac in `ifconfig -a | grep HWaddr | grep "encap:Ethernet" | awk -F 'HWaddr ' '{ print $2 }'`
+  do
+      networkDevHWAddr[$ind]="$mac"
+      networkDevHWAddr6[$ind]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
+      ((ind++))
+  done
 
-  iMAC=`ifconfig $1 | grep -m 1 HWaddr | awk -F 'HWaddr ' '{ print $2 }'`
-  if [ ${#iMAC} -gt "17" ]
-  then
-    iMAC=${iMAC:0:17}
-  fi
-  echo "$ipV6Subnet:0000:${iMAC:0:2}${iMAC:3:2}:${iMAC:6:2}${iMAC:9:2}:${iMAC:12:2}${iMAC:15:2}"
 }
 
 function configureNetwork()
 {
   echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 
-  NETWORK_CONF="
-config 'interface' 'loopback'
-	option 'ifname' 'lo'
-	option 'proto' 'static'
-	option 'ipaddr' '127.0.0.1'
-	option 'netmask' '255.0.0.0'
-
-config 'interface' 'lan'
-	option 'ifname' '${wiredDevice[0]}'
-	option 'proto' 'static'
-	option 'netmask' '255.255.255.0'
-	option 'dns' ''
-	option 'gateway' ''
-	option 'ipaddr' '192.168.1.30'
-	option 'ip6addr' '`getIp6HWAddress ${wiredDevice[0]}`'
-
-
-config 'interface' 'wifi0'
-	option 'ifname' '${wirelessDevice[0]}'
-	option 'ipaddr' '192.168.10.19'
-	option 'netmask' '255.255.255.0'  
-	option 'proto' 'static'
-	option 'ip6addr' '`getIp6HWAddress ${wirelessDevice[0]}`'
-
-"
-  echo "$NETWORK_CONF" > "$CONF_DIR/network"
-}
-
-function configureWireless()
-{
-  WIRELESS_CONF="
-config 'wifi-device' 'wifi0'
-	option 'type' 'atheros'
-	option 'channel' 'auto'
-	option 'disabled' '0'
-#	option 'txpower' '${wirelessDeviceTxPower[0]}'
-
-config 'wifi-iface'
-	option 'device' 'wifi0'
-	option 'network' 'wifi0'
-	option 'sw_merge' '1'
-	option 'mode' 'adhoc'
-	option 'ssid' 'eigennet'
-	option 'encryption' 'none'
-
-"
-
-  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
-}
-
-function configureFirewall()
-{
-  FIREWALL_CONF="
-
-"
-  echo "$FIREWALL_CONF" > "$CONF_DIR/firewall"
-}
-
-function configureOlsrd()
-{
+  WIRELESS_CONF=""
   OLSRD_CONF="
 config olsrd
   option config_file '/etc/olsrd.conf'
@@ -118,62 +73,133 @@ DebugLevel	1
 
 IpVersion	6
 
-Hna4
+"
+
+  OLSRHna6="
+Hna6
 {
-# Internet gateway
-#    0.0.0.0   0.0.0.0
 
-# specific small networks reachable through this node
-#    15.15.0.0 255.255.255.0
-#    15.16.0.0 255.255.255.0
-}
+"
+  OLSRInterfaces=""
 
-# HNA IPv6 routes
-# syntax: netaddr prefix
-# Example Internet gateway:
-#Hna6
-#{
-# Internet gateway
-#     ::              0
-
-# specific small networks reachable through this node
-#    fec0:2200:106:0:0:0:0:0 48
-#}
+  NETWORK_CONF="
+config 'interface' 'loopback'
+	option 'ifname' 'lo'
+	option 'proto' 'static'
+	option 'ipaddr' '127.0.0.1'
+	option 'netmask' '255.0.0.0'
+	option 'ip6addr' '::1/128'
+"
 
 
-#fore some cause ( i like to understand this) olsrd want real device fro wireless but virtual interface for lan...
-Interface \"${wirelessDevice[0]}\"
+  
+  local indx=0
+  while [ "${networkDevice[$indx]}" != "" ]
+  do
+	NETWORK_CONF="$NETWORK_CONF
+
+config 'interface' '${networkDevice[$indx]}'
+	option 'ifname'		'${networkDevice[$indx]}'
+	option 'proto'		'static'
+	option 'ip6addr'	'$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
+	option 'dns'		'$meshDns'
+
+config 'interface' '${networkDevice[$indx]}:1'
+        option 'ifname'		'${networkDevice[$indx]}'
+        option 'proto'		'static'
+	option 'ip6addr'	'$OLSRHnaIpV6Prefix:${networkDevHWAddr6[$indx]}:0000:0001/32'
+        option 'gateway'	'$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
+	option 'dns'		'$meshDns'
+
+"
+
+	OLSRHna6="$OLSRHna6
+
+  $OLSRHnaIpV6Prefix:${networkDevHWAddr6[$indx]}:0:0 32
+
+"
+
+
+	if [ "${networkDevIsWireless[$indx]}" == "1" ]
+	then
+	  WIRELESS_CONF="
+config 'wifi-device'		'${networkDevice[$indx]}'
+	option 'type'		'atheros'
+	option 'channel'	'auto'
+	option 'disabled'	'0'
+
+config 'wifi-iface'
+	option 'device'		'${networkDevice[$indx]}'
+	option 'network'	'${networkDevice[$indx]}'
+	option 'sw_merge'	'1'
+	option 'mode'		'adhoc'
+	option 'ssid'		'eigennet'
+	option 'encryption'	'none'
+
+config 'wifi-device'		'${networkDevice[$indx]}:1'
+	option 'type'		'atheros'
+	option 'channel'	'auto'
+	option 'disabled'	'0'
+
+config 'wifi-iface'
+	option 'device'		'${networkDevice[$indx]}:1'
+	option 'network'	'${networkDevice[$indx]}:1'
+	option 'sw_merge'	'1'
+	option 'mode'		'ap'
+	option 'ssid'		'eigennetAP'
+	option 'encryption'	'none'
+
+"
+
+	  OLSRInterfaces="$OLSRInterfaces
+
+Interface \"${networkDevice[$indx]}\"
 {
 #    Mode \"mesh\"
 #    IPv6Multicast	FF0E::1
 }
 
-Interface \"br-lan\"
+"
+	else
+	  OLSRInterfaces="$OLSRInterfaces
+
+Interface \"${networkDevice[$indx]}\"
 {
-#    Mode \"ether\"
+#    Mode \"mesh\"
 #    IPv6Multicast	FF0E::1
 }
 
 "
+	fi
+	((indx++))
+  done
+
+  OLSRHna6="$OLSRHna6
+}
+"
+
+  OLSRD_ETC="$OLSRD_ETC$OLSRHna6$OLSRInterfaces"
+
+  echo "$NETWORK_CONF" > "$CONF_DIR/network"
+  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
   echo "$OLSRD_CONF" > "$CONF_DIR/olsrd"
   echo "$OLSRD_ETC" > "/etc/olsrd.conf"
 }
 
-
 function start()
 {
-  $0 disable
 
-  if[ -e "/etc/isNotFirstRun"] && [ `cat "/etc/isNotFirstRun"` = "1" ]
+  if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
   then
       exit 0
   fi
 
-  configureNetwork
-  configureWireless
-  configureFirewall
-  configureOlsrd
   echo "1" > "/etc/isNotFirstRun"
+
+  loadDevicesInfo
+  configureNetwork
+
+  sleep 2
 
   reboot
 }
