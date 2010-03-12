@@ -4,10 +4,14 @@ config 'wifi-device' 'wifi0'
 	option 'channel' 'auto'
 	option 'disabled' '0'
 
+
+#from http://ninux.org/FoneraAsRepeaterHowTo
+#seems that this is needed only for redistribute scrokked also trought wireless
+#recheck this with some test to understant what this do
+
 config 'wifi-iface'
 	option 'device' 'wifi0'
-	option 'network' 'wifi0'
-	option 'sw_merge' '1'
+#	option 'network' 'wifi0' #check on eigenserver scroccker if this line is enabled
 	option 'mode' 'sta'
 	option 'ssid' 'Serra-Biblio'
 	option 'encryption' 'psk2'

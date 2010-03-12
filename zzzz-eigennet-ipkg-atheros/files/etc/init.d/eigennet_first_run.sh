@@ -106,7 +106,7 @@ config 'interface' '${networkDevice[$indx]}'
 	option 'ipaddr'		'192.168.1.$(($indx + 30))'
 	option 'netmask'	'255.255.255.255'
 
-config 'interface' '${networkDevice[$indx]}:1'
+config 'interface' '${networkDevice[$indx]}-1'
         option 'ifname'		'${networkDevice[$indx]}'
         option 'proto'		'static'
 	option 'ip6addr'	'$OLSRHnaIpV6Prefix:${networkDevHWAddr6[$indx]}:0000:0001/32'
@@ -140,14 +140,14 @@ config 'wifi-iface'
 	option 'ssid'		'eigennet'
 	option 'encryption'	'none'
 
-config 'wifi-device'		'${networkDevice[$indx]}:1'
+config 'wifi-device'		'${networkDevice[$indx]}-1'
 	option 'type'		'atheros'
 	option 'channel'	'auto'
 	option 'disabled'	'0'
 
 config 'wifi-iface'
-	option 'device'		'${networkDevice[$indx]}:1'
-	option 'network'	'${networkDevice[$indx]}:1'
+	option 'device'		'${networkDevice[$indx]}-1'
+	option 'network'	'${networkDevice[$indx]}-1'
 	option 'sw_merge'	'1'
 	option 'mode'		'ap'
 	option 'ssid'		'eigennetAP'
@@ -184,10 +184,15 @@ Interface \"${networkDevice[$indx]}\"
 
   OLSRD_ETC="$OLSRD_ETC$OLSRHna6$OLSRInterfaces"
 
-  echo "$NETWORK_CONF" > "$CONF_DIR/network"
-  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
-  echo "$OLSRD_CONF" > "$CONF_DIR/olsrd"
-  echo "$OLSRD_ETC" > "/etc/olsrd.conf"
+  cp "$CONF_DIR/network" "$CONF_DIR/network.back"
+  cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
+  cp "$CONF_DIR/olsrd" "$CONF_DIR/olsrd.back"
+  cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
+
+  echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
+  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
+  echo "$OLSRD_CONF" > "$CONF_DIR/olsrd.test"
+  echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
 }
 
 function start()
@@ -210,6 +215,7 @@ function start()
 
 function stop()
 {
+  echo "$0 stop does nothing"
   exit 0
 }
 

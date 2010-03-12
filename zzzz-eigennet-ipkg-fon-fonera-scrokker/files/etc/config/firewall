@@ -1,9 +1,11 @@
 
 # this is equivalent to: iptables -t nat -A POSTROUTING -o <out-going interface> -j MASQUERADE
+# alredy done by scrokker.sh
 
-config 'scrokker'
-        option 'name' 'ath0'
-        option 'input' 'ACCEPT'
-        option 'output' 'ACCEPT'
-        option 'forward' 'ACCEPT'
-        option 'masq' '1'
+
+#config 'scrokker'
+#        option 'name' 'ath0'
+#        option 'input' 'ACCEPT'
+#        option 'output' 'ACCEPT'
+#        option 'forward' 'ACCEPT'
+#        option 'masq' '1'
