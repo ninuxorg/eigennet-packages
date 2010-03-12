@@ -36,7 +36,7 @@ define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
   DEPENDS:=+kmod-madwifi +hostapd-mini +ahcpd +bash +tcpdump +nano +iptables-mod-nat +iptables-mod-nat-extra +kmod-ipt-nat +kmod-ipt-nat-extra +wpa-supplicant +dhcpcd @TARGET_atheros 
-  TITLE:=EigenNet Community Config Package $(EIGENMODELNAME)
+  TITLE:=EigenNet Community Config Package
 endef
 
 define Package/$(PKG_NAME)/install
@@ -48,7 +48,7 @@ define Package/$(PKG_NAME)/install
 endef
 
 define Package/$(PKG_NAME)/description
-  Prepara la $(EIGENMODELNAME) per lo scrokking
+  Prepare $(EIGENMODELNAME) for scrokking
 endef
 
 define Build/Compile
