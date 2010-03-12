@@ -103,6 +103,8 @@ config 'interface' '${networkDevice[$indx]}'
 	option 'proto'		'static'
 	option 'ip6addr'	'$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
 	option 'dns'		'$meshDns'
+	option 'ipaddr'		'192.168.1.$(($indx + 30))'
+	option 'netmask'	'255.255.255.255'
 
 config 'interface' '${networkDevice[$indx]}:1'
         option 'ifname'		'${networkDevice[$indx]}'
@@ -110,6 +112,8 @@ config 'interface' '${networkDevice[$indx]}:1'
 	option 'ip6addr'	'$OLSRHnaIpV6Prefix:${networkDevHWAddr6[$indx]}:0000:0001/32'
         option 'gateway'	'$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
 	option 'dns'		'$meshDns'
+	option 'ipaddr'		'192.168.1.$(($indx + 60))'
+	option 'netmask'	'255.255.255.255
 
 "
 
