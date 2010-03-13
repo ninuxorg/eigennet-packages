@@ -30,25 +30,36 @@ networkDevice[0]=""
 networkDevHWAddr[0]=""
 networkDevHWAddr6[0]=""
 networkDevIsWireless[0]="0"
+networkDevIsWired[0]="0"
 
+typicalWirelessDeviceName="wifiX" #where X is a number
+typicalWirelessDeviceNameCharN=4 #Number of char before X number
+typicalWiredDeviceName="ethX" #where X is a number
+typicalWiredDeviceNameCharN=3 #Number of char before X number
 
 function loadDevicesInfo()
 {
   local ind=0
-  for device in `ifconfig -a | grep ^[a-z] | grep "encap:Ethernet" | awk '{ print $1 }'`
+  for device in `ifconfig -a | grep ^[a-z] | grep -v "lo        Link encap:Local Loopback" | awk '{ print $1 }'`
   do
+      
       networkDevice[$ind]=$device
-      if [ "`iwconfig $device | grep ^[a-z] | awk '{ print $2 }'`" == "IEEE" ]
+
+      if [ ${device:0:$typicalWirelessDeviceNameCharN} == ${typicalWirelessDeviceName:0:$typicalWirelessDeviceNameCharN} ]
       then
 	networkDevIsWireless[$ind]="1"
       else
-	networkDevIsWireless[$ind]="0"
-      fi
+	if [ ${device:0:$typicalWiredDeviceNameCharN} == ${typicalWiredDeviceName:0:$typicalWiredDeviceNameCharN} ]
+	then
+	  networkDevIsWired[$ind]="1"
+	fi
+      fi  
+
       ((ind++))
   done
   
   ind=0
-  for mac in `ifconfig -a | grep HWaddr | grep "encap:Ethernet" | awk -F 'HWaddr ' '{ print $2 }'`
+  for mac in `ifconfig -a | grep HWaddr | grep -v "lo        Link encap:Local Loopback" | awk -F 'HWaddr ' '{ print $2 }'`
   do
       networkDevHWAddr[$ind]="$mac"
       networkDevHWAddr6[$ind]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
@@ -83,12 +94,13 @@ Hna6
   OLSRInterfaces=""
 
   NETWORK_CONF="
-config 'interface' 'loopback'
-	option 'ifname' 'lo'
-	option 'proto' 'static'
-	option 'ipaddr' '127.0.0.1'
-	option 'netmask' '255.0.0.0'
-	option 'ip6addr' '::1/128'
+config interface loopback
+        option ifname   lo
+        option proto    static
+        option ipaddr   127.0.0.1
+        option netmask  255.0.0.0
+        option ip6addr  '::1/128'
+
 "
 
 
@@ -96,65 +108,83 @@ config 'interface' 'loopback'
   local indx=0
   while [ "${networkDevice[$indx]}" != "" ]
   do
-	NETWORK_CONF="$NETWORK_CONF
-
-config 'interface' '${networkDevice[$indx]}'
-	option 'ifname'		'${networkDevice[$indx]}'
-	option 'proto'		'static'
-	option 'ip6addr'	'$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
-	option 'dns'		'$meshDns'
-	option 'ipaddr'		'192.168.1.$(($indx + 30))'
-	option 'netmask'	'255.255.255.255'
-
-config 'interface' '${networkDevice[$indx]}-1'
-        option 'ifname'		'${networkDevice[$indx]}'
-        option 'proto'		'static'
-	option 'ip6addr'	'$OLSRHnaIpV6Prefix:${networkDevHWAddr6[$indx]}:0000:0001/32'
-        option 'gateway'	'$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
-	option 'dns'		'$meshDns'
-	option 'ipaddr'		'192.168.1.$(($indx + 60))'
-	option 'netmask'	'255.255.255.255
-
-"
-
-	OLSRHna6="$OLSRHna6
-
-  $OLSRHnaIpV6Prefix:${networkDevHWAddr6[$indx]}:0:0 32
-
-"
-
+	
 
 	if [ "${networkDevIsWireless[$indx]}" == "1" ]
 	then
+
+	  NETWORK_CONF="$NETWORK_CONF
+
+config interface ${networkDevice[$indx]}
+        option ifname     ath$indx
+        option proto      static
+        option ip6addr    '$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
+        option dns        '$meshDns'
+
+config interface ${networkDevice[$indx]}
+        option ifname     athv$indx
+        option proto      static
+        option ip6addr    '$OLSRHnaIpV6Prefix:${networkDevHWAddr6[$indx]}:0000:0001/32'
+        option gateway    '$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
+        option dns        '$meshDns'
+
+"
+
+	  OLSRHna6="$OLSRHna6
+
+  $OLSRHnaIpV6Prefix:${networkDevHWAddr6[$indx]}:0:0 32
+"
+
 	  WIRELESS_CONF="
-config 'wifi-device'		'${networkDevice[$indx]}'
-	option 'type'		'atheros'
-	option 'channel'	'auto'
-	option 'disabled'	'0'
+config 'wifi-device'         '${networkDevice[$indx]}'
+        option 'type'        'atheros'
+        option 'channel'     'auto'
+        option 'disabled'    '0'
 
 config 'wifi-iface'
-	option 'device'		'${networkDevice[$indx]}'
-	option 'network'	'${networkDevice[$indx]}'
-	option 'sw_merge'	'1'
-	option 'mode'		'adhoc'
-	option 'ssid'		'eigennet'
-	option 'encryption'	'none'
+        option 'device'      '${networkDevice[$indx]}'
+        option 'network'     '${networkDevice[$indx]}'
+        option 'sw_merge'    '1'
+        option 'mode'        'adhoc'
+        option 'ssid'        'eigennet'
+        option 'encryption'  'none'
 
-config 'wifi-device'		'${networkDevice[$indx]}-1'
-	option 'type'		'atheros'
-	option 'channel'	'auto'
-	option 'disabled'	'0'
-
-config 'wifi-iface'
-	option 'device'		'${networkDevice[$indx]}-1'
-	option 'network'	'${networkDevice[$indx]}-1'
-	option 'sw_merge'	'1'
-	option 'mode'		'ap'
-	option 'ssid'		'eigennetAP'
-	option 'encryption'	'none'
-
+#config 'wifi-iface'
+#        option 'device'      '${networkDevice[$indx]}'
+#        option 'network'     '${networkDevice[$indx]}'
+#        option 'sw_merge'    '1'
+#        option 'mode'        'ap'
+#        option 'ssid'        'eigennetAP'
+#        option 'encryption'  'none'
 "
 
+	  OLSRInterfaces="$OLSRInterfaces
+#Interface \"ath$indx\"
+#{
+#    Mode \"mesh\"
+#    IPv6Multicast	FF0E::1
+#}
+"
+
+	else if [ "${networkDevIsWired[$indx]}" == "1" ]
+	  then
+	    NETWORK_CONF="$NETWORK_CONF
+config interface ${networkDevice[$indx]}
+        option ifname     ${networkDevice[$indx]}
+        option proto      static
+        option ip6addr    '$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
+        option dns        '$meshDns'
+        option ipaddr     192.168.1.$(($indx + 30))
+        option netmask    255.255.255.255
+
+#config interface ethv$indx
+#        option ifname     ${networkDevice[$indx]}
+#        option proto      static
+#        option ip6addr    '$OLSRHnaIpV6Prefix:${networkDevHWAddr6[$indx]}:0000:0001/32'
+#        option gateway    '$meshIpV6Subnet:0000:${networkDevHWAddr6[$indx]}'
+#        option dns        '$meshDns'
+"
+	
 	  OLSRInterfaces="$OLSRInterfaces
 
 Interface \"${networkDevice[$indx]}\"
@@ -162,19 +192,10 @@ Interface \"${networkDevice[$indx]}\"
 #    Mode \"mesh\"
 #    IPv6Multicast	FF0E::1
 }
-
 "
-	else
-	  OLSRInterfaces="$OLSRInterfaces
-
-Interface \"${networkDevice[$indx]}\"
-{
-#    Mode \"mesh\"
-#    IPv6Multicast	FF0E::1
-}
-
-"
+	  fi
 	fi
+
 	((indx++))
   done
 
@@ -205,8 +226,8 @@ function start()
 
 #  echo "1" > "/etc/isNotFirstRun"
 
-  #loadDevicesInfo
-  #configureNetwork
+  loadDevicesInfo
+  configureNetwork
 
   #sleep 2
 

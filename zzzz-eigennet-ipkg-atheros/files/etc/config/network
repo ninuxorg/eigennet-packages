@@ -19,16 +19,15 @@
 #These conf are used only for first boot before eigennet_first_run.sh running
 
 
-#### Loopback configuration
-config 'interface' 'loopback'
-        option 'ifname' 'lo'
-        option 'proto' 'static'
-        option 'ipaddr' '127.0.0.1'
-        option 'netmask' '255.0.0.0'
+config interface loopback
+        option ifname   lo
+        option proto    static
+        option ipaddr   127.0.0.1
+        option netmask  255.0.0.0
 
-
-#### LAN configuration
-config 'interface' 'eth0'
-        option 'proto'    'static'
-        option 'ipaddr'   '192.168.1.30'
-        option 'netmask'  '255.255.255.0'
+config interface lan
+        option ifname   eth0
+#       option type     bridge #Uncomment this cause that a new virtual interface called br-lan is created!! That broke eigennet_first_run.sh
+        option proto    static
+        option ipaddr   192.168.1.30
+        option netmask  255.255.255.0
