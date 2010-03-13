@@ -198,19 +198,20 @@ Interface \"${networkDevice[$indx]}\"
 function start()
 {
 
-  if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
-  then
-      exit 0
-  fi
+#  if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
+#  then
+#      exit 0
+#  fi
 
-  echo "1" > "/etc/isNotFirstRun"
+#  echo "1" > "/etc/isNotFirstRun"
 
-  loadDevicesInfo
-  configureNetwork
+  #loadDevicesInfo
+  #configureNetwork
 
-  sleep 2
+  #sleep 2
 
-  reboot
+#  reboot
+  exit 0
 }
 
 function stop()
