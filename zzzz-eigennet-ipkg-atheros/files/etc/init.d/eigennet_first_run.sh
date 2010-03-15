@@ -95,11 +95,11 @@ Hna6
 
   NETWORK_CONF="
 config interface loopback
-        option ifname   lo
-        option proto    static
-        option ipaddr   127.0.0.1
-        option netmask  255.0.0.0
-        option ip6addr  '::1/128'
+        option ifname lo
+        option proto static
+        option ipaddr 127.0.0.1
+        option netmask 255.0.0.0
+        option ip6addr '::1/128'
 
 "
 
