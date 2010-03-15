@@ -33,7 +33,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-madwifi +kmod-ipv6 +ahcpd +olsrd +bash +tcpdump +iputils-ping +iputils-ping6 +dhcp6-server @TARGET_atheros 
+  DEPENDS:=+kmod-madwifi +kmod-ipv6 +olsrd +bash +tcpdump +iputils-ping +iputils-ping6 +dhcp6-server @TARGET_atheros 
   TITLE:=EigenNet Community Config Package
 endef
 
