@@ -17,7 +17,7 @@
 include $(TOPDIR)/rules.mk
 
 EIGENMODELNAME:="Atheros"
-PKG_NAME:=eigennet-atheros
+PKG_NAME:=eigennet-node-atheros
 PKG_VERSION:=0.1
 PKG_RELEASE:=beta
 
@@ -33,9 +33,9 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-madwifi +kmod-ipv6 +olsrd +bash +tcpdump +iputils-ping +iputils-ping6 +dhcp6-server @TARGET_atheros 
+  DEPENDS:=+kmod-madwifi +kmod-ipv6 +olsrd +bash +dnsmasq +dhcp6-server +tcpdump +iputils-ping +iputils-ping6 @TARGET_atheros 
 #for production should remove +tcpdump +iputils-ping +iputils-ping6 and use not light but miminal openwrt config
-  TITLE:=EigenNet Community Config Package
+  TITLE:=EigenNet $(EIGENMODELNAME) Config Package
 endef
 
 define Package/$(PKG_NAME)/install

@@ -1,0 +1,31 @@
+
+#To optimize mesh traffic we should use the local dnsmasq instead of eigenserver directly
+#at moment eigenserver is the dns
+option domain-name-servers fd7d:d7bb:2c97:dec3:0:23:7d29:13fa eigenserver.eigennet;
+
+#scp gioacchino@192.168.1.2:/home/gioacchino/Desktop/development/conf_repo/zzzz-eigennet-ipkg-atheros/files/etc/dhcpd6/dhcpd6.conf .
+
+pool eth0pool
+{
+  range fd7d:d7bb:2c97:16:6dd5:f7b5:0:2 to fd7d:d7bb:2c97:16:6dd5:f7b5:0:100
+};
+
+pool ath0pool
+{
+  range fd7d:d7bb:2c97:15:6dd5:f7d1:0:2 to fd7d:d7bb:2c97:15:6dd5:f7d1:0:100
+};
+
+
+inerface eth0.0
+{
+  allow rapid-commit;
+  address-pool eth0pool 10800;
+
+};
+
+interface ath0
+{
+  allow rapid-commit
+  address-pool ath0pool 3600;
+};
+

@@ -71,6 +71,7 @@ function loadDevicesInfo()
 function configureNetwork()
 {
   echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
+  echo 0 > /proc/sys/net/ipv6/conf/all/autoconf
 
   WIRELESS_CONF=""
   OLSRD_CONF="

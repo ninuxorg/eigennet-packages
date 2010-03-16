@@ -19,7 +19,7 @@
 include $(TOPDIR)/rules.mk
 
 EIGENMODELNAME:="Fonera Scrokker"
-PKG_NAME:=eigennet-fon-fonera-scrokker
+PKG_NAME:=eigennet-scrokker-fon-fonera
 PKG_VERSION:=0.1
 PKG_RELEASE:=beta
 
@@ -36,7 +36,7 @@ define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
   DEPENDS:=+kmod-madwifi +bash +iptables-mod-nat +iptables-mod-nat-extra +kmod-ipt-nat +kmod-ipt-nat-extra +wpa-supplicant +dhcpcd @TARGET_atheros 
-  TITLE:=EigenNet Community Config Package
+  TITLE:=EigenNet $(EIGENMODELNAME) Config Package
 endef
 
 define Package/$(PKG_NAME)/install
