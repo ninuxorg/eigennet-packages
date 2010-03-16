@@ -34,6 +34,7 @@ define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
   DEPENDS:=+kmod-madwifi +kmod-ipv6 +olsrd +bash +tcpdump +iputils-ping +iputils-ping6 +dhcp6-server @TARGET_atheros 
+#for production should remove +tcpdump +iputils-ping +iputils-ping6 and use not light but miminal openwrt config
   TITLE:=EigenNet Community Config Package
 endef
 
