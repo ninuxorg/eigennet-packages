@@ -63,8 +63,6 @@ Hna6
 config interface loopback
         option ifname lo
         option proto static
-        option ipaddr 127.0.0.1
-        option netmask 255.0.0.0
 
 "
 
@@ -102,7 +100,6 @@ function configureNetwork()
 #Generate configuration for wireless interface
   while [ "${networkWirelessDevice[$indx]}" != "" ]
   do
-    echo "inside wireless while"
     NETWORK_CONF="$NETWORK_CONF
 
 config interface wifimesh$indi
@@ -164,7 +161,6 @@ Interface \"ath$(($indi*2 + 1))\"
   indi=0
   while [ "${networkWiredDevice[$indx]}" != "" ]
   do
-    echo "inside wired while"
     NETWORK_CONF="$NETWORK_CONF
 config interface lan$indi
         option ifname     ${networkWiredDevice[$indx]}
@@ -204,15 +200,20 @@ Interface \"${networkWiredDevice[$indx]}\"
 
   OLSRD_ETC="$OLSRD_ETC$OLSRHna6$OLSRInterfaces"
 
-  cp "$CONF_DIR/network" "$CONF_DIR/network.back"
-  cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
-  cp "$CONF_DIR/olsrd" "$CONF_DIR/olsrd.back"
-  cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
+  #cp "$CONF_DIR/network" "$CONF_DIR/network.back"
+  #cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
+  #cp "$CONF_DIR/olsrd" "$CONF_DIR/olsrd.back"
+  #cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
 
-  echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
-  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
-  echo "$OLSRD_CONF" > "$CONF_DIR/olsrd.test"
-  echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
+  #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
+  #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
+  #echo "$OLSRD_CONF" > "$CONF_DIR/olsrd.test"
+  #echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
+
+  echo "$NETWORK_CONF" > "$CONF_DIR/network"
+  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
+  echo "$OLSRD_CONF" > "$CONF_DIR/olsrd"
+  echo "$OLSRD_ETC" > "/etc/olsrd.conf"
 }
 
 function start()
@@ -228,10 +229,9 @@ function start()
   loadDevicesInfo
   configureNetwork
 
-  sleep 5
+  sleep 10
 
-#  reboot
-  exit 0
+  reboot
 }
 
 function stop()
