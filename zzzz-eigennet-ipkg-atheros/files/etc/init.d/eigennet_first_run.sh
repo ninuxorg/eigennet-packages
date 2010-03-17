@@ -21,6 +21,11 @@ COPYRIGHT
 
 START=99
 
+typicalWirelessDeviceName="wifiX" #where X is a number
+typicalWirelessDeviceNameCharN=4 #Number of char before X number
+typicalWiredDeviceName="ethX" #where X is a number
+typicalWiredDeviceNameCharN=3 #Number of char before X number
+
 CONF_DIR="/etc/config/"
 meshIpV6Subnet="fd7d:d7bb:2c97:dec3"
 meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
@@ -32,11 +37,6 @@ networkWirelessDevHWAddr6[0]=""
 networkWiredDevice[0]=""
 networkWiredDevHWAddr[0]=""
 networkWiredDevHWAddr6[0]=""
-
-typicalWirelessDeviceName="wifiX" #where X is a number
-typicalWirelessDeviceNameCharN=4 #Number of char before X number
-typicalWiredDeviceName="ethX" #where X is a number
-typicalWiredDeviceNameCharN=3 #Number of char before X number
 
 WIRELESS_CONF=""
   OLSRD_CONF="
@@ -65,7 +65,6 @@ config interface loopback
         option proto static
         option ipaddr 127.0.0.1
         option netmask 255.0.0.0
-        option ip6addr '::1/128'
 
 "
 
@@ -172,8 +171,6 @@ config interface lan$indi
         option proto      static
         option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
         option dns        '$meshDns'
-        option ipaddr     192.168.1.$(($indi + 30))
-        option netmask    255.255.255.255
 
 config interface vlan$indi
         option ifname     '${networkWiredDevice[$indx]}.0'
@@ -221,17 +218,17 @@ Interface \"${networkWiredDevice[$indx]}\"
 function start()
 {
 
-#  if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
-#  then
-#      exit 0
-#  fi
+  if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
+  then
+      exit 0
+  fi
 
-#  echo "1" > "/etc/isNotFirstRun"
+  echo "1" > "/etc/isNotFirstRun"
 
   loadDevicesInfo
   configureNetwork
 
-  #sleep 2
+  sleep 5
 
 #  reboot
   exit 0
