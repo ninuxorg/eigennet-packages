@@ -200,20 +200,20 @@ Interface \"${networkWiredDevice[$indx]}\"
 
   OLSRD_ETC="$OLSRD_ETC$OLSRHna6$OLSRInterfaces"
 
-  cp "$CONF_DIR/network" "$CONF_DIR/network.back"
-  cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
-  cp "$CONF_DIR/olsrd" "$CONF_DIR/olsrd.back"
-  cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
+  #cp "$CONF_DIR/network" "$CONF_DIR/network.back"
+  #cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
+  #cp "$CONF_DIR/olsrd" "$CONF_DIR/olsrd.back"
+  #cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
 
-  echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
-  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
-  echo "$OLSRD_CONF" > "$CONF_DIR/olsrd.test"
-  echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
+  #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
+  #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
+  #echo "$OLSRD_CONF" > "$CONF_DIR/olsrd.test"
+  #echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
 
-  #echo "$NETWORK_CONF" > "$CONF_DIR/network"
-  #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
-  #echo "$OLSRD_CONF" > "$CONF_DIR/olsrd"
-  #echo "$OLSRD_ETC" > "/etc/olsrd.conf"
+  echo "$NETWORK_CONF" > "$CONF_DIR/network"
+  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
+  echo "$OLSRD_CONF" > "$CONF_DIR/olsrd"
+  echo "$OLSRD_ETC" > "/etc/olsrd.conf"
 }
 
 function start()
@@ -224,12 +224,14 @@ function start()
       exit 0
   fi
 
+  sleep 10
+
   echo "1" > "/etc/isNotFirstRun"
 
   loadDevicesInfo
   configureNetwork
 
-  sleep 10
+  sleep 2
 
   reboot
 }
