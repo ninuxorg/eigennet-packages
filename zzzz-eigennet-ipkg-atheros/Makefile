@@ -16,7 +16,7 @@
 
 include $(TOPDIR)/rules.mk
 
-EIGENMODELNAME:="Atheros"
+EIGENMODELNAME:=Atheros
 PKG_NAME:=eigennet-atheros
 PKG_VERSION:=0.1
 PKG_RELEASE:=beta

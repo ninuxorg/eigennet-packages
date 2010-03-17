@@ -18,7 +18,7 @@
 
 include $(TOPDIR)/rules.mk
 
-EIGENMODELNAME:="Fonera Scrokker"
+EIGENMODELNAME:=Fonera Scrokker
 PKG_NAME:=eigennet-scrokker-fon-fonera
 PKG_VERSION:=0.1
 PKG_RELEASE:=beta
