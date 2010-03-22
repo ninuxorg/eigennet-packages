@@ -132,7 +132,7 @@ config interface wifiap$indi
 
     OLSRHna6="$OLSRHna6
 
-  $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0:0 96
+  $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000 96
 "
 
 	  WIRELESS_CONF="
@@ -215,7 +215,7 @@ Interface \"${networkWiredDevice[$indx]}\"
 
     OLSRHna6="$OLSRHna6
 
-  $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0:0 96
+  $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000 96
 "
 
   DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
