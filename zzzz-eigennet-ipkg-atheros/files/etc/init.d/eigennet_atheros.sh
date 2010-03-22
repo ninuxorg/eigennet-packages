@@ -257,6 +257,7 @@ iface \"eth$indi\"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
   echo "$OLSRD_CONF" > "$CONF_DIR/olsrd"
   echo "$OLSRD_ETC" > "/etc/olsrd.conf"
+  mkdir -p /etc/dibbler
   echo "$DIBBLER_SERVER_CONF" > "/etc/dibbler/server.conf"
 }
 
