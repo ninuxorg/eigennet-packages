@@ -30,7 +30,7 @@ CONF_DIR="/etc/config/"
 meshIpV6Subnet="fd7d:d7bb:2c97:dec3"
 meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
 OLSRHnaIpV6Prefix="fd7d:d7bb:2c97" #this should be combined with macaddress to have only xxxx:xxxx 32bit 2^32 addres range, should appear like this: fd7d:d7bb:2c97:xxxx:xxxx:xxxx:yyyy:yyyy where xxxx:xxxx:xxxx is device mac address and yyyy:yyyy is the ip given by dhcp to the client
-OLSRMulticast="FF0E::1" #this should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example at moment nokia n810 )
+OLSRMulticast="FF0E::1" #this should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example nokia n810 )
 
 
 networkWirelessDevice[0]=""
@@ -40,13 +40,17 @@ networkWiredDevice[0]=""
 networkWiredDevHWAddr[0]=""
 networkWiredDevHWAddr6[0]=""
 
-WIRELESS_CONF=""
+WIRELESS_CONF="
+#Automatically generated for Eigennet
+"
   OLSRD_CONF="
+#Automatically generated for Eigennet
 config olsrd
   option config_file '/etc/olsrd.conf'
 
 "
   OLSRD_ETC="
+#Automatically generated for Eigennet
 
 DebugLevel	1
 
@@ -62,12 +66,16 @@ Hna6
   OLSRInterfaces=""
 
   NETWORK_CONF="
+#Automatically generated for Eigennet
+
 config interface loopback
         option ifname lo
         option proto static
 
 "
 DIBBLER_SERVER_CONF="
+#Automatically generated for Eigennet
+
 log-level 8
 log-mode short
 preference 0
@@ -112,14 +120,13 @@ config interface wifimesh$indi
         option ifname     ath$(($indi*2 + 1))
         option proto      static
         option ip6addr    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}'
-        option dns        '$meshDns'
+#        option dns        '$meshDns'
 
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
         option proto      static
         option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0001/96'
         option gateway    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}'
-        option dns        '$meshDns'
 
 "
 
@@ -258,7 +265,9 @@ function start()
 
   if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
   then
-      dibbler-server start &
+      mkdir /var/lib
+      mkdir /var/lib/dibbler
+      dibbler-server start
       exit 0
   fi
 
