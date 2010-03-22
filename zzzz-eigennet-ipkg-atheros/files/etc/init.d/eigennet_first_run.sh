@@ -72,7 +72,6 @@ function loadDevicesInfo()
   do
     if [ ${device:0:$typicalWirelessDeviceNameCharN} == ${typicalWirelessDeviceName:0:$typicalWirelessDeviceNameCharN} ]
     then
-      echo "wireless $device"
       networkWirelessDevice[${#networkWirelessDevice[@]}]="$device"
       mac="`ifconfig $device | grep HWaddr | awk -F 'HWaddr ' '{ print $2 }'`"
       networkWirelessDevHWAddr[${#networkWirelessDevHWAddr[@]}]="$mac"
@@ -80,7 +79,6 @@ function loadDevicesInfo()
     else
       if [ ${device:0:$typicalWiredDeviceNameCharN} == ${typicalWiredDeviceName:0:$typicalWiredDeviceNameCharN} ]
       then
-	echo "wired: $device"
 	networkWiredDevice[${#networkWiredDevice[@]}]=$device
 	mac=`ifconfig $device | grep HWaddr | awk -F 'HWaddr ' '{ print $2 }'`
 	networkWiredDevHWAddr[${#networkWiredDevHWAddr[@]}]=$mac
