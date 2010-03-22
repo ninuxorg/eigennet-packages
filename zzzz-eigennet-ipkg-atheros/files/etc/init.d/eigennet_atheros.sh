@@ -265,8 +265,7 @@ function start()
 
   if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
   then
-      mkdir /var/lib
-      mkdir /var/lib/dibbler
+      mkdir -p /var/lib/dibbler
       dibbler-server start
       exit 0
   fi
