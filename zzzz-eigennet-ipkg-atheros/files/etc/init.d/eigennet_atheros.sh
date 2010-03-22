@@ -120,7 +120,7 @@ config interface wifimesh$indi
         option ifname     ath$(($indi*2 + 1))
         option proto      static
         option ip6addr    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}'
-#        option dns        '$meshDns'
+        option dns        '$meshDns'
 
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
@@ -200,7 +200,7 @@ config alias
         option interface lan$indi                                          
         option proto      static                                         
         option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
-#	option dns        '$meshDns'
+	option dns        '$meshDns'
 
 "
 	
