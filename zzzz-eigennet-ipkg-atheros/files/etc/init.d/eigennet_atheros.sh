@@ -30,6 +30,8 @@ CONF_DIR="/etc/config/"
 meshIpV6Subnet="fd7d:d7bb:2c97:dec3"
 meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
 OLSRHnaIpV6Prefix="fd7d:d7bb:2c97" #this should be combined with macaddress to have only xxxx:xxxx 32bit 2^32 addres range, should appear like this: fd7d:d7bb:2c97:xxxx:xxxx:xxxx:yyyy:yyyy where xxxx:xxxx:xxxx is device mac address and yyyy:yyyy is the ip given by dhcp to the client
+OLSRMulticast="FF0E::1" #this should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example at moment nokia n810 )
+
 
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
@@ -63,6 +65,12 @@ Hna6
 config interface loopback
         option ifname lo
         option proto static
+
+"
+DIBBLER_SERVER_CONF="
+log-level 8
+log-mode short
+preference 0
 
 "
 
@@ -146,10 +154,25 @@ config 'wifi-iface'
 	  OLSRInterfaces="$OLSRInterfaces
 Interface \"ath$(($indi*2 + 1))\"
 {
-#    Mode \"mesh\"
-#    IPv6Multicast	FF0E::1
+    Mode \"mesh\"
+    IPv6Multicast	$OLSRMulticast
 }
 "
+
+ DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
+iface \"ath$(($indi*2))\"
+{
+        prefered-lifetime 3600
+        valid-lifetime 7200
+        class
+        {
+                pool $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0002/96
+        }
+        option dns-server $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0001
+}
+
+"
+
     ((indx++))
     ((indi++))
   done
@@ -163,23 +186,23 @@ Interface \"ath$(($indi*2 + 1))\"
 config interface lan$indi
         option ifname     ${networkWiredDevice[$indx]}
         option proto      static
-        option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
-        option dns        '$meshDns'
-
-config interface vlan$indi
-        option ifname     '${networkWiredDevice[$indx]}.0'
-        option proto      static
         option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0001/96'
-        option gateway    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
-        option dns        '$meshDns'
+	option gateway    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
+
+config alias                                                           
+        option interface lan$indi                                          
+        option proto      static                                         
+        option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
+#	option dns        '$meshDns'
+
 "
 	
     OLSRInterfaces="$OLSRInterfaces
 
 Interface \"${networkWiredDevice[$indx]}\"
 {
-#    Mode \"mesh\"
-#    IPv6Multicast	FF0E::1
+    Mode \"ether\"
+    IPv6Multicast	$OLSRMulticast
 }
 "
 
@@ -187,6 +210,21 @@ Interface \"${networkWiredDevice[$indx]}\"
 
   $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0:0 96
 "
+
+  DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
+iface \"eth$indi\"
+{
+        prefered-lifetime 3600
+        valid-lifetime 7200
+        class
+        {
+                pool $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0002/96
+        }
+        option dns-server $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0001
+}
+
+"
+  
 
     ((indx++))
     ((indi++))
@@ -212,6 +250,7 @@ Interface \"${networkWiredDevice[$indx]}\"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
   echo "$OLSRD_CONF" > "$CONF_DIR/olsrd"
   echo "$OLSRD_ETC" > "/etc/olsrd.conf"
+  echo "$DIBBLER_SERVER_CONF" > "/etc/dibbler/server.conf"
 }
 
 function start()
@@ -219,6 +258,7 @@ function start()
 
   if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
   then
+      dibbler-server start &
       exit 0
   fi
 
@@ -236,7 +276,7 @@ function start()
 
 function stop()
 {
-  echo "$0 stop does nothing"
+  killall dibbler-server
   exit 0
 }
 
