@@ -1,0 +1,9 @@
+#Automatically generated for Eigennet
+
+config dnsmasq
+        option boguspriv        1
+        option filterwin2k      '0'  #enable for dial on demand
+        option localise_queries 1
+        option expandhosts      1
+        option nonegcache       0
+        option resolvfile       '/tmp/resolv.conf.auto'
