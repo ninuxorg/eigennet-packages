@@ -125,7 +125,7 @@ config interface wifiap$indi
         option ifname     ath$(($indi*2))
         option proto      static
         option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
-        option gateway    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}'
+        option gateway    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}/64'
 
 "
 
@@ -205,14 +205,16 @@ interface ath$(($indi*2))
 config interface lan$indi
         option ifname     ${networkWiredDevice[$indx]}
         option proto      static
-        option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
-	option gateway    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
-
-config alias                                                           
-        option interface lan$indi                                          
-        option proto      static                                         
-        option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
+        option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}/64'
 	option dns        '$meshDns'
+#	option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
+#	option gateway    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
+
+#config alias                                                           
+#        option interface lan$indi                                          
+#        option proto      static                                         
+#        option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}/64'
+#	option dns        '$meshDns'
 
 "
 	
@@ -224,7 +226,8 @@ Interface \"${networkWiredDevice[$indx]}\"
     IPv6Multicast	$OLSRMulticast
 }
 "
-
+<<UPSTREAM
+#Olsr at moment handles casually interface with multiple ip
     OLSRHna6="$OLSRHna6
 
   $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0000 64
@@ -256,7 +259,7 @@ interface ${networkWiredDevice[$indx]}
 };
 
 "
-  
+UPSTREAM
 
     ((indx++))
     ((indi++))
@@ -291,7 +294,7 @@ function start()
   then
       mkdir -p /var/lib/dibbler
       dibbler-server start
-      radvd &
+      radvd
       exit 0
   fi
 
