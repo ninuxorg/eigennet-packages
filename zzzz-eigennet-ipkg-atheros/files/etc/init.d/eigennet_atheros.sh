@@ -29,7 +29,7 @@ typicalWiredDeviceNameCharN=3 #Number of char before X number
 CONF_DIR="/etc/config/"
 meshIpV6Subnet="fd7d:d7bb:2c97:dec3"
 meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
-OLSRHnaIpV6Prefix="fd7d:d7bb:2c97" #this should be combined with macaddress to have only xxxx:xxxx 32bit 2^32 addres range, should appear like this: fd7d:d7bb:2c97:xxxx:xxxx:xxxx:yyyy:yyyy where xxxx:xxxx:xxxx is device mac address and yyyy:yyyy is the ip given by dhcp to the client
+OLSRHnaIpV6Prefix="fd7d" 
 OLSRMulticast="FF0E::1" #this should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example nokia n810 )
 
 
@@ -43,13 +43,8 @@ networkWiredDevHWAddr6[0]=""
 WIRELESS_CONF="
 #Automatically generated for Eigennet
 "
-  OLSRD_CONF="
-#Automatically generated for Eigennet
-config olsrd
-  option config_file '/etc/olsrd.conf'
 
-"
-  OLSRD_ETC="
+OLSRD_ETC="
 #Automatically generated for Eigennet
 
 DebugLevel	1
@@ -58,14 +53,14 @@ IpVersion	6
 
 "
 
-  OLSRHna6="
+OLSRHna6="
 Hna6
 {
 
 "
-  OLSRInterfaces=""
+OLSRInterfaces=""
 
-  NETWORK_CONF="
+NETWORK_CONF="
 #Automatically generated for Eigennet
 
 config interface loopback
@@ -79,6 +74,10 @@ DIBBLER_SERVER_CONF="
 log-level 8
 log-mode short
 preference 0
+
+"
+RADVD_CONF="
+#Automatically generated for Eigennet
 
 "
 
@@ -125,14 +124,14 @@ config interface wifimesh$indi
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
         option proto      static
-        option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0001/96'
+        option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
         option gateway    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}'
 
 "
 
     OLSRHna6="$OLSRHna6
 
-  $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000 96
+  $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0000 64
 "
 
 	  WIRELESS_CONF="
@@ -173,10 +172,23 @@ iface \"ath$(($indi*2))\"
         valid-lifetime 7200
         class
         {
-                pool $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0002/96
+                pool $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0002-$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0050
         }
-        option dns-server $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0001
+        option dns-server $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001
 }
+
+"
+
+  RADVD_CONF="$RADVD_CONF
+interface ath$(($indi*2))
+{
+  AdvSendAdvert on;
+  prefix $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64
+  {
+    AdvOnLink on;
+    AdvAutonomous on;
+  };
+};
 
 "
 
@@ -193,7 +205,7 @@ iface \"ath$(($indi*2))\"
 config interface lan$indi
         option ifname     ${networkWiredDevice[$indx]}
         option proto      static
-        option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0001/96'
+        option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
 	option gateway    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
 
 config alias                                                           
@@ -215,7 +227,7 @@ Interface \"${networkWiredDevice[$indx]}\"
 
     OLSRHna6="$OLSRHna6
 
-  $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000 96
+  $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0000 64
 "
 
   DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
@@ -225,10 +237,23 @@ iface \"eth$indi\"
         valid-lifetime 7200
         class
         {
-                pool $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0002/96
+                pool $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0002-$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0100
         }
-        option dns-server $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0001
+        option dns-server $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001
 }
+
+"
+
+  RADVD_CONF="$RADVD_CONF
+interface ${networkWiredDevice[$indx]}
+{
+  AdvSendAdvert on;
+  prefix $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64	 
+  {
+    AdvOnLink on;
+    AdvAutonomous on;
+  };
+};
 
 "
   
@@ -245,20 +270,18 @@ iface \"eth$indi\"
 
   #cp "$CONF_DIR/network" "$CONF_DIR/network.back"
   #cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
-  #cp "$CONF_DIR/olsrd" "$CONF_DIR/olsrd.back"
   #cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
 
   #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
   #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
-  #echo "$OLSRD_CONF" > "$CONF_DIR/olsrd.test"
   #echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
 
   echo "$NETWORK_CONF" > "$CONF_DIR/network"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
-  echo "$OLSRD_CONF" > "$CONF_DIR/olsrd"
   echo "$OLSRD_ETC" > "/etc/olsrd.conf"
   mkdir -p /etc/dibbler
   echo "$DIBBLER_SERVER_CONF" > "/etc/dibbler/server.conf"
+  echo "$RADVD_CONF" > "/etc/radvd.conf"
 }
 
 function start()
@@ -268,12 +291,15 @@ function start()
   then
       mkdir -p /var/lib/dibbler
       dibbler-server start
+      radvd &
       exit 0
   fi
 
   sleep 10
 
   echo "1" > "/etc/isNotFirstRun"
+
+  /etc/init.d/radvd disable
 
   loadDevicesInfo
   configureNetwork
@@ -286,6 +312,7 @@ function start()
 function stop()
 {
   killall dibbler-server
+  killall radvd
   exit 0
 }
 
