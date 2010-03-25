@@ -73,7 +73,8 @@ DIBBLER_SERVER_CONF="
 
 log-level 8
 log-mode short
-preference 0
+preference 5
+stateless
 
 "
 RADVD_CONF="
@@ -168,12 +169,6 @@ Interface \"ath$(($indi*2 + 1))\"
  DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
 iface \"ath$(($indi*2))\"
 {
-        prefered-lifetime 3600
-        valid-lifetime 7200
-        class
-        {
-                pool $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0002-$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0050
-        }
         option dns-server $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001
 }
 
@@ -236,12 +231,6 @@ Interface \"${networkWiredDevice[$indx]}\"
   DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
 iface \"eth$indi\"
 {
-        prefered-lifetime 3600
-        valid-lifetime 7200
-        class
-        {
-                pool $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0002-$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0100
-        }
         option dns-server $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001
 }
 
