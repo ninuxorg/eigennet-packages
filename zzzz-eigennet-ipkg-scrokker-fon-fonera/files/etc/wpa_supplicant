@@ -1,8 +1,0 @@
-network={
-        ssid="Serra-Biblio"
-        psk="wifi-unipi"
-        proto=WPA
-        key_mgmt=WPA-PSK
-        pairwise=CCMP TKIP
-        priority=2
-}

@@ -1,20 +1,15 @@
-
 config 'interface' 'loopback'
 	option 'ifname' 'lo'
-	option 'proto' 'static'
+	option 'proto' 	'static'
 	option 'ipaddr' '127.0.0.1'
 	option 'netmask' '255.0.0.0'
 
 config 'interface' 'lan'
 	option 'ifname' 'eth0'
-	option 'type' 'bridge'
-	option 'proto' 'static'
+	option 'type'	'bridge'
+	option 'proto' 	'static'
+	option 'ipaddr' '192.168.10.1'
 	option 'netmask' '255.255.255.0'
-	option 'ipaddr' '192.168.147.1'
-#	option 'ip6addr' 'fd7d:d7bb:2c97:dec3:0000:xxxx:xxxx:xxxx'
 
-
-config 'interface' 'wifi0'
-	option 'ifname' 'ath0'
-	option 'proto' 'dhcp'
-#	option 'ip6addr' 'fd7d:d7bb:2c97:dec3:0000:xxxx:xxxx:xxxx'
+config 'interface' 'wan'
+	option 'proto' 	'dhcp'

@@ -1,6 +1,6 @@
 config EIGENNET_ATHEROS_FON_FONERA_SCROKKER
-	prompt "Questo pacchetto prepara la fonerqa per lo scrokking"
+	prompt "This package prepare fonera for scrokking"
 	tristate
 	default m if CONFIG_DEVEL
 	help
-		Per la documentazione visita eigenlab.tk
+		For more info see eigenlab.tk

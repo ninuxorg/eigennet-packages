@@ -1,1 +1,0 @@
-../init.d/scrokker.sh
