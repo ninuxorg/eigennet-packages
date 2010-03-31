@@ -1,0 +1,7 @@
+config section general
+	option scan_interval    '30s'
+	option scan_ifname	'ath0'
+	option device		'wifi0'
+	option log_dir 		'/var/log/scrokker'
+	option test_file 	'http://overunity.altervista.org/scrokker.html'
+	option test_key 	'connected'
