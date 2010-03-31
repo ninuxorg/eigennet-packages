@@ -35,7 +35,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-madwifi +iptables-mod-nat +iptables-mod-nat-extra +kmod-ipt-nat +kmod-ipt-nat-extra +wpa-supplicant +dhcpcd @TARGET_atheros 
+  DEPENDS:=+kmod-madwifi +iptables-mod-nat +iptables-mod-nat-extra +kmod-ipt-nat +kmod-ipt-nat-extra +wpa-supplicant +hostapd +dhcpcd @TARGET_atheros 
   #+bash 
   TITLE:= $(EIGENMODELNAME) Scrokker Config Package
 endef
