@@ -37,7 +37,7 @@ define Package/$(PKG_NAME)
   CATEGORY:=Administration
   DEPENDS:=+kmod-madwifi +iptables-mod-nat +iptables-mod-nat-extra +kmod-ipt-nat +kmod-ipt-nat-extra +wpa-supplicant +dhcpcd @TARGET_atheros 
   #+bash 
-  TITLE:=EigenNet $(EIGENMODELNAME) Config Package
+  TITLE:= $(EIGENMODELNAME) Scrokker Config Package
 endef
 
 define Package/$(PKG_NAME)/install
