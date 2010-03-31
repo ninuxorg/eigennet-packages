@@ -74,6 +74,11 @@ is_enemy (){
 # Try to connect to selected network
 try (){
 
+    if [ "`uci get wireless.@wifi-iface[1]`" != "wifi-iface" ]; then
+	log "Creating missing interface"
+    	uci add wireless wifi-iface
+    fi
+
     uci set wireless.@wifi-iface[1].device=$device
     uci set wireless.@wifi-iface[1].network=wan
     uci set wireless.@wifi-iface[1].mode=sta
