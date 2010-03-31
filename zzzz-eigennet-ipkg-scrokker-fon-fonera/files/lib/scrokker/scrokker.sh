@@ -36,7 +36,7 @@ log() {
 is_connected (){
     if [ "void`route -n | /lib/scrokker/gateway.awk`" != "void" ];
       then
-	rm $log_dir/test
+	rm -f $log_dir/test
         wget -O $log_dir/test $test_file > /dev/null 2>&1 &
 	sleep 5
         if [ "void`cat $log_dir/test`" == "void$test_key" ];
