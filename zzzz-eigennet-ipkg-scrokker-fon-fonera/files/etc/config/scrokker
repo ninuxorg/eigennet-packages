@@ -1,5 +1,5 @@
 config section general
-	option scan_interval    '30s'
+	option scan_interval    '60s'
 	option scan_ifname	'ath0'
 	option device		'wifi0'
 	option log_dir 		'/var/log/scrokker'

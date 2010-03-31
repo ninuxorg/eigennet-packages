@@ -2,10 +2,19 @@
 
 START=99
 
-start() {
-	/lib/scrokker/scrokker.sh &
+start()
+{
+    /lib/scrokker/scrokker.sh &
 }
 
-stop() {
-	killall scrokker.sh
+stop()
+{
+    killall scrokker.sh
+}
+
+restart()
+{
+    stop
+    sleep 1s
+    start
 }
