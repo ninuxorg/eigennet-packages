@@ -261,17 +261,17 @@ interface ${networkWiredDevice[$indx]}
 
   OLSRD_ETC="$OLSRD_ETC$OLSRHna6$OLSRInterfaces"
 
-  #cp "$CONF_DIR/network" "$CONF_DIR/network.back"
-  #cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
-  #cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
+  cp "$CONF_DIR/network" "$CONF_DIR/network.back"
+  cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
+  cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
 
-  #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
-  #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
-  #echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
+  echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
+  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
+  echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
 
-  echo "$NETWORK_CONF" > "$CONF_DIR/network"
-  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
-  echo "$OLSRD_ETC" > "/etc/olsrd.conf"
+  #echo "$NETWORK_CONF" > "$CONF_DIR/network"
+  #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
+  #echo "$OLSRD_ETC" > "/etc/olsrd.conf"
   mkdir -p /etc/dibbler
   echo "$DIBBLER_SERVER_CONF" > "/etc/dibbler/server.conf"
   echo "$RADVD_CONF" > "/etc/radvd.conf"
