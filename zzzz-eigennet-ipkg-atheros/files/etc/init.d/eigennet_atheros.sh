@@ -21,17 +21,16 @@ COPYRIGHT
 
 START=99
 
-typicalWirelessDeviceName="wifiX" #where X is a number
+typicalWirelessDeviceName="wifiX" #Where X is a number
 typicalWirelessDeviceNameCharN=4 #Number of char before X number
-typicalWiredDeviceName="ethX" #where X is a number
+typicalWiredDeviceName="ethX" #Where X is a number
 typicalWiredDeviceNameCharN=3 #Number of char before X number
 
 CONF_DIR="/etc/config/"
 meshIpV6Subnet="fd7d:d7bb:2c97:dec3"
 meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
-OLSRHnaIpV6Prefix="fd7d" 
-OLSRMulticast="FF0E::1" #this should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example nokia n810 )
-
+OLSRHnaIpV6Prefix="fec0" #This should be one of: fec0, fed0, fee0 or fef0, that are site-local ipv6 prefix
+OLSRMulticast="FF0E::1" #This should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example nokia n810 )
 
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
@@ -125,8 +124,9 @@ config interface wifimesh$indi
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
         option proto      static
+        option ipaddr     '192.168.1$(($indi*2)).1'
+	option netmask    '255.255.255.0'
         option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
-        option gateway    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}/64'
 
 "
 
@@ -135,7 +135,7 @@ config interface wifiap$indi
   $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0000 64
 "
 
-	  WIRELESS_CONF="
+    WIRELESS_CONF="$WIRELESS_CONF
 config 'wifi-device'         '${networkWirelessDevice[$indx]}'
         option 'type'        'atheros'
         option 'channel'     '5'
@@ -158,11 +158,12 @@ config 'wifi-iface'
         option 'encryption'  'none'
 "
 
-	  OLSRInterfaces="$OLSRInterfaces
+    OLSRInterfaces="$OLSRInterfaces
 Interface \"ath$(($indi*2 + 1))\"
 {
     Mode \"mesh\"
     IPv6Multicast	$OLSRMulticast
+    Ip6AddrType		global
 }
 "
 
@@ -198,37 +199,37 @@ interface ath$(($indi*2))
   do
     NETWORK_CONF="$NETWORK_CONF
 config interface lan$indi
-        option ifname     ${networkWiredDevice[$indx]}
-        option proto      static
-        option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}/64'
+	option ifname     ${networkWiredDevice[$indx]}
+	option proto      static
+	option ipaddr     '192.168.2$indi.1'
+	option netmask    '255.255.255.0'
+	option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
 	option dns        '$meshDns'
-#	option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
-#	option gateway    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}'
 
-#config alias                                                           
-#        option interface lan$indi                                          
-#        option proto      static                                         
-#        option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}/64'
-#	option dns        '$meshDns'
+config alias                                                           
+	option interface lan$indi
+	option proto      static
+	option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}/64'
 
 "
-	
+
     OLSRInterfaces="$OLSRInterfaces
 
 Interface \"${networkWiredDevice[$indx]}\"
 {
     Mode \"ether\"
     IPv6Multicast	$OLSRMulticast
+    Ip6AddrType         global
 }
 "
-<<UPSTREAM
-#Olsr at moment handles casually interface with multiple ip
+
+
     OLSRHna6="$OLSRHna6
 
   $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0000 64
 "
 
-  DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
+    DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
 iface \"eth$indi\"
 {
         option dns-server $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001
@@ -236,7 +237,7 @@ iface \"eth$indi\"
 
 "
 
-  RADVD_CONF="$RADVD_CONF
+    RADVD_CONF="$RADVD_CONF
 interface ${networkWiredDevice[$indx]}
 {
   AdvSendAdvert on;
@@ -248,7 +249,7 @@ interface ${networkWiredDevice[$indx]}
 };
 
 "
-UPSTREAM
+
 
     ((indx++))
     ((indi++))
@@ -278,7 +279,6 @@ UPSTREAM
 
 function start()
 {
-
   if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
   then
       mkdir -p /var/lib/dibbler
