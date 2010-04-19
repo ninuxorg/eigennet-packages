@@ -118,7 +118,7 @@ function configureNetwork()
 config interface wifimesh$indi
         option ifname     ath$(($indi*2 + 1))
         option proto      static
-        option ip6addr    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}'
+        option ip6addr    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}/64'
         option dns        '$meshDns'
 
 config interface wifiap$indi
@@ -163,7 +163,7 @@ Interface \"ath$(($indi*2 + 1))\"
 {
     Mode \"mesh\"
     IPv6Multicast	$OLSRMulticast
-    Ip6AddrType		global
+    IPv6Src		$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}
 }
 "
 
@@ -219,7 +219,7 @@ Interface \"${networkWiredDevice[$indx]}\"
 {
     Mode \"ether\"
     IPv6Multicast	$OLSRMulticast
-    Ip6AddrType         global
+    IPv6Src		$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}
 }
 "
 
@@ -261,17 +261,17 @@ interface ${networkWiredDevice[$indx]}
 
   OLSRD_ETC="$OLSRD_ETC$OLSRHna6$OLSRInterfaces"
 
-  cp "$CONF_DIR/network" "$CONF_DIR/network.back"
-  cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
-  cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
+  #cp "$CONF_DIR/network" "$CONF_DIR/network.back"
+  #cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
+  #cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
 
-  echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
-  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
-  echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
+  #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
+  #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
+  #echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
 
-  #echo "$NETWORK_CONF" > "$CONF_DIR/network"
-  #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
-  #echo "$OLSRD_ETC" > "/etc/olsrd.conf"
+  echo "$NETWORK_CONF" > "$CONF_DIR/network"
+  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
+  echo "$OLSRD_ETC" > "/etc/olsrd.conf"
   mkdir -p /etc/dibbler
   echo "$DIBBLER_SERVER_CONF" > "/etc/dibbler/server.conf"
   echo "$RADVD_CONF" > "/etc/radvd.conf"
