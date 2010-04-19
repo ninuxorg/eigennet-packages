@@ -118,7 +118,7 @@ function configureNetwork()
 config interface wifimesh$indi
         option ifname     ath$(($indi*2 + 1))
         option proto      static
-        option ip6addr    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}'
+        option ip6addr    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}/64'
         option dns        '$meshDns'
 
 config interface wifiap$indi
@@ -163,7 +163,7 @@ Interface \"ath$(($indi*2 + 1))\"
 {
     Mode \"mesh\"
     IPv6Multicast	$OLSRMulticast
-    Ip6AddrType		global
+    IPv6Src		$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}
 }
 "
 
@@ -219,7 +219,7 @@ Interface \"${networkWiredDevice[$indx]}\"
 {
     Mode \"ether\"
     IPv6Multicast	$OLSRMulticast
-    Ip6AddrType         global
+    IPv6Src		$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}
 }
 "
 
