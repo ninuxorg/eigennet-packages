@@ -32,6 +32,12 @@ meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
 OLSRHnaIpV6Prefix="fec0" #This should be one of: fec0, fed0, fee0 or fef0, that are site-local ipv6 prefix
 OLSRMulticast="FF0E::1" #This should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example nokia n810 )
 
+tunPreConfigured="false"
+meshTunRemote="$meshIpV6Subnet:0000:0023:7d29:13fa"
+meshTunLocal="::"
+meshTunDevice="eth0"
+ipv4Dns="10.0.0.1"
+
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
 networkWirelessDevHWAddr6[0]=""
@@ -67,6 +73,31 @@ config interface loopback
         option proto static
 
 "
+
+DHCP_CONF="
+#Automatically generated for Eigennet
+
+config 'dnsmasq'
+	option domainneeded	1
+	option boguspriv	1
+	option filterwin2k	0
+	option localise_queries	1
+#	option local        	'/lan/'
+#	option domain	        'lan'
+	option expandhosts	1
+	option nonegcache	0
+	option authoritative	1
+	option readethers       1
+	option leasefile	'/tmp/dhcp.leases'
+	option resolvfile	'/etc/resolv.conf.auto'
+
+"
+
+RESOLV_CONF_AUTO="
+nameserver $meshDns
+nameserver $ipv4Dns
+"
+
 DIBBLER_SERVER_CONF="
 #Automatically generated for Eigennet
 
@@ -87,10 +118,17 @@ function loadDevicesInfo()
   do
     if [ ${device:0:$typicalWirelessDeviceNameCharN} == ${typicalWirelessDeviceName:0:$typicalWirelessDeviceNameCharN} ]
     then
+      meshTunDevice="ath1"
       networkWirelessDevice[${#networkWirelessDevice[@]}]="$device"
       mac="`ifconfig $device | grep HWaddr | awk -F 'HWaddr ' '{ print $2 }'`"
       networkWirelessDevHWAddr[${#networkWirelessDevHWAddr[@]}]="$mac"
       networkWirelessDevHWAddr6[${#networkWirelessDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
+      if [ $tunPreConfigured == "false" ]
+      then
+	meshTunLocal="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
+	meshTunDevice="ath1"
+	tunPreConfigured="true"
+      fi
     else
       if [ ${device:0:$typicalWiredDeviceNameCharN} == ${typicalWiredDeviceName:0:$typicalWiredDeviceNameCharN} ]
       then
@@ -98,6 +136,11 @@ function loadDevicesInfo()
 	mac=`ifconfig $device | grep HWaddr | awk -F 'HWaddr ' '{ print $2 }'`
 	networkWiredDevHWAddr[${#networkWiredDevHWAddr[@]}]=$mac
 	networkWiredDevHWAddr6[${#networkWiredDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
+	if [ $tunPreConfigured == "false" ]
+	then
+	  meshTunLocal="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
+	  meshTunDevice="$device"
+	fi
       fi
     fi
   done
@@ -105,9 +148,6 @@ function loadDevicesInfo()
 
 function configureNetwork()
 {
-  echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
-  echo 0 > /proc/sys/net/ipv6/conf/all/autoconf
- 
   local indx=1
   local indi=0
 #Generate configuration for wireless interface
@@ -119,7 +159,6 @@ config interface wifimesh$indi
         option ifname     ath$(($indi*2 + 1))
         option proto      static
         option ip6addr    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}/64'
-        option dns        '$meshDns'
 
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
@@ -167,7 +206,15 @@ Interface \"ath$(($indi*2 + 1))\"
 }
 "
 
- DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
+    DHCP_CONF="$DHCP_CONF
+config 'dhcp' 'wifiap$indi'
+	option 'interface'   'wifiap$indi'
+	option 'start'       '10'
+	option 'limit'	     '200'
+	option 'leasetime'   '5h'
+"
+
+    DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
 iface \"ath$(($indi*2))\"
 {
         option dns-server $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001
@@ -175,7 +222,7 @@ iface \"ath$(($indi*2))\"
 
 "
 
-  RADVD_CONF="$RADVD_CONF
+    RADVD_CONF="$RADVD_CONF
 interface ath$(($indi*2))
 {
   AdvSendAdvert on;
@@ -204,7 +251,6 @@ config interface lan$indi
 	option ipaddr     '192.168.2$indi.1'
 	option netmask    '255.255.255.0'
 	option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
-	option dns        '$meshDns'
 
 config alias                                                           
 	option interface lan$indi
@@ -227,6 +273,14 @@ Interface \"${networkWiredDevice[$indx]}\"
     OLSRHna6="$OLSRHna6
 
   $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0000 64
+"
+
+    DHCP_CONF="$DHCP_CONF
+config 'dhcp' 'lan$indi'
+	option 'interface'   'lan$indi'
+	option 'start'       '10'
+	option 'limit'	     '200'
+	option 'leasetime'   '5h'
 "
 
     DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
@@ -263,24 +317,39 @@ interface ${networkWiredDevice[$indx]}
 
   #cp "$CONF_DIR/network" "$CONF_DIR/network.back"
   #cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
+  #cp "$CONF_DIR/dhcp" "$CONF_DIR/dhcp.back"
   #cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
 
   #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
   #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
+  #echo "$DHCP_CONF" > "$CONF_DIR/dhcp.test"
   #echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
 
   echo "$NETWORK_CONF" > "$CONF_DIR/network"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
+  echo "$DHCP_CONF" > "$CONF_DIR/dhcp"
   echo "$OLSRD_ETC" > "/etc/olsrd.conf"
   mkdir -p /etc/dibbler
   echo "$DIBBLER_SERVER_CONF" > "/etc/dibbler/server.conf"
   echo "$RADVD_CONF" > "/etc/radvd.conf"
+  echo "$RESOLV_CONF_AUTO" > "/etc/resolv.conf.auto"
 }
 
 function start()
 {
+  loadDevicesInfo
+
   if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
   then
+      sysctl -w net.ipv4.ip_forward=1
+      sysctl -w net.ipv6.conf.all.forwarding=1
+      sysctl -w net.ipv6.conf.all.autoconf=0
+      
+      ip -6 tunnel add tun46 mode ipip6 remote $meshTunRemote local $meshIpV6Subnet:0000:$meshTunLocal dev $meshTunDevice
+      ip link set dev tun46 up
+      ip -6 addr add 4001:470:1f00::$meshTunLocal dev tun46
+      ip route add 10.0.0.0/8 dev tun46
+
       mkdir -p /var/lib/dibbler
       dibbler-server start
       radvd
@@ -293,18 +362,22 @@ function start()
 
   /etc/init.d/radvd disable
 
-  loadDevicesInfo
   configureNetwork
 
   sleep 2
 
-  reboot
+#  reboot
 }
 
 function stop()
 {
   killall dibbler-server
   killall radvd
-  exit 0
 }
 
+function restart()
+{
+  stop
+  sleep 2
+  start
+}

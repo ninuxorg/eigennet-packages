@@ -1,3 +1,4 @@
 Check if wpa/wpa2 is working with uci or if need wpa_supplicant configuration
 
+Write /etc/config/dhcp to activete dhcp/dns ( dnsmasq )
 Web interface to add/remove connection from friends
