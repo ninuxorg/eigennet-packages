@@ -356,7 +356,7 @@ function start()
       local indi=0
       #while [ "${networkWirelessDevice[$indx]}" != "" ]
       #do
-      ping -6 -w 10 -q -s 1000 -I athX*2+1 $meshTunRemote
+      #ping -6 -w 10 -q -s 1000 -I athX*2+1 $meshTunRemote
       #done
 
       indx=1
