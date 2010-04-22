@@ -36,6 +36,7 @@ tunPreConfigured="false"
 meshTunRemote="$meshIpV6Subnet:0000:0023:7d29:13fa"
 meshTunLocal="::"
 meshTunDevice="eth0"
+meshTunTime="99999"
 ipv4Dns="10.0.0.1"
 
 networkWirelessDevice[0]=""
@@ -45,72 +46,7 @@ networkWiredDevice[0]=""
 networkWiredDevHWAddr[0]=""
 networkWiredDevHWAddr6[0]=""
 
-WIRELESS_CONF="
-#Automatically generated for Eigennet
-"
 
-OLSRD_ETC="
-#Automatically generated for Eigennet
-
-DebugLevel	1
-
-IpVersion	6
-
-"
-
-OLSRHna6="
-Hna6
-{
-
-"
-OLSRInterfaces=""
-
-NETWORK_CONF="
-#Automatically generated for Eigennet
-
-config interface loopback
-        option ifname lo
-        option proto static
-
-"
-
-DHCP_CONF="
-#Automatically generated for Eigennet
-
-config 'dnsmasq'
-	option domainneeded	1
-	option boguspriv	1
-	option filterwin2k	0
-	option localise_queries	1
-#	option local        	'/lan/'
-#	option domain	        'lan'
-	option expandhosts	1
-	option nonegcache	0
-	option authoritative	1
-	option readethers       1
-	option leasefile	'/tmp/dhcp.leases'
-	option resolvfile	'/etc/resolv.conf.auto'
-
-"
-
-RESOLV_CONF_AUTO="
-nameserver $meshDns
-nameserver $ipv4Dns
-"
-
-DIBBLER_SERVER_CONF="
-#Automatically generated for Eigennet
-
-log-level 8
-log-mode short
-preference 5
-stateless
-
-"
-RADVD_CONF="
-#Automatically generated for Eigennet
-
-"
 
 function loadDevicesInfo()
 {
@@ -148,6 +84,82 @@ function loadDevicesInfo()
 
 function configureNetwork()
 {
+  WIRELESS_CONF="
+#Automatically generated for Eigennet
+"
+
+  OLSRD_ETC="
+#Automatically generated for Eigennet
+
+DebugLevel	1
+
+IpVersion	6
+
+"
+
+  OLSRHna6="
+Hna6
+{
+
+"
+  OLSRInterfaces=""
+
+  NETWORK_CONF="
+#Automatically generated for Eigennet
+
+config interface loopback
+	option ifname lo
+	option proto static
+
+"
+
+  DHCP_CONF="
+#Automatically generated for Eigennet
+
+config 'dnsmasq'
+	option domainneeded	1
+	option boguspriv	1
+	option filterwin2k	0
+	option localise_queries	1
+#	option local        	'/lan/'
+#	option domain	        'lan'
+	option expandhosts	1
+	option nonegcache	0
+	option authoritative	1
+	option readethers       1
+	option leasefile	'/tmp/dhcp.leases'
+	option resolvfile	'/etc/resolv.conf.auto'
+
+"
+
+  RESOLV_CONF_AUTO="
+nameserver $meshDns
+nameserver $ipv4Dns
+"
+
+  DIBBLER_SERVER_CONF="
+#Automatically generated for Eigennet
+
+log-level 8
+log-mode short
+preference 5
+stateless
+
+"
+  RADVD_CONF="
+#Automatically generated for Eigennet
+
+"
+  SYSCTL_CONF="
+#Automatically generated for Eigennet
+
+`cat /etc/sysctl.conf | grep -v net.ipv4.ip_forward | grep -v net.ipv6.conf.all.forwarding | grep -v net.ipv6.conf.all.autoconf`
+
+net.ipv4.ip_forward=1
+net.ipv6.conf.all.forwarding=1
+net.ipv6.conf.all.autoconf=0
+"
+
   local indx=1
   local indi=0
 #Generate configuration for wireless interface
@@ -303,8 +315,6 @@ interface ${networkWiredDevice[$indx]}
 };
 
 "
-
-
     ((indx++))
     ((indi++))
   done
@@ -325,6 +335,7 @@ interface ${networkWiredDevice[$indx]}
   #echo "$DHCP_CONF" > "$CONF_DIR/dhcp.test"
   #echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
 
+  echo "$SYSCTL_CONF" > "/etc/sysctl.conf"
   echo "$NETWORK_CONF" > "$CONF_DIR/network"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
   echo "$DHCP_CONF" > "$CONF_DIR/dhcp"
@@ -341,9 +352,18 @@ function start()
 
   if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
   then
-      sysctl -w net.ipv4.ip_forward=1
-      sysctl -w net.ipv6.conf.all.forwarding=1
-      sysctl -w net.ipv6.conf.all.autoconf=0
+      local indx=1
+      local indi=0
+      #while [ "${networkWirelessDevice[$indx]}" != "" ]
+      #do
+      ping -6 -w 10 -q -s 1000 -I athX*2+1 $meshTunRemote
+      #done
+
+      indx=1
+      indi=0
+      #while [ "${networkWiredDevice[$indx]}" != "" ]
+      #do
+      #done
       
       ip -6 tunnel add tun46 mode ipip6 remote $meshTunRemote local $meshIpV6Subnet:0000:$meshTunLocal dev $meshTunDevice
       ip link set dev tun46 up
