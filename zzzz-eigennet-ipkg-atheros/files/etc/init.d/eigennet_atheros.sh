@@ -32,12 +32,15 @@ meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
 OLSRHnaIpV6Prefix="fec0" #This should be one of: fec0, fed0, fee0 or fef0, that are site-local ipv6 prefix
 OLSRMulticast="FF0E::1" #This should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example nokia n810 )
 
-tunPreConfigured="false"
-meshTunRemote="$meshIpV6Subnet:0000:0023:7d29:13fa"
-meshTunLocal="::"
-meshTunDevice="eth0"
-meshTunTime="99999"
+#meshTunRemote="$meshIpV6Subnet:0000:0023:7d29:13fa"
+meshTunRemote="fd7d:d7bb:2c97:dec3:0:18:f387:74f0"
+meshTunLocal=""
+meshTunDevice=""
+meshTunLag="99999"
+confServer="fd7d:d7bb:2c97:dec3:0:18:f387:74f0"
+confPath="/cgi-bin/eigennetconf.cgi"
 ipv4Dns="10.0.0.1"
+localprefixes=""
 
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
@@ -59,12 +62,6 @@ function loadDevicesInfo()
       mac="`ifconfig $device | grep HWaddr | awk -F 'HWaddr ' '{ print $2 }'`"
       networkWirelessDevHWAddr[${#networkWirelessDevHWAddr[@]}]="$mac"
       networkWirelessDevHWAddr6[${#networkWirelessDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
-      if [ $tunPreConfigured == "false" ]
-      then
-	meshTunLocal="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
-	meshTunDevice="ath1"
-	tunPreConfigured="true"
-      fi
     else
       if [ ${device:0:$typicalWiredDeviceNameCharN} == ${typicalWiredDeviceName:0:$typicalWiredDeviceNameCharN} ]
       then
@@ -72,11 +69,6 @@ function loadDevicesInfo()
 	mac=`ifconfig $device | grep HWaddr | awk -F 'HWaddr ' '{ print $2 }'`
 	networkWiredDevHWAddr[${#networkWiredDevHWAddr[@]}]=$mac
 	networkWiredDevHWAddr6[${#networkWiredDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
-	if [ $tunPreConfigured == "false" ]
-	then
-	  meshTunLocal="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
-	  meshTunDevice="$device"
-	fi
       fi
     fi
   done
@@ -175,8 +167,8 @@ config interface wifimesh$indi
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
         option proto      static
-        option ipaddr     '192.168.1$(($indi*2)).1'
-	option netmask    '255.255.255.0'
+#	option ipaddr     '192.168.1$(($indi*2)).1'
+#	option netmask    '255.255.255.0'
         option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
 
 "
@@ -260,8 +252,8 @@ interface ath$(($indi*2))
 config interface lan$indi
 	option ifname     ${networkWiredDevice[$indx]}
 	option proto      static
-	option ipaddr     '192.168.2$indi.1'
-	option netmask    '255.255.255.0'
+#	option ipaddr     '192.168.2$indi.1'
+#	option netmask    '255.255.255.0'
 	option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
 
 config alias                                                           
@@ -350,29 +342,87 @@ function start()
 {
   loadDevicesInfo
 
-  if [ -e "/etc/isNotFirstRun" ] && [ `cat "/etc/isNotFirstRun"` == "1" ]
+  if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "1" ]
   then
+      sleep 20s #in this way we are sure that it is connected to other nodes before try to connect to eigennet server this time could be increased if necessary
       local indx=1
       local indi=0
-      #while [ "${networkWirelessDevice[$indx]}" != "" ]
-      #do
-      #ping -6 -w 10 -q -s 1000 -I athX*2+1 $meshTunRemote
-      #done
+      local lag=""
+      local tunnelEnabled="false"
+
+      while [ "${networkWirelessDevice[$indx]}" != "" ]
+      do
+	lag="`ping -6 -w 10 -q -s 1000 -I ath$(($indi*2 + 1)) $meshTunRemote | grep round-trip | awk -F / '{ print $4 }' | awk -F . '{ print $1 }'`"
+
+	if [ "$lag" != "" ] && [ $lag -lt $meshTunLag ]
+	then
+	  meshTunLocal="${networkWirelessDevHWAddr6[$indx]}"
+	  meshTunDevice="ath$(($indi*2 + 1))"
+	  meshTunLag="$lag"
+	  tunnelEnabled="true"
+	fi
+
+	wget -O /tmp/ip4conf "http://[$confServer]$confPath?hw6=${networkWirelessDevHWAddr6[$indx]}"
+
+	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf"`" != "" ]
+	then
+	  local ip4prefix="`cat "/tmp/ip4conf" | grep ip4prefix | awk '{ print $2 }'`"
+	  localprefixes="$localprefixes""_$ip4prefix"
+	  ip -4 addr add $ip4prefix.1/24 dev ath$(($indi*2))
+	  rm -f /tmp/ip4conf
+	fi
+
+	((indx++))
+	((indi++))
+      done
 
       indx=1
-      indi=0
-      #while [ "${networkWiredDevice[$indx]}" != "" ]
-      #do
-      #done
+      while [ "${networkWiredDevice[$indx]}" != "" ]
+      do
+	lag="`ping -6 -w 5 -q -s 1000 -I ${networkWiredDevice[$indx]} $meshTunRemote | grep round-trip | awk -F / '{ print $4 }' | awk -F . '{ print $1 }'`"
+
+	if [ "$lag" != "" ] && [ $lag -le $meshTunLag ] # -le In case of same lag prefer wired interface
+	then
+	  meshTunLocal="${networkWiredDevHWAddr6[$indx]}"
+	  meshTunDevice="${networkWiredDevice[$indx]}"
+	  meshTunLag="$lag"
+	  tunnelEnabled="true"
+	fi
+
+	wget -O /tmp/ip4conf "http://[$confServer]$confPath?hw6=${networkWiredDevHWAddr6[$indx]}"
+
+	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf"`" != "" ]
+	then
+	  local ip4prefix="`cat "/tmp/ip4conf" | grep ip4prefix | awk '{ print $2 }'`"
+	  localprefixes="$localprefixes""_$ip4prefix"
+	  ip -4 addr add $ip4prefix.1/24 dev ${networkWiredDevice[$indx]}
+	  rm -f /tmp/ip4conf
+	fi
+ 
+	((indx++))
+      done
       
-      ip -6 tunnel add tun46 mode ipip6 remote $meshTunRemote local $meshIpV6Subnet:0000:$meshTunLocal dev $meshTunDevice
-      ip link set dev tun46 up
-      ip -6 addr add 4001:470:1f00::$meshTunLocal dev tun46
-      ip route add 10.0.0.0/8 dev tun46
+      if [ "$tunnelEnabled" == "true" ]
+      then
+	wget -O /tmp/ip4conf "http://[$confServer]$confPath?tunnel=1&localprefixes=$localprefixes&hw6=$meshTunLocal"
+
+	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf"`" != "" ]
+	then
+	  ip -6 tunnel add tun46 mode ipip6 remote $meshTunRemote local $meshIpV6Subnet:0000:$meshTunLocal dev $meshTunDevice
+	  ip link set dev tun46 up
+	  ip -6 addr add 4001:470:1f00::$meshTunLocal dev tun46
+	  for tunroute in `cat "/tmp/ip4conf" | grep ip4route | awk '{ print $2}'`
+	  do
+	    ip route add $tunroute dev tun46
+	  done
+	  rm -f /tmp/ip4conf
+	fi
+      fi
 
       mkdir -p /var/lib/dibbler
       dibbler-server start
       radvd
+      /etc/init.d/dnsmasq restart
       exit 0
   fi
 

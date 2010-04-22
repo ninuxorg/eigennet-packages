@@ -1,2 +1,1 @@
-Test dnsmasq configuration, if not working fix it
-Do automatic creation of ipip6 tunnel
+Fix dnsmasq configuration ( probably run it from commandline is needed )
