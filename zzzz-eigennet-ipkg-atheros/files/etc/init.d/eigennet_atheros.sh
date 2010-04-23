@@ -447,7 +447,7 @@ function start()
 
   sleep 2
 
-#  reboot
+  reboot
 }
 
 function stop()
