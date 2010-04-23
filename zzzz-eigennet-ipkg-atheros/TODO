@@ -1,1 +1,2 @@
-Fix dnsmasq configuration ( run it from commandline is needed )
+add common sites redirecting to eigenserver with hosts
+Test test test
