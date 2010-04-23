@@ -344,7 +344,7 @@ function start()
 
   if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "1" ]
   then
-      sleep 20s #in this way we are sure that it is connected to other nodes before try to connect to eigennet server this time could be increased if necessary
+      sleep 60s #in this way we are sure that it is connected to other nodes before try to connect to eigennet server this time could be increased if necessary
       local indx=1
       local indi=0
       local lag=""
@@ -364,8 +364,9 @@ function start()
 	fi
 
 	wget -O /tmp/ip4conf "http://[$confServer]$confPath?hw6=${networkWirelessDevHWAddr6[$indx]}"
+	#echo "ip4conf: `cat "/tmp/ip4conf"`"
 
-	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf"`" != "" ]
+	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf" | grep ip4prefix`" != "" ]
 	then
 	  local ip4prefix="`cat "/tmp/ip4conf" | grep ip4prefix | awk '{ print $2 }'`"
 	  localprefixes="$localprefixes""_$ip4prefix"
@@ -392,6 +393,7 @@ function start()
 	fi
 
 	wget -O /tmp/ip4conf "http://[$confServer]$confPath?hw6=${networkWiredDevHWAddr6[$indx]}"
+	#echo "ip4conf: `cat "/tmp/ip4conf"`"
 
 	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf"`" != "" ]
 	then
@@ -408,6 +410,7 @@ function start()
       if [ "$tunnelEnabled" == "true" ]
       then
 	wget -O /tmp/ip4conf "http://[$confServer]$confPath?tunnel=1&localprefixes=$localprefixes&hw6=$meshTunLocal"
+	#echo "ip4conf: `cat "/tmp/ip4conf"`"
 
 	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf"`" != "" ]
 	then
