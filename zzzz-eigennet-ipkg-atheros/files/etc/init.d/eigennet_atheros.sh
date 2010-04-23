@@ -349,6 +349,7 @@ function start()
       local indi=0
       local lag=""
       local tunnelEnabled="false"
+      local dhcp_ranges=""
 
       while [ "${networkWirelessDevice[$indx]}" != "" ]
       do
@@ -369,6 +370,7 @@ function start()
 	  local ip4prefix="`cat "/tmp/ip4conf" | grep ip4prefix | awk '{ print $2 }'`"
 	  localprefixes="$localprefixes""_$ip4prefix"
 	  ip -4 addr add $ip4prefix.1/24 dev ath$(($indi*2))
+	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),$ip4prefix.100,$ip4prefix.250,255.255.255.0,5h"
 	  rm -f /tmp/ip4conf
 	fi
 
@@ -396,6 +398,7 @@ function start()
 	  local ip4prefix="`cat "/tmp/ip4conf" | grep ip4prefix | awk '{ print $2 }'`"
 	  localprefixes="$localprefixes""_$ip4prefix"
 	  ip -4 addr add $ip4prefix.1/24 dev ${networkWiredDevice[$indx]}
+	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},$ip4prefix.100,$ip4prefix.250,255.255.255.0,5h"
 	  rm -f /tmp/ip4conf
 	fi
  
@@ -422,7 +425,7 @@ function start()
       mkdir -p /var/lib/dibbler
       dibbler-server start
       radvd
-      /etc/init.d/dnsmasq restart
+      dnsmasq -K -D -y -Z -b -E -l /tmp/dhcp.leases -r /etc/resolv.conf.auto $dhcp_ranges
       exit 0
   fi
 
@@ -443,6 +446,7 @@ function stop()
 {
   killall dibbler-server
   killall radvd
+  killall dnsmasq
 }
 
 function restart()

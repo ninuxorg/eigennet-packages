@@ -1,0 +1,27 @@
+#Automatically generated for Eigennet
+
+config 'dnsmasq'
+        option domainneeded     1
+        option boguspriv        1
+        option filterwin2k      0
+        option localise_queries 1
+#       option local            '/lan/'
+#       option domain           'lan'
+        option expandhosts      1
+        option nonegcache       0
+        option authoritative    1
+        option readethers       1
+        option leasefile        '/tmp/dhcp.leases'
+        option resolvfile       '/etc/resolv.conf.auto'
+
+#config 'dhcp' 'wifiap0'
+#        option 'interface'   'wifiap0'
+#       option 'start'       '10'
+#       option 'limit'       '200'
+#        option 'leasetime'   '5h'
+
+config 'dhcp' 'lan'
+        option 'interface'   'lan0'
+	option 'start'       '10'
+	option 'limit'       '200'
+        option 'leasetime'   '5h'
