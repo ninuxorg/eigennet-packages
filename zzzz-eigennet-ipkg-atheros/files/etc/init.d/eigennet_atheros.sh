@@ -20,6 +20,7 @@ along with this file.  If not, see <http://www.gnu.org/licenses/>.
 COPYRIGHT
 
 START=99
+STOP=10
 
 typicalWirelessDeviceName="wifiX" #Where X is a number
 typicalWirelessDeviceNameCharN=4 #Number of char before X number
@@ -340,6 +341,12 @@ interface ${networkWiredDevice[$indx]}
 
 function start()
 {
+  echo "starting" >> /tmp/eigenlog
+
+  sysctl net.ipv4.ip_forward=1
+  sysctl net.ipv6.conf.all.forwarding=1
+  sysctl net.ipv6.conf.all.autoconf=0
+
   loadDevicesInfo
 
   if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "1" ]
@@ -424,10 +431,7 @@ function start()
 	  rm -f /tmp/ip4conf
 	fi
       fi
-
-      mkdir -p /var/lib/dibbler
-      dibbler-server start
-      radvd
+      echo $dhcp_ranges >> /tmp/eigenlog
       dnsmasq -K -D -y -Z -b -E -l /tmp/dhcp.leases -r /etc/resolv.conf.auto $dhcp_ranges
       exit 0
   fi
@@ -436,7 +440,7 @@ function start()
 
   echo "1" > "/etc/isNotFirstRun"
 
-  /etc/init.d/radvd disable
+  /etc/init.d/dnsmasq disable
 
   configureNetwork
 
@@ -447,8 +451,7 @@ function start()
 
 function stop()
 {
-  killall dibbler-server
-  killall radvd
+  echo "stopping" >> /tmp/eigenlog
   killall dnsmasq
 }
 
@@ -458,3 +461,5 @@ function restart()
   sleep 2
   start
 }
+
+cat /tmp/eigenlog
