@@ -337,15 +337,16 @@ interface ${networkWiredDevice[$indx]}
   echo "$DIBBLER_SERVER_CONF" > "/etc/dibbler/server.conf"
   echo "$RADVD_CONF" > "/etc/radvd.conf"
   echo "$RESOLV_CONF_AUTO" > "/etc/resolv.conf.auto"
+  echo "nameserver 127.0.0.1" > "/etc/resolv.conf"
 }
 
 function start()
 {
   echo "starting" >> /tmp/eigenlog
 
-  sysctl net.ipv4.ip_forward=1
-  sysctl net.ipv6.conf.all.forwarding=1
-  sysctl net.ipv6.conf.all.autoconf=0
+  sysctl -w net.ipv4.ip_forward=1
+  sysctl -w net.ipv6.conf.all.forwarding=1
+  sysctl -w net.ipv6.conf.all.autoconf=0
 
   loadDevicesInfo
 
@@ -376,7 +377,7 @@ function start()
 	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf" | grep ip4prefix`" != "" ]
 	then
 	  local ip4prefix="`cat "/tmp/ip4conf" | grep ip4prefix | awk '{ print $2 }'`"
-	  localprefixes="$localprefixes""_$ip4prefix"
+	  localprefixes="$localprefixes$ip4prefix""_"
 	  ip -4 addr add $ip4prefix.1/24 dev ath$(($indi*2))
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),$ip4prefix.100,$ip4prefix.250,255.255.255.0,5h"
 	  rm -f /tmp/ip4conf
@@ -405,7 +406,7 @@ function start()
 	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf"`" != "" ]
 	then
 	  local ip4prefix="`cat "/tmp/ip4conf" | grep ip4prefix | awk '{ print $2 }'`"
-	  localprefixes="$localprefixes""_$ip4prefix"
+	  localprefixes="$localprefixes$ip4prefix""_"
 	  ip -4 addr add $ip4prefix.1/24 dev ${networkWiredDevice[$indx]}
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},$ip4prefix.100,$ip4prefix.250,255.255.255.0,5h"
 	  rm -f /tmp/ip4conf
@@ -439,7 +440,7 @@ function start()
   sleep 10
 
   echo "1" > "/etc/isNotFirstRun"
-
+  
   /etc/init.d/dnsmasq disable
 
   configureNetwork
