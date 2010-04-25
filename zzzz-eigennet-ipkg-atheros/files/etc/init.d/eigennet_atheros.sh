@@ -33,12 +33,11 @@ meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
 OLSRHnaIpV6Prefix="fec0" #This should be one of: fec0, fed0, fee0 or fef0, that are site-local ipv6 prefix
 OLSRMulticast="FF0E::1" #This should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example nokia n810 )
 
-#meshTunRemote="$meshIpV6Subnet:0000:0023:7d29:13fa"
-meshTunRemote="fd7d:d7bb:2c97:dec3:0:18:f387:74f0"
+meshTunRemote="$meshIpV6Subnet:0000:0023:7d29:13fa"
 meshTunLocal=""
 meshTunDevice=""
 meshTunLag="99999"
-confServer="fd7d:d7bb:2c97:dec3:0:18:f387:74f0"
+confServer="$meshTunRemote"
 confPath="/cgi-bin/eigennetconf.cgi"
 ipv4Dns="10.0.0.1"
 localprefixes=""
