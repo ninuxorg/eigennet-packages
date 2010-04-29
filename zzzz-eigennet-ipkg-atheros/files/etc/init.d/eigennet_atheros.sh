@@ -424,7 +424,7 @@ function start()
 	  ip -6 tunnel add tun46 mode ipip6 remote $meshTunRemote local $meshIpV6Subnet:0000:$meshTunLocal dev $meshTunDevice
 	  ip link set dev tun46 up
 	  ip -6 addr add 4001:470:1f00::$meshTunLocal dev tun46
-	  iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -o tun46 -j TCPMSS --clamp-mss-to-pmtu
+	  iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -o tun46 -j TCPMSS --set-mss 1444
 	  for tunroute in `cat "/tmp/ip4conf" | grep ip4route | awk '{ print $2}'`
 	  do
 	    ip route add $tunroute dev tun46
