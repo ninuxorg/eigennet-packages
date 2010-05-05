@@ -443,7 +443,8 @@ function start()
   sleep 10
 
   echo "1" > "/etc/isNotFirstRun"
-  
+
+  /etc/init.d/firewall disable
   /etc/init.d/dnsmasq disable
 
   configureNetwork
