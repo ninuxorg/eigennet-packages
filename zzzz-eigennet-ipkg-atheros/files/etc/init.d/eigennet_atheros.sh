@@ -189,7 +189,7 @@ config 'wifi-iface'
         option 'network'     'wifimesh$indi'
         option 'sw_merge'    '1'
         option 'mode'        'adhoc'
-        option 'ssid'        'eigennet'
+        option 'ssid'        'Ninux.org'
         option 'encryption'  'none'
 
 config 'wifi-iface'
@@ -197,7 +197,7 @@ config 'wifi-iface'
         option 'network'     'wifiap$indi'
         option 'sw_merge'    '1'
         option 'mode'        'ap'
-        option 'ssid'        'eigennetAP'
+        option 'ssid'        'EigenNet'
         option 'encryption'  'none'
 "
 
