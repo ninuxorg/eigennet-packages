@@ -108,20 +108,6 @@ config interface loopback
   DHCP_CONF="
 #Automatically generated for Eigennet
 
-config 'dnsmasq'
-	option domainneeded	1
-	option boguspriv	1
-	option filterwin2k	0
-	option localise_queries	1
-#	option local        	'/lan/'
-#	option domain	        'lan'
-	option expandhosts	1
-	option nonegcache	0
-	option authoritative	1
-	option readethers       1
-	option leasefile	'/tmp/dhcp.leases'
-	option resolvfile	'/etc/resolv.conf.auto'
-
 "
 
   RESOLV_CONF_AUTO="
@@ -210,14 +196,6 @@ Interface \"ath$(($indi*2 + 1))\"
 }
 "
 
-    DHCP_CONF="$DHCP_CONF
-config 'dhcp' 'wifiap$indi'
-	option 'interface'   'wifiap$indi'
-	option 'start'       '10'
-	option 'limit'	     '200'
-	option 'leasetime'   '5h'
-"
-
     DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
 iface \"ath$(($indi*2))\"
 {
@@ -277,14 +255,6 @@ Interface \"${networkWiredDevice[$indx]}\"
     OLSRHna6="$OLSRHna6
 
   $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0000 64
-"
-
-    DHCP_CONF="$DHCP_CONF
-config 'dhcp' 'lan$indi'
-	option 'interface'   'lan$indi'
-	option 'start'       '10'
-	option 'limit'	     '200'
-	option 'leasetime'   '5h'
 "
 
     DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
