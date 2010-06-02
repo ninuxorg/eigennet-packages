@@ -33,15 +33,14 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-madwifi +kmod-ipv6 +kmod-ip6-tunnel +ip +olsrd +bash +dibbler-server +radvd +dnsmasq +iputils-ping6 @TARGET_atheros
-#for production should remove +tcpdump +iputils-ping +iputils-ping6 and use miminal openwrt config
+  DEPENDS:=+kmod-madwifi +kmod-ipv6 +kmod-ip6-tunnel +ip +olsrd-eigennet +bash +dibbler-server +radvd +dnsmasq +iputils-ping6 @TARGET_atheros
+#for production should remove +tcpdump +iputils-ping and use miminal openwrt config
   TITLE:=EigenNet $(EIGENMODELNAME) Config Package
 endef
 
 define Package/$(PKG_NAME)/install
 	$(CP) -a ./files/* $(1)/
-#	$(SED) 's,$$$$R,$(REVISION),g' $(1)/etc/banner 
-	mkdir -p $(1)/CONTROL
+#	mkdir -p $(1)/CONTROL
 #	$(CP) -a ./ipkg/$(PKG_NAME).postinst $(1)/CONTROL/postinst
 #	$(CP) -a ./ipkg/$(PKG_NAME).prerm $(1)/CONTROL/prerm
 endef
