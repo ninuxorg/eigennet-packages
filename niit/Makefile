@@ -5,8 +5,6 @@
 # See /LICENSE for more information.
 #
 
-ifdef OPENWRTVERSION
-
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
@@ -57,5 +55,3 @@ all:
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD)/src clean
 
-
-endif
