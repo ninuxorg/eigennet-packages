@@ -5,6 +5,8 @@
 # See /LICENSE for more information.
 #
 
+ifdef OPENWRTVERSION
+
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
@@ -16,8 +18,7 @@ include $(INCLUDE_DIR)/package.mk
 define KernelPackage/niit
   SUBMENU:=Network Support
   TITLE:=Stateless IP ICMP Translation Algorithm
-  DEPENDS:=+kmod-ipv6
-#@LINUX_2_6
+  DEPENDS:= @LINUX_2_6 +kmod-ipv6
   FILES:=$(PKG_BUILD_DIR)/niit.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,50,niit)
 endef
@@ -55,3 +56,5 @@ all:
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD)/src clean
 
+
+endif
