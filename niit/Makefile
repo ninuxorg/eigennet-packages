@@ -5,6 +5,8 @@
 # See /LICENSE for more information.
 #
 
+#ifdef OPENWRTVERSION
+
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
@@ -42,15 +44,17 @@ endef
 
 $(eval $(call KernelPackage,niit))
 
-else
+#else
 
-#line 47 was here
+#CONFIG_NIIT=m
 
-obj-$(CONFIG_NIIT) += niit.o
+#obj-$(CONFIG_NIIT) += niit.o
 
-all:
-	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD)/src modules
+#all:
+#	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD)/src modules
 
-clean:
-	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD)/src clean
+#clean:
+#	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD)/src clean
 
+
+#endif
