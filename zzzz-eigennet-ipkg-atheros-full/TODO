@@ -1,1 +1,3 @@
+Move to niit instead of using ip6-tunnel
+Remove kmod-ip6-tunnel depends after complete move to niit
 Test test test
