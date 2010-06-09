@@ -433,4 +433,7 @@ function restart()
   start
 }
 
-cat /tmp/eigenlog
+function status()
+{
+  cat /tmp/eigenlog
+}
