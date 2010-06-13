@@ -1,4 +1,4 @@
 Move to niit instead of using ip6-tunnel
-Add olsr arprefresh module to depends, configure arprefresh and mdns olsr module
+Configure arprefresh, p2pd and txtinfo olsrd module
 Remove kmod-ip6-tunnel depends after complete move to niit
 Test test test

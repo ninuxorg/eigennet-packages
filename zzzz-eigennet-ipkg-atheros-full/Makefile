@@ -33,7 +33,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-madwifi +kmod-niit +kmod-ip6-tunnel +ip +olsrd-eigennet +olsrd-eigennet-mod-mdns +bash +dibbler-server +radvd +dnsmasq +iputils-ping6 @TARGET_atheros
+  DEPENDS:=+kmod-madwifi +kmod-niit +kmod-ip6-tunnel +ip +olsrd-eigennet +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-p2pd +olsrd-eigennet-txtinfo +bash +dibbler-server +radvd +dnsmasq +iputils-ping6 @TARGET_atheros
 #for production should remove +tcpdump +iputils-ping and use miminal openwrt config
   TITLE:=EigenNet $(EIGENMODELNAME) Config Package
 endef

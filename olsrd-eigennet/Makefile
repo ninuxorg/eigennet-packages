@@ -109,6 +109,12 @@ define Package/$(PKG_NAME)-mod-mdns
   TITLE:=MDNS/Zeroconf/Bonjour packet distribution 
 endef
 
+define Package/$(PKG_NAME)-mod-p2pd
+  $(call Package/$(PKG_NAME)/template)
+  DEPENDS:=$(PKG_NAME)
+  TITLE:=P2P discovery packet distribution (mdns generalized) 
+endef
+
 define Package/$(PKG_NAME)-mod-secure/conffiles
 /etc/olsrd.d/olsrd_secure_key
 endef
@@ -131,7 +137,7 @@ define Build/Compile
 		MANDIR="$(PKG_INSTALL_DIR)/usr/share/man" \
 		STRIP="true" \
 		INSTALL_LIB="true" \
-		SUBDIRS="arprefresh bmf dot_draw dyn_gw dyn_gw_plain httpinfo nameservice secure txtinfo mdns" \
+		SUBDIRS="arprefresh bmf dot_draw dyn_gw dyn_gw_plain httpinfo nameservice secure txtinfo mdns p2pd" \
 		all libs install install_libs
 endef
 
@@ -195,6 +201,12 @@ define Package/$(PKG_NAME)-mod-mdns/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/mdns/olsrd_mdns.so.* $(1)/usr/lib/
 endef
+
+define Package/$(PKG_NAME)-mod-p2pd/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/p2pd/olsrd_p2pd.so.* $(1)/usr/lib/
+endef
+
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-arprefresh))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-dot-draw))
@@ -206,3 +218,4 @@ $(eval $(call BuildPackage,$(PKG_NAME)-mod-nameservice))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-secure))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-txtinfo))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-mdns))
+$(eval $(call BuildPackage,$(PKG_NAME)-mod-p2pd))
