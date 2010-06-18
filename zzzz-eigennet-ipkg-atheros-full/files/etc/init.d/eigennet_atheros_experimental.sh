@@ -45,10 +45,11 @@ localprefixes=""
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
 networkWirelessDevHWAddr6[0]=""
+networkWirelessDevMaxClient="32"
 networkWiredDevice[0]=""
 networkWiredDevHWAddr[0]=""
 networkWiredDevHWAddr6[0]=""
-
+networkWiredDevMaxClient="16"
 
 
 function loadDevicesInfo()
@@ -87,11 +88,26 @@ DebugLevel	1
 
 IpVersion	6
 
+LoadPlugin \"olsrd_txtinfo.so.0.1\"
+{
+    # port number the txtinfo plugin will be listening, default 2006
+    #   PlParam     \"port\"   \"81\"
+    # ip address that can access the plugin, 
+    # use \"0::0\" to allow everyone
+    # use \"0::1\" for production to allow only localhost access
+    PlParam     \"Accept\"   \"0::0\"
+}
+
+
 "
 
   OLSRHna6="
 Hna6
 {
+  #complete max usable ipv4 mapped range for autoconfiguration 0::ffff:6400:0 70
+  #example of tipical mapped hna6
+  #this is 100.0.100.0 - 100.0.100.15 = 100.0.100.0/28 -->92=64+28
+  0::ffff:6400:0 92
 
 "
   OLSRInterfaces=""
