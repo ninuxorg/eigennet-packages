@@ -3,6 +3,7 @@
 <<COPYRIGHT
 
 Copyright (C) 2010  Gioacchino Mazzurco <gmazzurco89@gmail.com>
+Copyright (C) 2010  Vittorio Cuculo <lasek88@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -309,6 +310,44 @@ interface ${networkWiredDevice[$indx]}
   echo "nameserver 127.0.0.1" > "/etc/resolv.conf"
 }
 
+function ipDotted2Int()
+{
+  echo `echo "$1" | awk -F\. '{print ($4)+($3*256)+($2*256*256)+($1*256*256*256)}')`
+}
+
+function ipInt2Dotted()
+{
+  local intIp="$1"
+  local dottedIp=""
+  local dottedIp="$[($intIp&255<<(0*8))>>(0*8)]"
+  local dottedIp="$[($intIp&255<<(1*8))>>(1*8)].$dottedIp"
+  local dottedIp="$[($intIp&255<<(2*8))>>(2*8)].$dottedIp"
+  local dottedIp="$[($intIp&255<<(3*8))>>(3*8)].$dottedIp"
+
+  echo "$dottedIp"
+}
+
+function cdir2int() # $1 = cidr  looking tu a subnet you see for example 192.168.0.1/$1
+{
+  echo "$((2**(32-$1)))"
+}
+
+function int2cdir() # $1 = number of needed ip
+{
+  echo $((32 - `echo "$1" | awk '{printf "%d",(log($1)/log(2) == int(log($1)/log(2))) ? log($1)/log(2) : int(log($1)/log(2))+1}'`))
+}
+
+function getUsedSubnets()
+{
+  echo `wget -q http://[0::1]:2006 -O - | grep ::ffff: | grep -v "0.0.0.0/0" | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' |sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4`
+  #fd7d:d7bb:2c97:dec3:0:15:6dd5:f7d1
+}
+
+function getFreeSubnet()
+{
+  echo "not yet ported"
+}
+
 function start()
 {
   echo "starting" >> /tmp/eigenlog
@@ -330,18 +369,6 @@ function start()
 
       while [ "${networkWirelessDevice[$indx]}" != "" ]
       do
-	lag="`ping -6 -w 10 -q -s 1000 -I ath$(($indi*2 + 1)) $meshTunRemote | grep round-trip | awk -F / '{ print $4 }' | awk -F . '{ print $1 }'`"
-
-	if [ "$lag" != "" ] && [ $lag -lt $meshTunLag ]
-	then
-	  meshTunLocal="${networkWirelessDevHWAddr6[$indx]}"
-	  meshTunDevice="ath$(($indi*2 + 1))"
-	  meshTunLag="$lag"
-	  tunnelEnabled="true"
-	fi
-
-	wget -O /tmp/ip4conf "http://[$confServer]$confPath?hw6=${networkWirelessDevHWAddr6[$indx]}"
-	#echo "ip4conf: `cat "/tmp/ip4conf"`"
 
 	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf" | grep ip4prefix`" != "" ]
 	then
