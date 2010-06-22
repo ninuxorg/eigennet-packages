@@ -23,6 +23,8 @@ COPYRIGHT
 START=99
 STOP=10
 
+eigenDebugEnabled=false
+
 typicalWirelessDeviceName="wifiX" #Where X is a number
 typicalWirelessDeviceNameCharN=4 #Number of char before X number
 typicalWiredDeviceName="ethX" #Where X is a number
@@ -32,7 +34,7 @@ CONF_DIR="/etc/config/"
 meshIpV6Subnet="fd7d:d7bb:2c97:dec3"
 meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
 OLSRHnaIpV6Prefix="fec0" #This should be one of: fec0, fed0, fee0 or fef0, that are site-local ipv6 prefix
-OLSRMulticast="FF0E::1" #This should be moved to FF02:1 when all node will have olsrd 0.5.6-r8 or later ( for example nokia n810 )
+OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we use this because is more broadcast(then our olsrd packets are also broadcasted inside SERRA)
 
 meshTunRemote="$meshIpV6Subnet:0000:0023:7d29:13fa"
 meshTunLocal=""
@@ -41,7 +43,10 @@ meshTunLag="99999"
 confServer="$meshTunRemote"
 confPath="/cgi-bin/eigennetconf.cgi"
 ipv4Dns="10.0.0.1"
+ipv4BigSubnet="10.174.0.0/16"
 localprefixes=""
+usedSubnetsFile="/tmp/usedSubnets"
+dynamicHnaFile="/tmp/dynHna"
 
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
@@ -50,7 +55,13 @@ networkWiredDevice[0]=""
 networkWiredDevHWAddr[0]=""
 networkWiredDevHWAddr6[0]=""
 
-
+function eigenDebug()
+{
+  if $eigenDebugEnabled
+  then
+    echo "Debug: $1"
+  fi
+}
 
 function loadDevicesInfo()
 {
@@ -87,6 +98,12 @@ function configureNetwork()
 DebugLevel	1
 
 IpVersion	6
+
+LoadPlugin \"olsrd_txtinfo.so.0.1\"
+{
+  PlParam     \"Accept\"   \"0::0\"
+}
+
 
 "
 
@@ -312,7 +329,7 @@ interface ${networkWiredDevice[$indx]}
 
 function ipDotted2Int()
 {
-  echo `echo "$1" | awk -F\. '{print ($4)+($3*256)+($2*256*256)+($1*256*256*256)}')`
+  echo "`echo "$1" | awk -F\. '{print ($4)+($3*256)+($2*256*256)+($1*256*256*256)}'`"
 }
 
 function ipInt2Dotted()
@@ -327,25 +344,87 @@ function ipInt2Dotted()
   echo "$dottedIp"
 }
 
-function cdir2int() # $1 = cidr  looking tu a subnet you see for example 192.168.0.1/$1
+function cidr2Int() # $1 = cidr  looking tu a subnet you see for example 192.168.0.1/$1
 {
   echo "$((2**(32-$1)))"
 }
 
-function int2cdir() # $1 = number of needed ip
+function int2cidrU() # $1 = number of needed ip (this function round up to an integer for example `int2cidr 250`=24)
 {
   echo $((32 - `echo "$1" | awk '{printf "%d",(log($1)/log(2) == int(log($1)/log(2))) ? log($1)/log(2) : int(log($1)/log(2))+1}'`))
 }
 
-function getUsedSubnets()
+function int2cidrD() # $1 = number of needed ip (this function round down to an integer for example `int2cidr 250`=23)
 {
-  echo `wget -q http://[0::1]:2006 -O - | grep ::ffff: | grep -v "0.0.0.0/0" | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' |sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4`
+  echo $((32 - `echo "$1" | awk '{printf "%d", int(log($1)/log(2))}'`))
+}
+
+function loadUsedSubnets()
+{
+  wget -q http://[0::1]:2006 -O - | grep ::ffff: | grep -v "0.0.0.0/0" | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > "$usedSubnetsFile"
+
+  #echo "`cat /home/gioacchino/Desktop/sortedsubnet.txt`" > "$usedSubnetsFile"
   #fd7d:d7bb:2c97:dec3:0:15:6dd5:f7d1
 }
 
 function getFreeSubnet()
 {
-  echo "not yet ported"
+
+  local intBigSubnetStartIp=`ipDotted2Int "${ipv4BigSubnet%/*}"`
+  local intBigSubnetEndIp=$(($intBigSubnetStartIp+`cidr2Int "${ipv4BigSubnet#*/}"`))
+
+  local intTestIfFreeStartIp=$intBigSubnetStartIp
+  local intTestIfFreeEndIp=$intBigSubnetEndIp
+
+  local row=1
+  local len="`wc -l "$usedSubnetsFile" | awk '{print $1}'`"
+
+  while [ $row -le $len ];
+  do
+    local dotUsedIp="`head -$row "$usedSubnetsFile" | tail -1`" #Get one used subnet
+    local usedCidr=${dotUsedIp#*/}	# get cidr
+    local dotUsedIp=${dotUsedIp%/*}	# get dotted ip
+
+    eigenDebug "reading $dotUsedIp/$usedCidr"
+
+    local intStartUsedIp=`ipDotted2Int "$dotUsedIp"`
+    local intEndUsedIp=$((`ipDotted2Int "$dotUsedIp"`+`cidr2Int $usedCidr`))
+
+    if [ $intStartUsedIp -ge $intBigSubnetStartIp ] && [ $intEndUsedIp -le $intBigSubnetEndIp ]
+    then
+      eigenDebug "Used subnet $dotUsedIp/$usedCidr found inside BigSubnet"
+
+      echo "`ipInt2Dotted $intTestIfFreeStartIp` >? `ipInt2Dotted $intStartUsedIp` && `ipInt2Dotted $intTestIfFreeStartIp` <? `ipInt2Dotted $intEndUsedIp`"
+      if [ $intTestIfFreeStartIp -ge $intStartUsedIp ] && [ $intTestIfFreeStartIp -le $intEndUsedIp ]
+      then
+	eigenDebug "Testing free ip start is inside used range!"
+	local intTestIfFreeStartIp=$(($intEndUsedIp+1))
+      fi
+
+      if [ $intTestIfFreeEndIp -ge $intEndUsedIp ] && [ $intTestIfFreeEndIp -le $intEndUsedIp ]
+      then
+	eigenDebug "Testing free ip end is inside used range!"
+	local intTestIfFreeIp=$(($intStartUsedIp-1))
+      fi
+    fi
+    ((row++))
+  done
+
+  if [ $intTestIfFreeStartIp -lt $intTestIfFreeEndIp ]
+  then
+    if [ $(($intTestIfFreeEndIp-$intTestIfFreeStartIp)) -ge `cidr2Int $2` ]
+    then
+      eigenDebug "Testing ip is Free!"
+      echo "`ipInt2Dotted "$intTestIfFreeStartIp"`/$2"	#output
+      return
+    fi
+    eigenDebug "Testing ip is Free! But with shorter range then requested"
+    echo "`ipInt2Dotted "$intTestIfFreeStartIp"`/`int2cidrD "$(($intTestIfFreeEndIp-$intTestIfFreeStartIp))"`"
+    return
+  fi
+
+  eigenDebug "Big Subnet Exausted"
+  echo "0"
 }
 
 function start()
@@ -360,7 +439,7 @@ function start()
 
   if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "1" ]
   then
-      sleep 60s #in this way we are sure that it is connected to other nodes before try to connect to eigennet server this time could be increased if necessary
+      sleep 60s #in this way we are sure that it is connected to other nodes before to look for other nodes in topology
       local indx=1
       local indi=0
       local lag=""
@@ -464,3 +543,7 @@ function status()
 {
   cat /tmp/eigenlog
 }
+
+
+#loadUsedSubnets
+#getFreeSubnet "$ipv4BigSubnet" 24

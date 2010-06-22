@@ -1,4 +1,5 @@
 Move to niit instead of using ip6-tunnel
-Configure arprefresh, p2pd and txtinfo olsrd module
+Configure arprefresh and p2pd olsrd module
+In txtinfo olsrd module change PlParam     \"Accept\"   \"0::0\" to PlParam     \"Accept\"   \"0::1\"
 Remove kmod-ip6-tunnel depends after complete move to niit
 Test test test
