@@ -43,7 +43,6 @@ meshTunLag="99999"
 confServer="$meshTunRemote"
 confPath="/cgi-bin/eigennetconf.cgi"
 ipv4Dns="10.0.0.1"
-ipv4BigSubnet="10.174.0.0/16"
 localprefixes=""
 usedSubnetsFile="/tmp/usedSubnets"
 dynamicHnaFile="/tmp/dynHna"
@@ -51,9 +50,13 @@ dynamicHnaFile="/tmp/dynHna"
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
 networkWirelessDevHWAddr6[0]=""
+networkWirelessCidr="27"
+networkWirelessIpv4BigSubnet="10.174.0.0/16"
 networkWiredDevice[0]=""
 networkWiredDevHWAddr[0]=""
 networkWiredDevHWAddr6[0]=""
+networkWiredCidr="29"
+networkWiredIpv4BigSubnet="10.174.0.0/16"
 
 function eigenDebug()
 {
@@ -171,9 +174,13 @@ config interface wifimesh$indi
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
         option proto      static
-#	option ipaddr     '192.168.1$(($indi*2)).1'
-#	option netmask    '255.255.255.0'
         option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
+
+#Mobile#config interface wifiMobile$indi
+#Mobile#	option ifname	ath$(($indi*2)) # check this index
+#Mobile#	option proto	static
+#Mobile#	option ipaddr	'192.168.174.1'
+#Mobile#	option netmask	'255.255.255.0'
 
 "
 
@@ -203,6 +210,14 @@ config 'wifi-iface'
         option 'mode'        'ap'
         option 'ssid'        'EigenNet'
         option 'encryption'  'none'
+
+#Mobile#config 'wifi-iface'
+#Mobile#        option 'device'      '${networkWirelessDevice[$indx]}'
+#Mobile#        option 'network'     'wifiMobile$indi'
+#Mobile#        option 'sw_merge'    '1'
+#Mobile#        option 'mode'        'ap'
+#Mobile#        option 'ssid'        'EigenNet_Mobile'
+#Mobile#        option 'encryption'  'none'
 "
 
     OLSRInterfaces="$OLSRInterfaces
@@ -248,8 +263,6 @@ interface ath$(($indi*2))
 config interface lan$indi
 	option ifname     ${networkWiredDevice[$indx]}
 	option proto      static
-#	option ipaddr     '192.168.2$indi.1'
-#	option netmask    '255.255.255.0'
 	option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
 
 config alias                                                           
@@ -344,7 +357,7 @@ function ipInt2Dotted()
   echo "$dottedIp"
 }
 
-function cidr2Int() # $1 = cidr  looking tu a subnet you see for example 192.168.0.1/$1
+function cidr2Int() # $1 = cidr  looking to a subnet you see for example 192.168.0.1/$1
 {
   echo "$((2**(32-$1)))"
 }
@@ -367,9 +380,9 @@ function loadUsedSubnets()
   #fd7d:d7bb:2c97:dec3:0:15:6dd5:f7d1
 }
 
-function getFreeSubnet()
+function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = Mask bit for example if you need x.y.z.0/24 $1 will be $1 = 24
 {
-
+  local ipv4BigSubnet=$1
   local intBigSubnetStartIp=`ipDotted2Int "${ipv4BigSubnet%/*}"`
   local intBigSubnetEndIp=$(($intBigSubnetStartIp+`cidr2Int "${ipv4BigSubnet#*/}"`))
 
@@ -434,6 +447,10 @@ function start()
   sysctl -w net.ipv6.conf.all.forwarding=1
   sysctl -w net.ipv6.conf.all.autoconf=0
 
+  ip -6 route add 0.0.0.0/0 dev niit4to6
+  
+  echo "" > $dynamicHnaFile
+
   loadDevicesInfo
 
   if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "1" ]
@@ -444,17 +461,27 @@ function start()
       local lag=""
       local tunnelEnabled="false"
       local dhcp_ranges=""
+#Mobile#      local dhcp_mobile_ranges=""
 
       while [ "${networkWirelessDevice[$indx]}" != "" ]
       do
 
-	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf" | grep ip4prefix`" != "" ]
-	then
-	  local ip4prefix="`cat "/tmp/ip4conf" | grep ip4prefix | awk '{ print $2 }'`"
-	  localprefixes="$localprefixes$ip4prefix""_"
-	  ip -4 addr add $ip4prefix.1/24 dev ath$(($indi*2))
-	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),$ip4prefix.100,$ip4prefix.250,255.255.255.0,5h"
-	  rm -f /tmp/ip4conf
+	local mySubnet=`getFreeSubnet "$networkWirelessIpv4BigSubnet" $networkWirelessCidr`
+	if [ "$mySubnet" == "0" ]; then break; fi
+
+	local mySubnetCidr=${mySubnet#*/}
+	local dotMySubnetStartIp="${mySubnet%/*}"
+	local intMySubnetStartIp="`ipDotted2Int $dotMySubnetStartIp`"
+	local intMySubnetEndIp="$(($intMySubnetStartIp+`cidr2Int "$mySubnetCidr"`))"
+	local dotMySubnetEndIp=`ipInt2Dotted "$(($intMySubnetEndIp-1))"`
+
+	ip -4 addr add $mySubnet dev ath$(($indi*2))
+	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
+	echo "0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr))" >> $dynamicHnaFile
+
+	if [ $mySubnetCidr -lt 29 ]; then
+	  #$(($intMySubnetStartIp+3)) ( +3 instead of +1 then first 2 ip usable are reserved for statical configuration )
+	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),`ipInt2Dotted $(($intMySubnetStartIp+2))`,$dotMySubnetEndIp,`ipInt2Dotted $((2**($mySubnetCidr)))`,1h"
 	fi
 
 	((indx++))
@@ -464,48 +491,29 @@ function start()
       indx=1
       while [ "${networkWiredDevice[$indx]}" != "" ]
       do
-	lag="`ping -6 -w 5 -q -s 1000 -I ${networkWiredDevice[$indx]} $meshTunRemote | grep round-trip | awk -F / '{ print $4 }' | awk -F . '{ print $1 }'`"
+	
+	local mySubnet=`getFreeSubnet "$networkWiredIpv4BigSubnet" $networkWiredCidr`
+	if [ "$mySubnet" == "0" ]; then break; fi
 
-	if [ "$lag" != "" ] && [ $lag -le $meshTunLag ] # -le In case of same lag prefer wired interface
-	then
-	  meshTunLocal="${networkWiredDevHWAddr6[$indx]}"
-	  meshTunDevice="${networkWiredDevice[$indx]}"
-	  meshTunLag="$lag"
-	  tunnelEnabled="true"
-	fi
+	local mySubnetCidr=${mySubnet#*/}
+	local dotMySubnetStartIp="${mySubnet%/*}"
+	local intMySubnetStartIp="`ipDotted2Int $dotMySubnetStartIp`"
+	local intMySubnetEndIp="$(($intMySubnetStartIp+`cidr2Int "$mySubnetCidr"`))"
+	local dotMySubnetEndIp=`ipInt2Dotted "$(($intMySubnetEndIp-1))"`
 
-	wget -O /tmp/ip4conf "http://[$confServer]$confPath?hw6=${networkWiredDevHWAddr6[$indx]}"
-	#echo "ip4conf: `cat "/tmp/ip4conf"`"
+	ip -4 addr add $mySubnet dev ${networkWiredDevice[$indx]}
+	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
+	echo "0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr))" >> $dynamicHnaFile
 
-	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf"`" != "" ]
-	then
-	  local ip4prefix="`cat "/tmp/ip4conf" | grep ip4prefix | awk '{ print $2 }'`"
-	  localprefixes="$localprefixes$ip4prefix""_"
-	  ip -4 addr add $ip4prefix.1/24 dev ${networkWiredDevice[$indx]}
-	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},$ip4prefix.100,$ip4prefix.250,255.255.255.0,5h"
-	  rm -f /tmp/ip4conf
+	if [ $mySubnetCidr -lt 29 ]; then
+	  #$(($intMySubnetStartIp+4)) ( +4 instead of +2 then first 2 ip usable are reserved for statical configuration )
+	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},`ipInt2Dotted $(($intMySubnetStartIp+4))`,$dotMySubnetEndIp,`ipInt2Dotted $((2**($mySubnetCidr)))`,2h"
 	fi
  
 	((indx++))
       done
       
-      if [ "$tunnelEnabled" == "true" ]
-      then
-	wget -O /tmp/ip4conf "http://[$confServer]$confPath?tunnel=1&localprefixes=$localprefixes&hw6=$meshTunLocal"
-	#echo "ip4conf: `cat "/tmp/ip4conf"`"
 
-	if [ -e "/tmp/ip4conf" ] && [ "`cat "/tmp/ip4conf"`" != "" ]
-	then
-	  ip -6 tunnel add tun46 mode ipip6 remote $meshTunRemote local $meshIpV6Subnet:0000:$meshTunLocal dev $meshTunDevice
-	  ip link set dev tun46 up
-	  ip -6 addr add 4001:470:1f00::$meshTunLocal dev tun46
-	  for tunroute in `cat "/tmp/ip4conf" | grep ip4route | awk '{ print $2}'`
-	  do
-	    ip route add $tunroute dev tun46 mtu 1444
-	  done
-	  rm -f /tmp/ip4conf
-	fi
-      fi
       echo $dhcp_ranges >> /tmp/eigenlog
       dnsmasq -K -D -y -Z -b -E -l /tmp/dhcp.leases -r /etc/resolv.conf.auto $dhcp_ranges
       exit 0
