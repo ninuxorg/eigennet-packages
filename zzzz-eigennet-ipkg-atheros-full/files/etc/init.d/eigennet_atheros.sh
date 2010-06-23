@@ -361,7 +361,7 @@ function int2cidrD() # $1 = number of needed ip (this function round down to an 
 
 function loadUsedSubnets()
 {
-  wget -q http://[0::1]:2006 -O - | grep ::ffff: | grep -v "0.0.0.0/0" | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > "$usedSubnetsFile"
+  wget -q http://[0::1]:2006 -O - | grep ::ffff: | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > "$usedSubnetsFile"
 
   #echo "`cat /home/gioacchino/Desktop/sortedsubnet.txt`" > "$usedSubnetsFile"
   #fd7d:d7bb:2c97:dec3:0:15:6dd5:f7d1
@@ -382,7 +382,7 @@ function getFreeSubnet()
   while [ $row -le $len ];
   do
     local dotUsedIp="`head -$row "$usedSubnetsFile" | tail -1`" #Get one used subnet
-    local usedCidr=${dotUsedIp#*/}	# get cidr
+    local usedCidr=$((${dotUsedIp#*/}-96))	# get cidr -96 is because in the file we have the subnets as ipv4 mapped -> ipv6
     local dotUsedIp=${dotUsedIp%/*}	# get dotted ip
 
     eigenDebug "reading $dotUsedIp/$usedCidr"
@@ -394,7 +394,6 @@ function getFreeSubnet()
     then
       eigenDebug "Used subnet $dotUsedIp/$usedCidr found inside BigSubnet"
 
-      echo "`ipInt2Dotted $intTestIfFreeStartIp` >? `ipInt2Dotted $intStartUsedIp` && `ipInt2Dotted $intTestIfFreeStartIp` <? `ipInt2Dotted $intEndUsedIp`"
       if [ $intTestIfFreeStartIp -ge $intStartUsedIp ] && [ $intTestIfFreeStartIp -le $intEndUsedIp ]
       then
 	eigenDebug "Testing free ip start is inside used range!"
