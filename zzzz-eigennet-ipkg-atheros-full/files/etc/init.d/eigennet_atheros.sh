@@ -380,6 +380,11 @@ function loadUsedSubnets()
   #fd7d:d7bb:2c97:dec3:0:15:6dd5:f7d1
 }
 
+function unLoadUsedSubnets()
+{
+    rm -f "$usedSubnetsFile"
+}
+
 function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = Mask bit for example if you need x.y.z.0/24 $1 will be $1 = 24
 {
   local ipv4BigSubnet=$1
@@ -390,6 +395,7 @@ function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = 
   local intTestIfFreeEndIp=$intBigSubnetEndIp
 
   local row=1
+  loadUsedSubnets
   local len="`wc -l "$usedSubnetsFile" | awk '{print $1}'`"
 
   while [ $row -le $len ];
@@ -422,6 +428,8 @@ function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = 
     ((row++))
   done
 
+  unLoadUsedSubnets
+
   if [ $intTestIfFreeStartIp -lt $intTestIfFreeEndIp ]
   then
     if [ $(($intTestIfFreeEndIp-$intTestIfFreeStartIp)) -ge `cidr2Int $2` ]
@@ -432,6 +440,7 @@ function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = 
     fi
     eigenDebug "Testing ip is Free! But with shorter range then requested"
     echo "`ipInt2Dotted "$intTestIfFreeStartIp"`/`int2cidrD "$(($intTestIfFreeEndIp-$intTestIfFreeStartIp))"`"
+    
     return
   fi
 
@@ -550,7 +559,3 @@ function status()
 {
   cat /tmp/eigenlog
 }
-
-
-#loadUsedSubnets
-#getFreeSubnet "$ipv4BigSubnet" 24
