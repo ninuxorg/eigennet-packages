@@ -474,7 +474,7 @@ function start()
 
       while [ "${networkWirelessDevice[$indx]}" != "" ]
       do
-
+	sleep 10s #We need that olsrd load the dynamic hna entry in his topology before look for another free subnet ( this can be increased if necessary)
 	local mySubnet=`getFreeSubnet "$networkWirelessIpv4BigSubnet" $networkWirelessCidr`
 	if [ "$mySubnet" == "0" ]; then break; fi
 
@@ -500,7 +500,7 @@ function start()
       indx=1
       while [ "${networkWiredDevice[$indx]}" != "" ]
       do
-	
+	sleep 10s #We need that olsrd load the dynamic hna entry in his topology before look for another free subnet ( this can be increased if necessary)
 	local mySubnet=`getFreeSubnet "$networkWiredIpv4BigSubnet" $networkWiredCidr`
 	if [ "$mySubnet" == "0" ]; then break; fi
 
@@ -525,10 +525,10 @@ function start()
 
       echo $dhcp_ranges >> /tmp/eigenlog
       dnsmasq -K -D -y -Z -b -E -l /tmp/dhcp.leases -r /etc/resolv.conf.auto $dhcp_ranges
-      exit 0
+      return 0
   fi
 
-  sleep 10
+  sleep 10s
 
   echo "1" > "/etc/isNotFirstRun"
 
@@ -537,7 +537,7 @@ function start()
 
   configureNetwork
 
-  sleep 2
+  sleep 2s
 
   reboot
 }
