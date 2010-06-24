@@ -484,7 +484,7 @@ function start()
 	local intMySubnetEndIp="$(($intMySubnetStartIp+`cidr2Int "$mySubnetCidr"`))"
 	local dotMySubnetEndIp=`ipInt2Dotted "$(($intMySubnetEndIp-1))"`
 
-	ip -4 addr add $mySubnet dev ath$(($indi*2))
+	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ath$(($indi*2))
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
 	echo "0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr))" >> $dynamicHnaFile
 
@@ -510,7 +510,7 @@ function start()
 	local intMySubnetEndIp="$(($intMySubnetStartIp+`cidr2Int "$mySubnetCidr"`))"
 	local dotMySubnetEndIp=`ipInt2Dotted "$(($intMySubnetEndIp-1))"`
 
-	ip -4 addr add $mySubnet dev ${networkWiredDevice[$indx]}
+	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ${networkWiredDevice[$indx]}
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
 	echo "0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr))" >> $dynamicHnaFile
 
