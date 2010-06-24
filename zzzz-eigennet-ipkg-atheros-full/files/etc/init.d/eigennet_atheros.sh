@@ -456,6 +456,8 @@ function start()
   sysctl -w net.ipv6.conf.all.forwarding=1
   sysctl -w net.ipv6.conf.all.autoconf=0
 
+  ip link set dev niit4to6 up
+  ip link set dev niit6to4 up
   ip -6 route add 0.0.0.0/0 dev niit4to6
   
   echo "" > $dynamicHnaFile
@@ -464,11 +466,9 @@ function start()
 
   if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "1" ]
   then
-      sleep 60s #in this way we are sure that it is connected to other nodes before to look for other nodes in topology
+      sleep 60s #in this way we are sure that it is connected to other nodes before to look for other nodes in topology ( this can be increased if necessary)
       local indx=1
       local indi=0
-      local lag=""
-      local tunnelEnabled="false"
       local dhcp_ranges=""
 #Mobile#      local dhcp_mobile_ranges=""
 
