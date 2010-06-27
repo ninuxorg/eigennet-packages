@@ -1,0 +1,7 @@
+Place here dyn_hna plugin source code 
+
+some useful stuff:
+http://nopaste.info/fa63933651.html
+
+to advertise hna:
+ip_prefix_list_add(&olsr_cnf->hna_entries, &(host->ip), olsr_netmask_to_prefix(&gw_netmask));

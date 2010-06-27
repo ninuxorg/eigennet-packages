@@ -23,9 +23,7 @@ PKG_RELEASE:=2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=git://olsr.org/olsrd.git
-# git://dev.dd19.de/pub/niit
 PKG_SOURCE_VERSION:=origin/stable
-# origin/master
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -120,6 +118,7 @@ define Package/$(PKG_NAME)-mod-secure/conffiles
 endef
 
 define Build/Configure
+#	mv dyn_hna olsrd-0.6.0/lib #conceptually we have to to this
 endef
 
 define Build/Compile
