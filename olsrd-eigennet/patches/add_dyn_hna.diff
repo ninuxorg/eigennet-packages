@@ -1,0 +1,200 @@
+diff --git a/lib/dyn_hna/Makefile b/lib/dyn_hna/Makefile
+new file mode 100644
+index 0000000..6d0f3dc
+--- /dev/null
++++ b/lib/dyn_hna/Makefile
+@@ -0,0 +1,34 @@
++#
++#Copyright (C) 2010  Gioacchino Mazzurco <gmazzurco89@gmail.com>
++#
++#This program is free software: you can redistribute it and/or modify
++#it under the terms of the GNU General Public License as published by
++#the Free Software Foundation, either version 3 of the License, or
++#(at your option) any later version.
++#
++#This program is distributed in the hope that it will be useful,
++#but WITHOUT ANY WARRANTY; without even the implied warranty of
++#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++#GNU General Public License for more details.
++#
++#You should have received a copy of the GNU General Public License
++#along with this file.  If not, see <http://www.gnu.org/licenses/>.
++
++OLSRD_PLUGIN =	true
++PLUGIN_NAME =	olsrd_dyn_hna
++PLUGIN_VER =	0.1
++
++TOPDIR = ../..
++include $(TOPDIR)/Makefile.inc
++
++default_target: $(PLUGIN_FULLNAME)
++
++$(PLUGIN_FULLNAME): $(OBJS) version-script.txt
++		$(CC) $(LDFLAGS) -o $(PLUGIN_FULLNAME) $(OBJS) $(LIBS)
++
++install:	$(PLUGIN_FULLNAME)
++		$(STRIP) $(PLUGIN_FULLNAME)
++		$(INSTALL_LIB)
++
++clean:
++		rm -f $(OBJS) $(SRCS:%.c=%.d) $(PLUGIN_FULLNAME)
+diff --git a/lib/dyn_hna/README_MINI b/lib/dyn_hna/README_MINI
+new file mode 100644
+index 0000000..625f994
+--- /dev/null
++++ b/lib/dyn_hna/README_MINI
+@@ -0,0 +1,36 @@
++---------------------------------------------------------------------
++MINI PLUGIN FOR OLSRD
++by Bruno Randolf <bruno.randolf@4g-systems.biz>
++---------------------------------------------------------------------
++
++This is a minimal example plugin to demonstrate the functions a plugin
++must implement. It documents the minimal requirements for the new
++plugin interface and is a good start for creating new plugins and 
++testing the plugin loader.
++
++This plugin does nothing, except printing messages when it is loaded
++and unloaded.
++
++
++---------------------------------------------------------------------
++PLUGIN PARAMETERS (PlParam)
++---------------------------------------------------------------------
++
++PlParam "test" "anything"
++	just for a test: print the parameter.
++
++
++---------------------------------------------------------------------
++SAMPLE CONFIG
++---------------------------------------------------------------------
++
++add in /etc/olsrd.conf:
++
++LoadPlugin "olsrd_mini.so.0.1"
++{
++	PlParam "test" "hello"
++}
++
++
++---------------------------------------------------------------------
++EOF / 26.05.2005
+diff --git a/lib/dyn_hna/src/dyn_hna.c b/lib/dyn_hna/src/dyn_hna.c
+new file mode 100644
+index 0000000..8d8c107
+--- /dev/null
++++ b/lib/dyn_hna/src/dyn_hna.c
+@@ -0,0 +1,58 @@
++/*
++ *
++ * Copyright (C) 2010  Gioacchino Mazzurco <gmazzurco89@gmail.com>
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this file.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ */
++
++/* System includes */
++#include <assert.h>            /* assert() */
++#include <stddef.h>            /* NULL */
++#include <stdio.h>
++#include <sys/types.h>
++#include <stdlib.h>
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <errno.h>
++#include <ctype.h>
++#include <fcntl.h>
++#include <sys/stat.h>
++
++/* OLSRD includes */
++#include "plugin.h"
++#include "plugin_util.h"
++#include "defs.h"              /* uint8_t, olsr_cnf */
++#include "scheduler.h"          /* olsr_start_timer() */
++#include "olsr_cfg.h"          /* olsr_cnf() */
++#include "olsr_cookie.h"        /* olsr_alloc_cookie() */
++#define PLUGIN_INTERFACE_VERSION 5
++
++
++int olsrd_plugin_interface_version(void)
++{
++  return PLUGIN_INTERFACE_VERSION;
++}
++
++
++void olsrd_get_plugin_parameters(const struct olsrd_plugin_parameters **params __attribute__ ((unused)), int *size __attribute__ ((unused)))
++{}
++
++
++int olsrd_plugin_init(void)
++{
++  //custom init code
++  return 1;
++}
+diff --git a/lib/dyn_hna/src/dyn_hna.h b/lib/dyn_hna/src/dyn_hna.h
+new file mode 100644
+index 0000000..a006e8e
+--- /dev/null
++++ b/lib/dyn_hna/src/dyn_hna.h
+@@ -0,0 +1,32 @@
++/*
++ *
++ * Copyright (C) 2010  Gioacchino Mazzurco <gmazzurco89@gmail.com>
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this file.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ */
++
++/*
++ * Dynamic linked library for the olsr.org olsr daemon
++ */
++
++#ifndef _OLSRD_PLUGIN_DYN_HNA
++#define _OLSRD_PLUGIN_DYN_HNA
++
++/* Initialization function */
++int olsrd_plugin_init(void);
++
++int olsrd_plugin_interface_version(void);
++
++#endif
+diff --git a/lib/dyn_hna/version-script.txt b/lib/dyn_hna/version-script.txt
+new file mode 100644
+index 0000000..a145659
+--- /dev/null
++++ b/lib/dyn_hna/version-script.txt
+@@ -0,0 +1,10 @@
++VERS_1.0
++{
++  global:
++    olsrd_plugin_interface_version;
++    olsrd_plugin_init;
++    olsrd_get_plugin_parameters;
++
++  local:
++    *;
++};

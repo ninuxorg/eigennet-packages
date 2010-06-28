@@ -123,6 +123,12 @@ define Package/$(PKG_NAME)-mod-quagga
   TITLE:=Quagga plugin for olsrd
 endef
 
+define Package/$(PKG_NAME)-mod-dyn_hna
+  $(call Package/$(PKG_NAME)/template)
+  DEPENDS:=$(PKG_NAME)
+  TITLE:=Dynamic Hna plugin for olsrd
+endef
+
 define Build/Configure
 endef
 
@@ -141,7 +147,7 @@ define Build/Compile
 		MANDIR="$(PKG_INSTALL_DIR)/usr/share/man" \
 		STRIP="true" \
 		INSTALL_LIB="true" \
-		SUBDIRS="arprefresh bmf dot_draw dyn_gw dyn_gw_plain httpinfo nameservice secure txtinfo mdns p2pd quagga" \
+		SUBDIRS="arprefresh bmf dot_draw dyn_gw dyn_gw_plain httpinfo nameservice secure txtinfo mdns p2pd quagga dyn_hna" \
 		all libs install install_libs
 endef
 
@@ -216,6 +222,11 @@ define Package/$(PKG_NAME)-mod-quagga/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/quagga/olsrd_quagga.so.* $(1)/usr/lib/
 endef
 
+define Package/$(PKG_NAME)-mod-dyn_hna/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/dyn_hna/olsrd_dyn_hna.so.* $(1)/usr/lib/
+endef
+
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-arprefresh))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-dot-draw))
@@ -229,3 +240,4 @@ $(eval $(call BuildPackage,$(PKG_NAME)-mod-txtinfo))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-mdns))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-p2pd))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-quagga))
+$(eval $(call BuildPackage,$(PKG_NAME)-mod-dyn_hna))
