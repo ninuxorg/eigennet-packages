@@ -95,6 +95,10 @@ define Package/$(PKG_NAME)-mod-secure
   TITLE:=Message signing plugin to secure routing domain
 endef
 
+define Package/$(PKG_NAME)-mod-secure/conffiles
+/etc/olsrd.d/olsrd_secure_key
+endef
+
 define Package/$(PKG_NAME)-mod-txtinfo
   $(call Package/$(PKG_NAME)/template)
   DEPENDS:=$(PKG_NAME)
@@ -113,12 +117,13 @@ define Package/$(PKG_NAME)-mod-p2pd
   TITLE:=P2P discovery packet distribution (mdns generalized) 
 endef
 
-define Package/$(PKG_NAME)-mod-secure/conffiles
-/etc/olsrd.d/olsrd_secure_key
+define Package/$(PKG_NAME)-mod-quagga
+  $(call Package/$(PKG_NAME)/template)
+  DEPENDS:=$(PKG_NAME)
+  TITLE:=Quagga plugin for olsrd
 endef
 
 define Build/Configure
-#	mv dyn_hna olsrd-0.6.0/lib #conceptually we have to to this
 endef
 
 define Build/Compile
@@ -136,7 +141,7 @@ define Build/Compile
 		MANDIR="$(PKG_INSTALL_DIR)/usr/share/man" \
 		STRIP="true" \
 		INSTALL_LIB="true" \
-		SUBDIRS="arprefresh bmf dot_draw dyn_gw dyn_gw_plain httpinfo nameservice secure txtinfo mdns p2pd" \
+		SUBDIRS="arprefresh bmf dot_draw dyn_gw dyn_gw_plain httpinfo nameservice secure txtinfo mdns p2pd quagga" \
 		all libs install install_libs
 endef
 
@@ -206,6 +211,11 @@ define Package/$(PKG_NAME)-mod-p2pd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/p2pd/olsrd_p2pd.so.* $(1)/usr/lib/
 endef
 
+define Package/$(PKG_NAME)-mod-quagga/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/p2pd/olsrd_quagga.so.* $(1)/usr/lib/
+endef
+
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-arprefresh))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-dot-draw))
@@ -218,3 +228,4 @@ $(eval $(call BuildPackage,$(PKG_NAME)-mod-secure))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-txtinfo))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-mdns))
 $(eval $(call BuildPackage,$(PKG_NAME)-mod-p2pd))
+$(eval $(call BuildPackage,$(PKG_NAME)-mod-quagga))

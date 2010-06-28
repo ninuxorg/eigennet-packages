@@ -12,3 +12,5 @@ Useful dnsmasq option:
 
 -K, --dhcp-authoritative
     Should be set when dnsmasq is definitely the only DHCP server on a network. It changes the behaviour from strict RFC compliance so that DHCP requests on unknown leases from unknown hosts are not ignored. This allows new hosts to get a lease without a tedious timeout under all circumstances. It also allows dnsmasq to rebuild its lease database without each client needing to reacquire a lease, if the database is lost.
+
+We can use quagga olsrd plugin to dinamically add and remove hna!
