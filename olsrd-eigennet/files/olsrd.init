@@ -11,8 +11,3 @@ stop()
 {
   killall olsrd
 }
-
-status()
-{
-  echo `ps ax | grep olsrd`
-}
