@@ -1,3 +1,19 @@
+diff --git a/Makefile b/Makefile
+index 8f39d58..2cf052a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -235,6 +235,11 @@ watchdog:
+ 		$(MAKECMD) -C lib/watchdog
+ 		$(MAKECMD) -C lib/watchdog DESTDIR=$(DESTDIR) install
+ 
++dyn_hna:
++		$(MAKECMD) -C lib/dyn_hna clean
++		$(MAKECMD) -C lib/dyn_hna
++		$(MAKECMD) -C lib/dyn_hna DESTDIR=$(DESTDIR) install
++
+ build_all:	all switch libs
+ install_all:	install install_libs
+ clean_all:	uberclean clean_libs
 diff --git a/lib/dyn_hna/Makefile b/lib/dyn_hna/Makefile
 new file mode 100644
 index 0000000..6d0f3dc
@@ -38,32 +54,25 @@ index 0000000..6d0f3dc
 +
 +clean:
 +		rm -f $(OBJS) $(SRCS:%.c=%.d) $(PLUGIN_FULLNAME)
-diff --git a/lib/dyn_hna/README_MINI b/lib/dyn_hna/README_MINI
+diff --git a/lib/dyn_hna/README_dyn_hna b/lib/dyn_hna/README_dyn_hna
 new file mode 100644
-index 0000000..625f994
+index 0000000..336f4dc
 --- /dev/null
-+++ b/lib/dyn_hna/README_MINI
-@@ -0,0 +1,36 @@
++++ b/lib/dyn_hna/README_dyn_hna
+@@ -0,0 +1,29 @@
 +---------------------------------------------------------------------
-+MINI PLUGIN FOR OLSRD
-+by Bruno Randolf <bruno.randolf@4g-systems.biz>
++DYNAMIC HNA PLUGIN FOR OLSRD
++by Gioacchino Mazzurco <gmazzurco89@gmail.com>
 +---------------------------------------------------------------------
 +
-+This is a minimal example plugin to demonstrate the functions a plugin
-+must implement. It documents the minimal requirements for the new
-+plugin interface and is a good start for creating new plugins and 
-+testing the plugin loader.
-+
-+This plugin does nothing, except printing messages when it is loaded
-+and unloaded.
-+
++This plugin permit to load/unload new dynamic hna on already running olsrd daemon withoiut restarting it symply writing on a fifo
 +
 +---------------------------------------------------------------------
 +PLUGIN PARAMETERS (PlParam)
 +---------------------------------------------------------------------
 +
-+PlParam "test" "anything"
-+	just for a test: print the parameter.
++PlParam "fifoFile" "/path/toFifoFile"
++	The location on filesystem of used fifo.
 +
 +
 +---------------------------------------------------------------------
@@ -72,23 +81,24 @@ index 0000000..625f994
 +
 +add in /etc/olsrd.conf:
 +
-+LoadPlugin "olsrd_mini.so.0.1"
++LoadPlugin "olsrd_dyn_hna.so.0.1"
 +{
-+	PlParam "test" "hello"
++	PlParam "fifoFile" "/var/dyn_hna.fifo"
 +}
 +
 +
 +---------------------------------------------------------------------
-+EOF / 26.05.2005
++EOF / 28.06.2010
 diff --git a/lib/dyn_hna/src/dyn_hna.c b/lib/dyn_hna/src/dyn_hna.c
 new file mode 100644
-index 0000000..8d8c107
+index 0000000..b1e59d3
 --- /dev/null
 +++ b/lib/dyn_hna/src/dyn_hna.c
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,59 @@
 +/*
 + *
 + * Copyright (C) 2010  Gioacchino Mazzurco <gmazzurco89@gmail.com>
++ * Copyright (C) 2010  Salvatore Mazzurco <s4lv00@gmail.com>
 + *
 + * This program is free software: you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -146,13 +156,14 @@ index 0000000..8d8c107
 +}
 diff --git a/lib/dyn_hna/src/dyn_hna.h b/lib/dyn_hna/src/dyn_hna.h
 new file mode 100644
-index 0000000..a006e8e
+index 0000000..74f77fd
 --- /dev/null
 +++ b/lib/dyn_hna/src/dyn_hna.h
-@@ -0,0 +1,32 @@
+@@ -0,0 +1,33 @@
 +/*
 + *
 + * Copyright (C) 2010  Gioacchino Mazzurco <gmazzurco89@gmail.com>
++ * Copyright (C) 2010  Salvatore Mazzurco <s4lv00@gmail.com>
 + *
 + * This program is free software: you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
