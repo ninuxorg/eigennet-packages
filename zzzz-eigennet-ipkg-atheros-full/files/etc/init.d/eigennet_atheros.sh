@@ -44,7 +44,8 @@ confPath="/cgi-bin/eigennetconf.cgi"
 ipv4Dns="10.0.0.1"
 localprefixes=""
 usedSubnetsFile="/tmp/usedSubnets"
-dynamicHnaFile="/tmp/dynHna"
+dynHnaFIFO="/tmp/dynHna.fifo"
+dynHnaPort="12345"
 
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
@@ -106,6 +107,12 @@ LoadPlugin \"olsrd_txtinfo.so.0.1\"
   PlParam     \"Accept\"   \"0::0\"
 }
 
+LoadPlugin \"olsrd_quagga.so.0.2.2\"
+{
+  PlParam \"Version\" \"1\"
+  PlParam \"Redistribute\" \"system\"
+  PlParam \"Port\" \"$dynHnaPort\"
+}
 
 "
 
@@ -455,17 +462,17 @@ function start()
   sysctl -w net.ipv6.conf.all.forwarding=1
   sysctl -w net.ipv6.conf.all.autoconf=0
 
-  ip link set dev niit4to6 up
-  ip link set dev niit6to4 up
-  ip -6 route add 0.0.0.0/0 dev niit4to6
-  
-  echo "" > $dynamicHnaFile
-
   loadDevicesInfo
 
   if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "1" ]
   then
-      sleep 60s #in this way we are sure that it is connected to other nodes before to look for other nodes in topology ( this can be increased if necessary)
+
+      ip link set dev niit4to6 up
+      ip link set dev niit6to4 up
+      ip route add 0.0.0.0/0 dev niit4to6
+
+      sleep 60s #in this way we are sure that olsrd see all other nodes before to look in topology ( this can be increased if necessary)
+
       local indx=1
       local indi=0
       local dhcp_ranges=""
@@ -543,18 +550,12 @@ function start()
 
 function stop()
 {
-  echo "stopping" >> /tmp/eigenlog
   killall dnsmasq
 }
 
 function restart()
 {
   stop
-  sleep 2
+  sleep 2s
   start
-}
-
-function status()
-{
-  cat /tmp/eigenlog
 }
