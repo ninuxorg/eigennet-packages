@@ -107,13 +107,6 @@ LoadPlugin \"olsrd_txtinfo.so.0.1\"
   PlParam     \"Accept\"   \"0::0\"
 }
 
-LoadPlugin \"olsrd_quagga.so.0.2.2\"
-{
-  PlParam \"Version\" \"1\"
-  PlParam \"Redistribute\" \"system\"
-  PlParam \"Port\" \"$dynHnaPort\"
-}
-
 "
 
   OLSRHna6="
