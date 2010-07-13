@@ -30,6 +30,7 @@ index 96a7e48..821bccb 100644
 +}
 +
 +#endif
- /**
++
+/**
  * Reconfigure olsrd. Currently kind of a hack...
- * 
+ *
