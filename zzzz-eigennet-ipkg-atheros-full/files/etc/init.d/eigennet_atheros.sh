@@ -89,7 +89,8 @@ function configureDynOlsrd()
   echo "`head -$Hna6BeginLine "$olsrdStaticConfFile"`" > "$olsrdDynConfFile"
   echo "$dynHna6" >> "$olsrdDynConfFile"
   ((Hna6BeginLine++))
-  echo "`tail -$Hna6BeginLine "$olsrdStaticConfFile"`" >> "$olsrdDynConfFile"
+  reverseHna6BeginLine=$((`wc -l "$olsrdStaticConfFile" | awk '{print $1}'`-$Hna6BeginLine))
+  echo "`tail -$reverseHna6BeginLine "$olsrdStaticConfFile"`" >> "$olsrdDynConfFile"
 
   killall -SIGUSR1 olsrd
   sleep 10s #We need that olsrd load the dynamic hna entry in his topology before look for another free subnet ( this can be increased if necessary)
