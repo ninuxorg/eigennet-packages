@@ -29,8 +29,9 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-madwifi +kmod-niit +bash +ip +dibbler-server +radvd +dnsmasq +iputils-ping6 @TARGET_atheros
+  DEPENDS:=+kmod-madwifi +kmod-niit +bash +ip +dibbler-server +radvd +dnsmasq @TARGET_atheros
 #+olsrd-eigennet +olsrd-eigennet-mod-txtinfo +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-p2pd
+#+iputils-ping6
   TITLE:=EigenNet $(EIGENMODELNAME) Config Package
 endef
 
