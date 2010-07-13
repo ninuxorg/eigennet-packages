@@ -33,19 +33,13 @@ CONF_DIR="/etc/config/"
 meshIpV6Subnet="fd7d:d7bb:2c97:dec3"
 meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
 OLSRHnaIpV6Prefix="fec0" #This should be one of: fec0, fed0, fee0 or fef0, that are site-local ipv6 prefix
-OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we use this because is more broadcast(then our olsrd packets are also broadcasted inside SERRA)
+OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we use this because is more "aggressive"(then our olsrd packets are also broadcasted inside SERRA)
 
-meshTunRemote="$meshIpV6Subnet:0000:0023:7d29:13fa"
-meshTunLocal=""
-meshTunDevice=""
-meshTunLag="99999"
-confServer="$meshTunRemote"
-confPath="/cgi-bin/eigennetconf.cgi"
 ipv4Dns="10.0.0.1"
-localprefixes=""
 usedSubnetsFile="/tmp/usedSubnets"
-dynHnaFIFO="/tmp/dynHna.fifo"
-dynHnaPort="12345"
+olsrdDynConfFile="/tmp/olsr.conf"
+olsrdStaticConfFile="/etc/olsrd.conf"
+dynHna6=""
 
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
@@ -72,7 +66,6 @@ function loadDevicesInfo()
   do
     if [ ${device:0:$typicalWirelessDeviceNameCharN} == ${typicalWirelessDeviceName:0:$typicalWirelessDeviceNameCharN} ]
     then
-      meshTunDevice="ath1"
       networkWirelessDevice[${#networkWirelessDevice[@]}]="$device"
       mac="`ifconfig $device | grep HWaddr | awk -F 'HWaddr ' '{ print $2 }'`"
       networkWirelessDevHWAddr[${#networkWirelessDevHWAddr[@]}]="$mac"
@@ -87,6 +80,19 @@ function loadDevicesInfo()
       fi
     fi
   done
+}
+
+function configureDynOlsrd()
+{
+  Hna6BeginLine=`grep -ni "Hna6" "$olsrdStaticConfFile" | awk -F: '{print $1}'`
+  ((Hna6BeginLine++))
+  echo "`head -$Hna6BeginLine "$olsrdStaticConfFile"`" > "$olsrdDynConfFile"
+  echo "$dynHna6" >> "$olsrdDynConfFile"
+  ((Hna6BeginLine++))
+  echo "`tail -$Hna6BeginLine "$olsrdStaticConfFile"`" >> "$olsrdDynConfFile"
+
+  killall -SIGUSR1 olsrd
+  sleep 10s #We need that olsrd load the dynamic hna entry in his topology before look for another free subnet ( this can be increased if necessary)
 }
 
 function configureNetwork()
@@ -314,24 +320,23 @@ interface ${networkWiredDevice[$indx]}
   OLSRHna6="$OLSRHna6
 }
 "
-
   OLSRD_ETC="$OLSRD_ETC$OLSRHna6$OLSRInterfaces"
 
   #cp "$CONF_DIR/network" "$CONF_DIR/network.back"
   #cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
   #cp "$CONF_DIR/dhcp" "$CONF_DIR/dhcp.back"
-  #cp "/etc/olsrd.conf" "/etc/olsrd.conf.back"
+  #cp "$olsrdStaticConfFile" "$olsrdStaticConfFile.back"
 
   #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
   #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
   #echo "$DHCP_CONF" > "$CONF_DIR/dhcp.test"
-  #echo "$OLSRD_ETC" > "/etc/olsrd.conf.test"
+  #echo "$OLSRD_ETC" > "$olsrdStaticConfFile.test"
 
   echo "$SYSCTL_CONF" > "/etc/sysctl.conf"
   echo "$NETWORK_CONF" > "$CONF_DIR/network"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
   echo "$DHCP_CONF" > "$CONF_DIR/dhcp"
-  echo "$OLSRD_ETC" > "/etc/olsrd.conf"
+  echo "$OLSRD_ETC" > "$olsrdStaticConfFile"
   mkdir -p /etc/dibbler
   echo "$DIBBLER_SERVER_CONF" > "/etc/dibbler/server.conf"
   echo "$RADVD_CONF" > "/etc/radvd.conf"
@@ -339,12 +344,17 @@ interface ${networkWiredDevice[$indx]}
   echo "nameserver 127.0.0.1" > "/etc/resolv.conf"
 }
 
-function ipDotted2Int()
-{
+function ipDotted2Int() # $1 = dotted ip
+{  
   echo "`echo "$1" | awk -F\. '{print ($4)+($3*256)+($2*256*256)+($1*256*256*256)}'`"
 }
 
-function ipInt2Dotted()
+function ipDotted2Colon() # $1 = dotted ip
+{
+  printf "%02X%02X:%02X%02X\n", `echo "$1" | awk -F\. '{print ($1)}'` `echo "$1" | awk -F\. '{print ($2)}'` `echo "$1" | awk -F\. '{print ($3)}'` `echo "$1" | awk -F\. '{print ($4)}'`
+}
+
+function ipInt2Dotted() # $1 = int 32 ip
 {
   local intIp="$1"
   local dottedIp=""
@@ -472,7 +482,6 @@ function start()
 
       while [ "${networkWirelessDevice[$indx]}" != "" ]
       do
-	sleep 10s #We need that olsrd load the dynamic hna entry in his topology before look for another free subnet ( this can be increased if necessary)
 	local mySubnet=`getFreeSubnet "$networkWirelessIpv4BigSubnet" $networkWirelessCidr`
 	if [ "$mySubnet" == "0" ]; then break; fi
 
@@ -484,12 +493,15 @@ function start()
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ath$(($indi*2))
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
-	echo "0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr))" >> $dynamicHnaFile
+	$dynHna6="$dynHna6
+0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+3)) ( +3 instead of +1 then first 2 ip usable are reserved for statical configuration )
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),`ipInt2Dotted $(($intMySubnetStartIp+2))`,$dotMySubnetEndIp,`ipInt2Dotted $((2**($mySubnetCidr)))`,1h"
 	fi
+
+	configureDynOlsrd
 
 	((indx++))
 	((indi++))
@@ -498,7 +510,6 @@ function start()
       indx=1
       while [ "${networkWiredDevice[$indx]}" != "" ]
       do
-	sleep 10s #We need that olsrd load the dynamic hna entry in his topology before look for another free subnet ( this can be increased if necessary)
 	local mySubnet=`getFreeSubnet "$networkWiredIpv4BigSubnet" $networkWiredCidr`
 	if [ "$mySubnet" == "0" ]; then break; fi
 
@@ -510,13 +521,16 @@ function start()
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ${networkWiredDevice[$indx]}
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
-	echo "0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr))" >> $dynamicHnaFile
+	$dynHna6="$dynHna6
+0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+4)) ( +4 instead of +2 then first 2 ip usable are reserved for statical configuration )
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},`ipInt2Dotted $(($intMySubnetStartIp+4))`,$dotMySubnetEndIp,`ipInt2Dotted $((2**($mySubnetCidr)))`,2h"
 	fi
- 
+
+	configureDynOlsrd
+
 	((indx++))
       done
       
