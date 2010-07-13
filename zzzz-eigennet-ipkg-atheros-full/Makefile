@@ -21,10 +21,6 @@ PKG_NAME:=eigennet-atheros-full
 PKG_VERSION:=0.1
 PKG_RELEASE:=beta
 
-# PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-# PKG_SOURCE_URL:=http://
-# PKG_MD5SUM:=
-# PKG_CAT:=zcat
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
 
@@ -34,15 +30,11 @@ define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
   DEPENDS:=+kmod-madwifi +kmod-niit +kmod-ip6-tunnel +ip +olsrd-eigennet +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-p2pd +olsrd-eigennet-mod-txtinfo +bash +dibbler-server +radvd +dnsmasq +iputils-ping6 @TARGET_atheros
-#for production should remove +tcpdump +iputils-ping and use miminal openwrt config
   TITLE:=EigenNet $(EIGENMODELNAME) Config Package
 endef
 
 define Package/$(PKG_NAME)/install
 	$(CP) -a ./files/* $(1)/
-#	mkdir -p $(1)/CONTROL
-#	$(CP) -a ./ipkg/$(PKG_NAME).postinst $(1)/CONTROL/postinst
-#	$(CP) -a ./ipkg/$(PKG_NAME).prerm $(1)/CONTROL/prerm
 endef
 
 define Package/$(PKG_NAME)/description
@@ -53,4 +45,3 @@ define Build/Compile
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
-
