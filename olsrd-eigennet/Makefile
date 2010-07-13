@@ -92,7 +92,7 @@ endef
 define Package/$(PKG_NAME)-mod-secure
   $(call Package/$(PKG_NAME)/template)
   DEPENDS:=$(PKG_NAME)
-  TITLE:=Message signing plugin to secure routing domain
+  TITLE:=Plugin to secure routing domain
 endef
 
 define Package/$(PKG_NAME)-mod-secure/conffiles
@@ -108,13 +108,13 @@ endef
 define Package/$(PKG_NAME)-mod-mdns
   $(call Package/$(PKG_NAME)/template)
   DEPENDS:=$(PKG_NAME)
-  TITLE:=MDNS/Zeroconf/Bonjour packet distribution 
+  TITLE:=MDNS/Zeroconf/Bonjour packet distribution
 endef
 
 define Package/$(PKG_NAME)-mod-p2pd
   $(call Package/$(PKG_NAME)/template)
   DEPENDS:=$(PKG_NAME)
-  TITLE:=P2P discovery packet distribution (mdns generalized) 
+  TITLE:=Service discovery UDP packet distribution
 endef
 
 define Package/$(PKG_NAME)-mod-quagga
