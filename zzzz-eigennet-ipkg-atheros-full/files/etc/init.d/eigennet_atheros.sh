@@ -462,7 +462,6 @@ function start()
 
       ip link set dev niit4to6 up
       ip link set dev niit6to4 up
-      ip route add 0.0.0.0/0 dev niit4to6
 
       sleep 60s #in this way we are sure that olsrd see all other nodes before to look in topology ( this can be increased if necessary)
 
