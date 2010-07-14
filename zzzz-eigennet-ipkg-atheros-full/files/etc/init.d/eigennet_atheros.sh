@@ -94,7 +94,7 @@ Hna6
 {
   $dynHna6
 }
-" >> "$olsrdDynConfFile"
+" > "$olsrdDynConfFile"
 #OLSRD_0.7#  reverseHna6BeginLine=$((`wc -l "$olsrdStaticConfFile" | awk '{print $1}'`-1-$Hna6BeginLine))
 #OLSRD_0.7#  echo "`tail -$reverseHna6BeginLine "$olsrdStaticConfFile"`" >> "$olsrdDynConfFile"
 

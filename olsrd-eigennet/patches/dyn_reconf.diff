@@ -27,7 +27,7 @@ index 96a7e48..df6c175 100644
 +#ifndef WIN32
 +void olsr_reload_cnf(int signo __attribute__ ((unused)))
 +{
-+	olsrmain_load_config("/tmp/olsr.conf");
++	olsrmain_load_config("/tmp/olsrd.conf");
 +}
 +
 +#endif
