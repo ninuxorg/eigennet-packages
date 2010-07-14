@@ -100,6 +100,7 @@ Hna6
 
   killall -SIGUSR1 olsrd
   sleep 10s #We need that olsrd load the dynamic hna entry in his topology before look for another free subnet ( this can be increased if necessary)
+  rm -f $olsrdDynConfFile
 }
 
 function configureNetwork()
