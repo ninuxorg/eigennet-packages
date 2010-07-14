@@ -84,15 +84,23 @@ function loadDevicesInfo()
 
 function configureDynOlsrd()
 {
-  Hna6BeginLine=`grep -ni "Hna6" "$olsrdStaticConfFile" | awk -F: '{print $1}'`
-  ((Hna6BeginLine++))
-  echo "`head -$Hna6BeginLine "$olsrdStaticConfFile"`" > "$olsrdDynConfFile"
-  echo "$dynHna6" >> "$olsrdDynConfFile"
-  reverseHna6BeginLine=$((`wc -l "$olsrdStaticConfFile" | awk '{print $1}'`-1-$Hna6BeginLine))
-  echo "`tail -$reverseHna6BeginLine "$olsrdStaticConfFile"`" >> "$olsrdDynConfFile"
+#OLSRD_0.7#  Hna6BeginLine=`grep -ni "Hna6" "$olsrdStaticConfFile" | awk -F: '{print $1}'`
+#OLSRD_0.7#  ((Hna6BeginLine++))
+#OLSRD_0.7#  echo "`head -$Hna6BeginLine "$olsrdStaticConfFile"`" > "$olsrdDynConfFile"
+  echo "
+IpVersion	6
+
+Hna6
+{
+  $dynHna6
+}
+" >> "$olsrdDynConfFile"
+#OLSRD_0.7#  reverseHna6BeginLine=$((`wc -l "$olsrdStaticConfFile" | awk '{print $1}'`-1-$Hna6BeginLine))
+#OLSRD_0.7#  echo "`tail -$reverseHna6BeginLine "$olsrdStaticConfFile"`" >> "$olsrdDynConfFile"
 
   killall -SIGUSR1 olsrd
   sleep 10s #We need that olsrd load the dynamic hna entry in his topology before look for another free subnet ( this can be increased if necessary)
+  rm -f $olsrdDynConfFile
 }
 
 function configureNetwork()
@@ -490,8 +498,7 @@ function start()
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ath$(($indi*2))
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
-	dynHna6="$dynHna6
-    0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
+	dynHna6="0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+3)) ( +3 instead of +1 then first 2 ip usable are reserved for statical configuration )
@@ -518,8 +525,7 @@ function start()
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ${networkWiredDevice[$indx]}
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
-	dynHna6="$dynHna6
-    0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
+	dynHna6="0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+4)) ( +4 instead of +2 then first 2 ip usable are reserved for statical configuration )
