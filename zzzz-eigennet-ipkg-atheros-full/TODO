@@ -1,4 +1,4 @@
-Check if function configureDynOlsrd() is working good
+Olsrd should clear his HNA table before reload configuration
 
 Configure arprefresh and p2pd olsrd module
 In txtinfo olsrd module change PlParam     \"Accept\"   \"0::0\" to PlParam     \"Accept\"   \"0::1\"

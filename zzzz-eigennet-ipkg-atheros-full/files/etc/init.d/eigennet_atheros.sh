@@ -37,7 +37,7 @@ OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we use
 
 ipv4Dns="10.0.0.1"
 usedSubnetsFile="/tmp/usedSubnets"
-olsrdDynConfFile="/tmp/olsr.conf"
+olsrdDynConfFile="/tmp/olsrd.conf"
 olsrdStaticConfFile="/etc/olsrd.conf"
 dynHna6=""
 
@@ -88,8 +88,7 @@ function configureDynOlsrd()
   ((Hna6BeginLine++))
   echo "`head -$Hna6BeginLine "$olsrdStaticConfFile"`" > "$olsrdDynConfFile"
   echo "$dynHna6" >> "$olsrdDynConfFile"
-  ((Hna6BeginLine++))
-  reverseHna6BeginLine=$((`wc -l "$olsrdStaticConfFile" | awk '{print $1}'`-$Hna6BeginLine))
+  reverseHna6BeginLine=$((`wc -l "$olsrdStaticConfFile" | awk '{print $1}'`-1-$Hna6BeginLine))
   echo "`tail -$reverseHna6BeginLine "$olsrdStaticConfFile"`" >> "$olsrdDynConfFile"
 
   killall -SIGUSR1 olsrd
@@ -352,7 +351,7 @@ function ipDotted2Int() # $1 = dotted ip
 
 function ipDotted2Colon() # $1 = dotted ip
 {
-  printf "%02X%02X:%02X%02X\n", `echo "$1" | awk -F\. '{print ($1)}'` `echo "$1" | awk -F\. '{print ($2)}'` `echo "$1" | awk -F\. '{print ($3)}'` `echo "$1" | awk -F\. '{print ($4)}'`
+  printf "%02X%02X:%02X%02X\n" `echo "$1" | awk -F\. '{print ($1)}'` `echo "$1" | awk -F\. '{print ($2)}'` `echo "$1" | awk -F\. '{print ($3)}'` `echo "$1" | awk -F\. '{print ($4)}'`
 }
 
 function ipInt2Dotted() # $1 = int 32 ip
@@ -385,9 +384,6 @@ function int2cidrD() # $1 = number of needed ip (this function round down to an 
 function loadUsedSubnets()
 {
   wget -q http://[0::1]:2006 -O - | grep ::ffff: | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > "$usedSubnetsFile"
-
-  #echo "`cat /home/gioacchino/Desktop/sortedsubnet.txt`" > "$usedSubnetsFile"
-  #fd7d:d7bb:2c97:dec3:0:15:6dd5:f7d1
 }
 
 function unLoadUsedSubnets()
@@ -494,8 +490,8 @@ function start()
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ath$(($indi*2))
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
-	$dynHna6="$dynHna6
-0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
+	dynHna6="$dynHna6
+    0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+3)) ( +3 instead of +1 then first 2 ip usable are reserved for statical configuration )
@@ -522,8 +518,8 @@ function start()
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ${networkWiredDevice[$indx]}
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
-	$dynHna6="$dynHna6
-0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
+	dynHna6="$dynHna6
+    0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+4)) ( +4 instead of +2 then first 2 ip usable are reserved for statical configuration )
@@ -557,6 +553,7 @@ function start()
 
 function stop()
 {
+  echo "stopping" >> /tmp/eigenlog
   killall dnsmasq
 }
 
