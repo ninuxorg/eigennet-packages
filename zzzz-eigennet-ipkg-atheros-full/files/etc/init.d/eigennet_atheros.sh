@@ -353,8 +353,14 @@ interface ${networkWiredDevice[$indx]}
 }
 
 function ipDotted2Int() # $1 = dotted ip
-{  
-  echo "`echo "$1" | awk -F\. '{print ($4)+($3*256)+($2*256*256)+($1*256*256*256)}'`"
+{
+  #we must use this way because awk can't handle big integer on little device
+  printf "%d\n" $(( 
+    (`echo "$1" | awk -F\. '{printf "%d", ($4)}'`) +
+    (256*`echo "$1" | awk -F\. '{printf "%d", ($3)}'`) +
+    (256*256*`echo "$1" | awk -F\. '{printf "%d", ($2)}'`) +
+    (256*256*256*`echo "$1" | awk -F\. '{printf "%d", ($1)}'`)
+  ))
 }
 
 function ipDotted2Colon() # $1 = dotted ip
@@ -502,7 +508,8 @@ function start()
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+3)) ( +3 instead of +1 then first 2 ip usable are reserved for statical configuration )
-	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),`ipInt2Dotted $(($intMySubnetStartIp+2))`,$dotMySubnetEndIp,`ipInt2Dotted $((2**($mySubnetCidr)))`,1h"
+	  intSubnet="$((`ipDotted2Int "255.255.255.255"`-`cidr2Int $mySubnetCidr`+1))"
+	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),`ipInt2Dotted $(($intMySubnetStartIp+2))`,$dotMySubnetEndIp,`ipInt2Dotted $intSubnet`,1h"
 	fi
 
 	configureDynOlsrd
@@ -529,7 +536,8 @@ function start()
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+4)) ( +4 instead of +2 then first 2 ip usable are reserved for statical configuration )
-	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},`ipInt2Dotted $(($intMySubnetStartIp+4))`,$dotMySubnetEndIp,`ipInt2Dotted $((2**($mySubnetCidr)))`,2h"
+	  intSubnet="$((`ipDotted2Int "255.255.255.255"`-`cidr2Int $mySubnetCidr`+1))"
+	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},`ipInt2Dotted $(($intMySubnetStartIp+4))`,$dotMySubnetEndIp,`ipInt2Dotted $intSubnet`,2h"
 	fi
 
 	configureDynOlsrd
