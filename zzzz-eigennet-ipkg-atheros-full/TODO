@@ -1,3 +1,5 @@
+SOMETHING NASTY IS APPENING BEETWEEN IPV4 ASSIGNATION AND DYNOLSRD CONFIGURATION CHECK WHAT IS GOING ON!
+
 Configure arprefresh and p2pd olsrd module
 In txtinfo olsrd module change PlParam     \"Accept\"   \"0::0\" to PlParam     \"Accept\"   \"0::1\"
 Test test test
