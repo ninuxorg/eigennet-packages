@@ -99,7 +99,7 @@ Hna6
 #OLSRD_0.7#  echo "`tail -$reverseHna6BeginLine "$olsrdStaticConfFile"`" >> "$olsrdDynConfFile"
 
   killall -SIGUSR1 olsrd
-  sleep 10s #We need that olsrd load the dynamic hna entry in his topology before look for another free subnet ( this can be increased if necessary)
+  sleep 10s #We need that olsrd load the dynamic hna entry in his topology before deleting the temporary file from memory
   rm -f $olsrdDynConfFile
 }
 
