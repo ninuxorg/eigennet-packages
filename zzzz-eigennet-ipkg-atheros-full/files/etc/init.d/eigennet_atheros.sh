@@ -397,7 +397,8 @@ function int2cidrD() # $1 = number of needed ip (this function round down to an 
 
 function loadUsedSubnets()
 {
-  wget -q http://[0::1]:2006 -O - | grep ::ffff: | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 > "$usedSubnetsFile"
+  wget -q http://[0::1]:2006 -O - | grep ::ffff: | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u > "$usedSubnetsFile"
+  #Due to openwrt sort limitation removed -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4
 }
 
 function unLoadUsedSubnets()
