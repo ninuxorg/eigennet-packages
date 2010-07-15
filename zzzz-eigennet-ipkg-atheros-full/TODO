@@ -1,7 +1,3 @@
-move from %d to %u because ip4 are unsignet int 32 bit then this is the correct identificator
-
-different sized subnet on autoconf range made getfree crazy :|
-
 Configure arprefresh and p2pd olsrd module
 In txtinfo olsrd module change PlParam     \"Accept\"   \"0::0\" to PlParam     \"Accept\"   \"0::1\"
 Test test test

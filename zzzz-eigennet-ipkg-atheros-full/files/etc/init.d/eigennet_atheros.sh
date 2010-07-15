@@ -355,11 +355,11 @@ interface ${networkWiredDevice[$indx]}
 function ipDotted2Int() # $1 = dotted ip
 {
   #we must use this way because awk can't handle big integer on little device
-  printf "%d\n" $(( 
-    (`echo "$1" | awk -F\. '{printf "%d", ($4)}'`) +
-    (256*`echo "$1" | awk -F\. '{printf "%d", ($3)}'`) +
-    (256*256*`echo "$1" | awk -F\. '{printf "%d", ($2)}'`) +
-    (256*256*256*`echo "$1" | awk -F\. '{printf "%d", ($1)}'`)
+  printf "%u\n" $(( 
+    (`echo "$1" | awk -F\. '{printf "%u", ($4)}'`) +
+    (256*`echo "$1" | awk -F\. '{printf "%u", ($3)}'`) +
+    (256*256*`echo "$1" | awk -F\. '{printf "%u", ($2)}'`) +
+    (256*256*256*`echo "$1" | awk -F\. '{printf "%u", ($1)}'`)
   ))
 }
 
@@ -387,12 +387,12 @@ function cidr2Int() # $1 = cidr  looking to a subnet you see for example 192.168
 
 function int2cidrU() # $1 = number of needed ip (this function round up to an integer for example `int2cidr 250`=24)
 {
-  echo $((32 - `echo "$1" | awk '{printf "%d",(log($1)/log(2) == int(log($1)/log(2))) ? log($1)/log(2) : int(log($1)/log(2))+1}'`))
+  echo $((32 - `echo "$1" | awk '{printf "%u",(log($1)/log(2) == int(log($1)/log(2))) ? log($1)/log(2) : int(log($1)/log(2))+1}'`))
 }
 
 function int2cidrD() # $1 = number of needed ip (this function round down to an integer for example `int2cidr 250`=23)
 {
-  echo $((32 - `echo "$1" | awk '{printf "%d", int(log($1)/log(2))}'`))
+  echo $((32 - `echo "$1" | awk '{printf "%u", int(log($1)/log(2))}'`))
 }
 
 function loadUsedSubnets()
@@ -406,7 +406,7 @@ function unLoadUsedSubnets()
     rm -f "$usedSubnetsFile"
 }
 
-function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = Mask bit for example if you need x.y.z.0/24 $1 will be $1 = 24
+function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = Mask bit for example if you need 10.y.z.x/24 from 10.0.0.0/8 $1=10.0.0.0/8 $2=24
 {
   local ipv4BigSubnet=$1
   local intBigSubnetStartIp=`ipDotted2Int "${ipv4BigSubnet%/*}"`
@@ -437,7 +437,7 @@ function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = 
       if [ $intTestIfFreeStartIp -ge $intStartUsedIp ] && [ $intTestIfFreeStartIp -le $intEndUsedIp ]
       then
 	eigenDebug "Testing free ip start is inside used range!"
-	local intTestIfFreeStartIp=$(($intEndUsedIp+1))
+	local intTestIfFreeStartIp=$(($intTestIfFreeStartIp + `cidr2Int $2`))
       fi
 
       if [ $intTestIfFreeEndIp -ge $intEndUsedIp ] && [ $intTestIfFreeEndIp -le $intEndUsedIp ]
