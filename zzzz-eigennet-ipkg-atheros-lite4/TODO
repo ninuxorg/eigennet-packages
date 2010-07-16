@@ -1,0 +1,13 @@
+Configure p2pd olsrd module
+In txtinfo olsrd module change PlParam     \"Accept\"   \"0::0\" to PlParam     \"Accept\"   \"0::1\"
+Test test test
+
+Use #Mobile# to comment part relative to Mobile
+
+Useful dnsmasq option:
+-z, --bind-interfaces
+    On systems which support it, dnsmasq binds the wildcard address, even when it is listening on only some interfaces. It then discards requests that it shouldn't reply to. This has the advantage of working even when interfaces come and go and change address. This option forces dnsmasq to really bind only the interfaces it is listening on. About the only time when this is useful is when running another nameserver (or another instance of dnsmasq) on the same machine. Setting this option also enables multiple instances of dnsmasq which provide DHCP service to run in the same machine. 
+
+-K, --dhcp-authoritative
+    Should be set when dnsmasq is definitely the only DHCP server on a network. It changes the behaviour from strict RFC compliance so that DHCP requests on unknown leases from unknown hosts are not ignored. This allows new hosts to get a lease without a tedious timeout under all circumstances. It also allows dnsmasq to rebuild its lease database without each client needing to reacquire a lease, if the database is lost.
+

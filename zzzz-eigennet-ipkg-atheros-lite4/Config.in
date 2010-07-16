@@ -1,4 +1,4 @@
-config EIGENNET_ATHEROS_FULL
+config EIGENNET_ATHEROS_LITE
 	prompt "This packet configure atheros hardware for EigenNet"
 	tristate
 	default m if CONFIG_DEVEL
