@@ -432,11 +432,11 @@ function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = 
     then
       eigenDebug "Used subnet $dotUsedIp/$usedCidr found inside BigSubnet"
 
-      if [ $intTestIfFreeStartIp -ge $intStartUsedIp ] && [ $intTestIfFreeStartIp -le $intEndUsedIp ]
-      then
+      while [ $intTestIfFreeStartIp -ge $intStartUsedIp ] && [ $intTestIfFreeStartIp -le $intEndUsedIp ];
+      do
 	eigenDebug "Testing free ip start is inside used range!"
 	local intTestIfFreeStartIp=$(($intTestIfFreeStartIp + `cidr2Int $2`))
-      fi
+      done
 
       if [ $intTestIfFreeEndIp -ge $intEndUsedIp ] && [ $intTestIfFreeEndIp -le $intEndUsedIp ]
       then
