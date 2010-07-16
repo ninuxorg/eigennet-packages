@@ -39,7 +39,6 @@ ipv4Dns="10.0.0.1"
 usedSubnetsFile="/tmp/usedSubnets"
 olsrdDynConfFile="/tmp/olsrd.conf"
 olsrdStaticConfFile="/etc/olsrd.conf"
-dynHna6=""
 
 networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
@@ -82,21 +81,16 @@ function loadDevicesInfo()
   done
 }
 
-function configureDynOlsrd()
+function addOlsrdHna6() # $1=ipv6 address, $2=CIDR
 {
-#OLSRD_0.7#  Hna6BeginLine=`grep -ni "Hna6" "$olsrdStaticConfFile" | awk -F: '{print $1}'`
-#OLSRD_0.7#  ((Hna6BeginLine++))
-#OLSRD_0.7#  echo "`head -$Hna6BeginLine "$olsrdStaticConfFile"`" > "$olsrdDynConfFile"
   echo "
 IpVersion	6
 
 Hna6
 {
-  $dynHna6
+  $1 $2
 }
 " > "$olsrdDynConfFile"
-#OLSRD_0.7#  reverseHna6BeginLine=$((`wc -l "$olsrdStaticConfFile" | awk '{print $1}'`-1-$Hna6BeginLine))
-#OLSRD_0.7#  echo "`tail -$reverseHna6BeginLine "$olsrdStaticConfFile"`" >> "$olsrdDynConfFile"
 
   killall -SIGUSR1 olsrd
   sleep 10s #We need that olsrd load the dynamic hna entry in his topology before deleting the temporary file from memory
@@ -119,6 +113,10 @@ IpVersion	6
 LoadPlugin \"olsrd_txtinfo.so.0.1\"
 {
   PlParam     \"Accept\"   \"0::0\"
+}
+
+LoadPlugin \"olsrd_arprefresh.so.0.1\"
+{
 }
 
 "
@@ -505,7 +503,6 @@ function start()
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ath$(($indi*2))
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
-	dynHna6="0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+3)) ( +3 instead of +1 then first 2 ip usable are reserved for statical configuration )
@@ -513,7 +510,7 @@ function start()
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),`ipInt2Dotted $(($intMySubnetStartIp+2))`,$dotMySubnetEndIp,`ipInt2Dotted $intSubnet`,1h"
 	fi
 
-	configureDynOlsrd
+	addOlsrdHna6 "0::ffff:`ipDotted2Colon $dotMySubnetStartIp`" "$((96+$mySubnetCidr))"
 
 	((indx++))
 	((indi++))
@@ -533,7 +530,6 @@ function start()
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ${networkWiredDevice[$indx]}
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
-	dynHna6="0::ffff:`ipDotted2Colon $dotMySubnetStartIp` $((96+$mySubnetCidr))"
 
 	if [ $mySubnetCidr -lt 29 ]; then
 	  #$(($intMySubnetStartIp+4)) ( +4 instead of +2 then first 2 ip usable are reserved for statical configuration )
@@ -541,7 +537,7 @@ function start()
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},`ipInt2Dotted $(($intMySubnetStartIp+4))`,$dotMySubnetEndIp,`ipInt2Dotted $intSubnet`,2h"
 	fi
 
-	configureDynOlsrd
+	addOlsrdHna6 "0::ffff:`ipDotted2Colon $dotMySubnetStartIp`" "$((96+$mySubnetCidr))"
 
 	((indx++))
       done
