@@ -557,6 +557,9 @@ function start()
 
   configureNetwork
 
+  /etc/init.d/radvd enable
+  /etc/init.d/dibbler.init enable
+
   sleep 2s
 
   reboot
