@@ -544,7 +544,8 @@ function start()
       
 
       echo $dhcp_ranges >> /tmp/eigenlog
-      dnsmasq -K -D -y -Z -b -E -l /tmp/dhcp.leases -r /etc/resolv.conf.auto $dhcp_ranges
+      #force client mtu to 1400 --dhcp-option-force=26,1400
+      dnsmasq --dhcp-option-force=26,1400 -K -D -y -Z -b -E -l /tmp/dhcp.leases -r /etc/resolv.conf.auto $dhcp_ranges
       return 0
   fi
 
