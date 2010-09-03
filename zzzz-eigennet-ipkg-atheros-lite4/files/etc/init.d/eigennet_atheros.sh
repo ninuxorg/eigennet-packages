@@ -55,7 +55,7 @@ function eigenDebug()
 {
   if $eigenDebugEnabled
   then
-    echo "Debug: $1"
+    echo "Debug: $1" >> /tmp/eigenlog
   fi
 }
 
@@ -380,7 +380,7 @@ function ipInt2Dotted() # $1 = int 32 ip
 
 function cidr2Int() # $1 = cidr  looking to a subnet you see for example 192.168.0.1/$1
 {
-  echo "$((2**(32-$1)))"
+  echo "$((2**(32-`printf %u $1`)))"
 }
 
 function int2cidrU() # $1 = number of needed ip (this function round up to an integer for example `int2cidr 250`=24)
@@ -395,8 +395,8 @@ function int2cidrD() # $1 = number of needed ip (this function round down to an 
 
 function loadUsedSubnets()
 {
-  wget -q http://[0::1]:2006 -O - | grep ::ffff: | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u > "$usedSubnetsFile"
-  #Due to openwrt sort limitation removed -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4
+  wget -q http://[0::1]:2006 -O - | grep ::ffff: | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u | sed 's/\//./g' | awk -F. '{printf("%03d.%03d.%03d.%03d.%03d\n", $1,$2,$3,$4,$5)};' | sort -n  -t "." | awk -F. '{printf("%d.%d.%d.%d/%03d\n", $1,$2,$3,$4,$5)};' > "$usedSubnetsFile"
+  #sed 's/\//./g' #temporary replace "/" with "."
 }
 
 function unLoadUsedSubnets()
