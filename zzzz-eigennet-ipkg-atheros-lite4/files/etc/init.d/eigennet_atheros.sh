@@ -420,8 +420,8 @@ function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = 
   while [ $row -le $len ];
   do
     local dotUsedIp="`head -$row "$usedSubnetsFile" | tail -1`" #Get one used subnet
-    local usedCidr=$((${dotUsedIp#*/}-96))	# get cidr -96 is because in the file we have the subnets as ipv4 mapped -> ipv6
-    local dotUsedIp=${dotUsedIp%/*}	# get dotted ip
+    local usedCidr=$(expr $(echo $dotUsedIp | awk -F "/" '{print $2}') - 96 )	# get cidr -96 is because in the file we have the subnets as ipv4 mapped -> ipv6
+    local dotUsedIp=$(echo $dotUsedIp | awk -F "/" '{print $1}')	# get dotted ip
 
     eigenDebug "reading $dotUsedIp/$usedCidr"
 
