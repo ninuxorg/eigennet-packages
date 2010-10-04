@@ -130,6 +130,8 @@ LoadPlugin \"olsrd_p2pd.so.0.1.0\"
   PlParam     \"UdpDestPort\" \"255.255.255.255 1211\"
   #   MDNS multicast (draft-cheshire-dnsext-multicastdns)
   PlParam     \"UdpDestPort\" \"224.0.0.251 5353\"
+  # P2pdTtl is the time to live given to the P2PD OLSR messages
+  PlParam     \"P2pdTtl\"     \"10\"
 
 "
 
