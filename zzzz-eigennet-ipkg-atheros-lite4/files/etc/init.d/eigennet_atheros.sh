@@ -126,7 +126,13 @@ Hna6
   OLSRD_PLUGIN_P2PD="
 LoadPlugin \"olsrd_p2pd.so.0.1.0\"
 {
+  #   MS Groove
+  PlParam     \"UdpDestPort\" \"255.255.255.255 1211\"
+  #   MDNS multicast (draft-cheshire-dnsext-multicastdns)
+  PlParam     \"UdpDestPort\" \"224.0.0.251 5353\"
+
 "
+
   OLSRInterfaces=""
 
   NETWORK_CONF="
@@ -239,6 +245,10 @@ Interface \"ath$(($indi*2 + 1))\"
     IPv6Multicast	$OLSRMulticast
     IPv6Src		$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}
 }
+"
+
+  OLSRD_PLUGIN_P2PD="$OLSRD_PLUGIN_P2PD
+  PlParam     \"NonOlsrIf\" \"ath$(($indi*2))\"
 "
 
     DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
