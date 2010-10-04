@@ -1,8 +1,8 @@
 diff --git a/lib/p2pd/src/NetworkInterfaces.c b/lib/p2pd/src/NetworkInterfaces.c
-index c767b16..97d67c8 100644
+index c767b16..8741c7f 100644
 --- a/lib/p2pd/src/NetworkInterfaces.c
 +++ b/lib/p2pd/src/NetworkInterfaces.c
-@@ -98,11 +98,8 @@ CreateCaptureSocket(const char *ifName)
+@@ -98,11 +98,7 @@ CreateCaptureSocket(const char *ifName)
    struct sockaddr_ll bindTo;
    int skfd = 0;
    /* Open cooked IP packet socket */
@@ -15,7 +15,7 @@ index c767b16..97d67c8 100644
    if (skfd < 0) {
      P2pdPError("socket(PF_PACKET) error");
      return -1;
-@@ -131,11 +128,7 @@ CreateCaptureSocket(const char *ifName)
+@@ -131,11 +127,7 @@ CreateCaptureSocket(const char *ifName)
    /* Bind the socket to the specified interface */
    memset(&bindTo, 0, sizeof(bindTo));
    bindTo.sll_family = AF_PACKET;
