@@ -115,16 +115,17 @@ LoadPlugin \"olsrd_txtinfo.so.0.1\"
   PlParam     \"Accept\"   \"0::0\"
 }
 
-LoadPlugin \"olsrd_arprefresh.so.0.1\"
-{
-}
-
 "
 
   OLSRHna6="
 Hna6
 {
 
+"
+
+  OLSRD_PLUGIN_P2PD="
+LoadPlugin \"olsrd_p2pd.so.0.1.0\"
+{
 "
   OLSRInterfaces=""
 
@@ -326,7 +327,12 @@ interface ${networkWiredDevice[$indx]}
   OLSRHna6="$OLSRHna6
 }
 "
-  OLSRD_ETC="$OLSRD_ETC$OLSRHna6$OLSRInterfaces"
+
+  OLSRD_PLUGIN_P2PD="$OLSRD_PLUGIN_P2PD
+}
+"
+
+  OLSRD_ETC="$OLSRD_ETC$OLSRD_PLUGIN_P2PD$OLSRHna6$OLSRInterfaces"
 
   #cp "$CONF_DIR/network" "$CONF_DIR/network.back"
   #cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
