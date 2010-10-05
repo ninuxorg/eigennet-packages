@@ -35,7 +35,7 @@ meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
 OLSRHnaIpV6Prefix="fec0" #This should be one of: fec0, fed0, fee0 or fef0, that are site-local ipv6 prefix
 OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we use this because is more "aggressive"(then our olsrd packets are also broadcasted inside SERRA)
 
-ipv4Dns="10.0.0.1"
+ipv4Dns="10.175.0.1"
 usedSubnetsFile="/tmp/usedSubnets"
 olsrdDynConfFile="/tmp/olsrd.conf"
 olsrdStaticConfFile="/etc/olsrd.conf"
@@ -48,7 +48,7 @@ networkWirelessIpv4BigSubnet="10.174.0.0/16"
 networkWiredDevice[0]=""
 networkWiredDevHWAddr[0]=""
 networkWiredDevHWAddr6[0]=""
-networkWiredCidr="29"
+networkWiredCidr="27"
 networkWiredIpv4BigSubnet="10.174.0.0/16"
 
 function eigenDebug()
