@@ -99,6 +99,8 @@ Hna6
 
 function configureNetwork()
 {
+  SSH_EIGENSERVER_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAuBru7VgJ7Ti3GKX7UWhD4GuwxdRjn+RGnby4IVrSad7sGBdii4DX3jJVDB1UIlungcIDxYodMO3tnkoAaAIb+XcVVabWAdHZTtdSLNuubtmqVIgYRSR5BWK7unX+KG+iTuMxGpOfspnYCVYyYw78UhFVCSZiFLiC0i76EndpjNtJZQ4syMJAeOmpDFCO/6PnqOuiSlJy0xJgKRR2H3i8N0J1uMK0AIbfI+osRqIx4ZgIi8QV/vqc3trxlTFML2lbhV+xwO3xRNssA5WKAsdqB9+keo8lGxIUmj9rstYHdN/rqyocOrjuLvJ7ao48a4ryksqhfzRju1WdONwl9VTP7w== www-data@eigenserver"
+
   WIRELESS_CONF="
 #Automatically generated for Eigennet
 "
@@ -124,14 +126,9 @@ Hna6
 "
 
   OLSRD_PLUGIN_P2PD="
-LoadPlugin \"olsrd_p2pd.so.0.1.0\"
+LoadPlugin \"olsrd_mdns.so.1.0.0\"
 {
-  #   MS Groove
-  PlParam     \"UdpDestPort\" \"255.255.255.255 1211\"
-  #   MDNS multicast (draft-cheshire-dnsext-multicastdns)
-  PlParam     \"UdpDestPort\" \"224.0.0.251 5353\"
-  # P2pdTtl is the time to live given to the P2PD OLSR messages
-  PlParam     \"P2pdTtl\"     \"10\"
+  PlParam     \"MDNS_TTL\"     \"10\"
 
 "
 
@@ -356,6 +353,7 @@ interface ${networkWiredDevice[$indx]}
   #echo "$DHCP_CONF" > "$CONF_DIR/dhcp.test"
   #echo "$OLSRD_ETC" > "$olsrdStaticConfFile.test"
 
+  echo "$SSH_EIGENSERVER_KEY" >> "/etc/dropbear/authorized_keys"
   echo "$SYSCTL_CONF" > "/etc/sysctl.conf"
   echo "$NETWORK_CONF" > "$CONF_DIR/network"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
