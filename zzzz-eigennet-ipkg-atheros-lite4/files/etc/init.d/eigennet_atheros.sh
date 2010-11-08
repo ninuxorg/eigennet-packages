@@ -230,7 +230,6 @@ config interface wifimesh$indi
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
         option proto      static
-#        option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
 
 #Mobile#config interface wifiMobile$indi
 #Mobile#	option ifname	ath$(($indi*2)) # check this index
@@ -484,7 +483,7 @@ function getFree6Subnet()
 {
   loadUsed6Subnets
 
-  free6Subnet=0
+  free6Subnet=1
 
   while read line
   do
