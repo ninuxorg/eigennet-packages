@@ -494,8 +494,14 @@ function getFree6Subnet()
 
   while read line
   do
-    [ $free6Subnet -lt $line ] && { break }
-    [ $free6Subnet -eq $line ] && { ((free6Subnet++)) }
+    [ $free6Subnet -lt $line ] &&
+    {
+      break
+    }
+    [ $free6Subnet -eq $line ] &&
+    {
+      ((free6Subnet++))
+    }
   done < $used6SubnetsFile
 
   unLoadUsed6Subnets

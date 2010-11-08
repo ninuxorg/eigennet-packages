@@ -18,8 +18,8 @@ include $(TOPDIR)/rules.mk
 
 EIGENMODELNAME:=Atheros
 PKG_NAME:=eigennet-atheros-lite4
-PKG_VERSION:=0.3
-PKG_RELEASE:=beta
+PKG_VERSION:=0.3.1
+PKG_RELEASE:=alpha
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
