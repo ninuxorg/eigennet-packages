@@ -18,7 +18,7 @@ include $(TOPDIR)/rules.mk
 
 EIGENMODELNAME:=Atheros
 PKG_NAME:=eigennet-atheros-lite4
-PKG_VERSION:=0.2
+PKG_VERSION:=0.3
 PKG_RELEASE:=beta
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -29,7 +29,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-madwifi +kmod-niit +bash +ip +olsrd-eigennet +olsrd-eigennet-mod-txtinfo +olsrd-eigennet-mod-mdns +dnsmasq @TARGET_atheros
+  DEPENDS:=+kmod-madwifi +kmod-niit +bash +ip +olsrd-eigennet +olsrd-eigennet-mod-txtinfo +olsrd-eigennet-mod-mdns +dnsmasq +radvd @TARGET_atheros
   TITLE:=EigenNet $(EIGENMODELNAME) Config Package
 endef
 

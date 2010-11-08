@@ -32,11 +32,12 @@ typicalWiredDeviceNameCharN=3 #Number of char before X number
 CONF_DIR="/etc/config/"
 meshIpV6Subnet="2001:470:1f12:325"
 meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
-OLSRHnaIpV6Prefix="fec0" #This should be one of: fec0, fed0, fee0 or fef0, that are site-local ipv6 prefix
+OLSRHnaIpV6Prefix="2001:470:c8f6" #This should be one /48 assignet by Hurricane Electric
 OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we use this because is more "aggressive"(then our olsrd packets are also broadcasted inside SERRA)
 
 ipv4Dns="10.175.0.1"
 usedSubnetsFile="/tmp/usedSubnets"
+used6SubnetsFile="/tmp/used6Subnets"
 olsrdDynConfFile="/tmp/olsrd.conf"
 olsrdStaticConfFile="/etc/olsrd.conf"
 
@@ -57,6 +58,48 @@ function eigenDebug()
   then
     echo "Debug: $1" >> /tmp/eigenlog
   fi
+}
+
+# Convert number from a base to another
+#
+# usage:
+# baseconvert inputBase outputBase numberToConvert
+# inputBase and outputBase must be expressed in base 10, numberToConvert is expressed in inputBase NOTE: it cannot be a big number
+#
+# example:
+# baseconvert 2 10 1010101
+#
+function baseconvert()
+{
+  echo $1 $2 $3 | awk '{
+	  #our general alphabet
+	  alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	  # input base
+	  ibase=$1; 
+
+	  # output base
+	  obase=$2;
+
+	  # input number
+	  inumber=toupper($3);
+
+	  #convert third parameter to decimal base
+	  for (i=1;i<=length(inumber);i++) {
+		  number += (index(alphabet,substr(inumber,i,1))-1)*(ibase^(length(inumber)-i));
+	  }
+	  tmp=number;
+
+	  #convert "number" to the output base
+	  while (tmp>=obase) {
+		  nut=substr(alphabet,tmp%obase+1,1);
+		  final = nut final;
+		  tmp=int(tmp/obase);
+	  }
+	  final = substr(alphabet,tmp%obase+1,1) final;
+
+	  #printf("%s (b %s) -> %s (b 10) -> %s (b %s)\n",$3,ibase,number,final,obase);
+	  printf("%s\n",final)
+  }'
 }
 
 function loadDevicesInfo()
@@ -162,10 +205,6 @@ preference 5
 stateless
 
 "
-  RADVD_CONF="
-#Automatically generated for Eigennet
-
-"
   SYSCTL_CONF="
 #Automatically generated for Eigennet
 
@@ -191,7 +230,7 @@ config interface wifimesh$indi
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
         option proto      static
-        option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
+#        option ip6addr    '$OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
 
 #Mobile#config interface wifiMobile$indi
 #Mobile#	option ifname	ath$(($indi*2)) # check this index
@@ -200,11 +239,6 @@ config interface wifiap$indi
 #Mobile#	option netmask	'255.255.255.0'
 
 "
-
-#Lite#    OLSRHna6="$OLSRHna6
-#Lite#
-#Lite#  $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0000 64
-#Lite#"
 
     WIRELESS_CONF="$WIRELESS_CONF
 config 'wifi-device'         '${networkWirelessDevice[$indx]}'
@@ -250,27 +284,6 @@ Interface \"ath$(($indi*2 + 1))\"
   PlParam     \"NonOlsrIf\" \"ath$(($indi*2))\"
 "
 
-    DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
-iface \"ath$(($indi*2))\"
-{
-        option dns-server $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001
-}
-
-"
-
-    RADVD_CONF="$RADVD_CONF
-interface ath$(($indi*2))
-{
-  AdvSendAdvert on;
-  prefix $OLSRHnaIpV6Prefix:${networkWirelessDevHWAddr6[$indx]}:0000:0000:0000:0001/64
-  {
-    AdvOnLink on;
-    AdvAutonomous on;
-  };
-};
-
-"
-
     ((indx++))
     ((indi++))
   done
@@ -284,7 +297,7 @@ interface ath$(($indi*2))
 config interface lan$indi
 	option ifname     ${networkWiredDevice[$indx]}
 	option proto      static
-	option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
+#	option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
 
 config alias                                                           
 	option interface lan$indi
@@ -303,32 +316,6 @@ Interface \"${networkWiredDevice[$indx]}\"
 }
 "
 
-
-#Lite#    OLSRHna6="$OLSRHna6
-#Lite#
-#Lite#  $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0000 64
-#Lite#"
-
-    DIBBLER_SERVER_CONF="$DIBBLER_SERVER_CONF
-iface \"eth$indi\"
-{
-        option dns-server $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001
-}
-
-"
-
-    RADVD_CONF="$RADVD_CONF
-interface ${networkWiredDevice[$indx]}
-{
-  AdvSendAdvert on;
-  prefix $OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64	 
-  {
-    AdvOnLink on;
-    AdvAutonomous on;
-  };
-};
-
-"
     ((indx++))
     ((indi++))
   done
@@ -359,9 +346,6 @@ interface ${networkWiredDevice[$indx]}
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
   echo "$DHCP_CONF" > "$CONF_DIR/dhcp"
   echo "$OLSRD_ETC" > "$olsrdStaticConfFile"
-  mkdir -p /etc/dibbler
-  echo "$DIBBLER_SERVER_CONF" > "/etc/dibbler/server.conf"
-  echo "$RADVD_CONF" > "/etc/radvd.conf"
   echo "$RESOLV_CONF_AUTO" > "/etc/resolv.conf.auto"
   echo "nameserver 127.0.0.1" > "/etc/resolv.conf"
 }
@@ -411,13 +395,32 @@ function int2cidrD() # $1 = number of needed ip (this function round down to an 
 
 function loadUsedSubnets()
 {
-  wget -q http://[0::1]:2006 -O - | grep ::ffff: | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u | sed 's/\//./g' | awk -F. '{printf("%03d.%03d.%03d.%03d.%03d\n", $1,$2,$3,$4,$5)};' | sort -n  -t "." | awk -F. '{printf("%d.%d.%d.%d/%03d\n", $1,$2,$3,$4,$5)};' > "$usedSubnetsFile"
+  echo "/hna" | nc 0::1 2006 | grep ::ffff: | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u | sed 's/\//./g' | awk -F. '{printf("%03d.%03d.%03d.%03d.%03d\n", $1,$2,$3,$4,$5)};' | sort -n  -t "." | awk -F. '{printf("%d.%d.%d.%d/%03d\n", $1,$2,$3,$4,$5)};' > "$usedSubnetsFile"
   #sed 's/\//./g' #temporary replace "/" with "."
+}
+
+function loadUsed6Subnets()
+{
+  echo "/hna" | nc 0::1 2006 | grep $OLSRHnaIpV6Prefix | awk -F $OLSRHnaIpV6Prefix '{ print $2 }' | awk -F: '{print $2}'| grep -v '^$' | sort -u  > "$used6SubnetsFile"
+
+  temp6Used=""
+  while read line
+  do
+    temp6Used="$new6Used
+$(baseconvert 16 10 $line)"
+  done < $used6SubnetsFile
+
+  echo $temp6Used | sort -u -n > $used6SubnetsFile
 }
 
 function unLoadUsedSubnets()
 {
     rm -f "$usedSubnetsFile"
+}
+
+function unLoadUsed6Subnets()
+{
+    rm -f "$used6SubnetsFile"
 }
 
 function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = Mask bit for example if you need 10.y.z.x/24 from 10.0.0.0/8 $1=10.0.0.0/8 $2=24
@@ -483,9 +486,27 @@ function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = 
   echo "0"
 }
 
+function getFree6Subnet()
+{
+  loadUsed6Subnets
+
+  free6Subnet=0
+
+  while read line
+  do
+    [ $free6Subnet -lt $line ] && { break }
+    [ $free6Subnet -eq $line ] && { ((free6Subnet++)) }
+  done < $used6SubnetsFile
+
+  unLoadUsed6Subnets
+
+  echo $(baseconvert 10 16 $free6Subnet)
+}
+
 function start()
 {
   echo "starting" >> /tmp/eigenlog
+  RADVD_CONF=""
 
   sysctl -w net.ipv4.ip_forward=1
   sysctl -w net.ipv6.conf.all.forwarding=1
@@ -508,6 +529,7 @@ function start()
 
       while [ "${networkWirelessDevice[$indx]}" != "" ]
       do
+	local myIP6="$OLSRHnaIpV6Prefix:$(getFree6Subnet)::1"
 	local mySubnet=`getFreeSubnet "$networkWirelessIpv4BigSubnet" $networkWirelessCidr`
 	if [ "$mySubnet" == "0" ]; then break; fi
 
@@ -518,6 +540,7 @@ function start()
 	local dotMySubnetEndIp=`ipInt2Dotted "$(($intMySubnetEndIp-1))"`
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ath$(($indi*2))
+	ip -6 addr add $myIP6/64 dev ath$(($indi*2))
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
 
 	if [ $mySubnetCidr -lt 29 ]; then
@@ -526,7 +549,21 @@ function start()
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),`ipInt2Dotted $(($intMySubnetStartIp+2))`,$dotMySubnetEndIp,`ipInt2Dotted $intSubnet`,1h"
 	fi
 
+	RADVD_CONF="$RADVD_CONF
+interface ath$(($indi*2))
+{
+  AdvSendAdvert on;
+  prefix $myIP6/64
+  {
+    AdvOnLink on;
+    AdvAutonomous on;
+  };
+};
+
+"
+
 	addOlsrdHna6 "0::ffff:`ipDotted2Colon $dotMySubnetStartIp`" "$((96+$mySubnetCidr))"
+	addOlsrdHna6 "$myIP6" "64"
 
 	((indx++))
 	((indi++))
@@ -535,6 +572,7 @@ function start()
       indx=1
       while [ "${networkWiredDevice[$indx]}" != "" ]
       do
+	local myIP6="$OLSRHnaIpV6Prefix:$(getFree6Subnet)::1"
 	local mySubnet=`getFreeSubnet "$networkWiredIpv4BigSubnet" $networkWiredCidr`
 	if [ "$mySubnet" == "0" ]; then break; fi
 
@@ -545,6 +583,7 @@ function start()
 	local dotMySubnetEndIp=`ipInt2Dotted "$(($intMySubnetEndIp-1))"`
 
 	ip -4 addr add `ipInt2Dotted $(($intMySubnetStartIp+1))`/$mySubnetCidr dev ${networkWiredDevice[$indx]}
+	ip -6 addr add $myIP6/64 dev ${networkWiredDevice[$indx]}
 	ip -6 route add 0::ffff:$dotMySubnetStartIp/$((96+$mySubnetCidr)) dev niit6to4
 
 	if [ $mySubnetCidr -lt 29 ]; then
@@ -553,7 +592,21 @@ function start()
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},`ipInt2Dotted $(($intMySubnetStartIp+4))`,$dotMySubnetEndIp,`ipInt2Dotted $intSubnet`,2h"
 	fi
 
+	RADVD_CONF="$RADVD_CONF
+interface ${networkWiredDevice[$indx]}
+{
+  AdvSendAdvert on;
+  prefix $myIP6/64
+  {
+    AdvOnLink on;
+    AdvAutonomous on;
+  };
+};
+
+"
+
 	addOlsrdHna6 "0::ffff:`ipDotted2Colon $dotMySubnetStartIp`" "$((96+$mySubnetCidr))"
+	addOlsrdHna6 "$myIP6" "64"
 
 	((indx++))
       done
@@ -562,6 +615,11 @@ function start()
       echo $dhcp_ranges >> /tmp/eigenlog
       #force client mtu to 1400 --dhcp-option-force=26,1400
       dnsmasq --dhcp-option-force=26,1400 -K -D -y -Z -b -E -l /tmp/dhcp.leases -r /etc/resolv.conf.auto $dhcp_ranges
+
+      echo "$RADVD_CONF" > "/tmp/radvd.conf"
+
+      radvd -C /tmp/radvd.conf
+
       return 0
   fi
 
