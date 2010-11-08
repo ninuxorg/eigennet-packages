@@ -297,13 +297,7 @@ Interface \"ath$(($indi*2 + 1))\"
 config interface lan$indi
 	option ifname     ${networkWiredDevice[$indx]}
 	option proto      static
-#	option ip6addr    '$OLSRHnaIpV6Prefix:${networkWiredDevHWAddr6[$indx]}:0000:0000:0000:0001/64'
-
-config alias                                                           
-	option interface lan$indi
-	option proto      static
 	option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}/64'
-
 "
 
     OLSRInterfaces="$OLSRInterfaces
