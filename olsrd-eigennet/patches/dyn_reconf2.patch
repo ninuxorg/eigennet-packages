@@ -1,0 +1,126 @@
+diff --git a/src/cfgparser/olsrd_conf.c b/src/cfgparser/olsrd_conf.c
+index e0ba8f7..dd0a313 100644
+--- a/src/cfgparser/olsrd_conf.c
++++ b/src/cfgparser/olsrd_conf.c
+@@ -127,7 +127,7 @@ main(int argc, char *argv[])
+ #endif
+ 
+ int
+-olsrd_parse_cnf(const char *filename)
++olsrd_parse_cnf(const char *filename, bool config_reload)
+ {
+   struct olsr_if *in, *new_ifqueue;
+   int rc;
+@@ -159,13 +159,16 @@ olsrd_parse_cnf(const char *filename)
+     new_ifqueue = in_tmp;
+   }
+ 
+-  olsr_cnf->interfaces = new_ifqueue;
++  //reset all interfaces
++  if (!config_reload) {
++    olsr_cnf->interfaces = new_ifqueue;
+ 
+-  for (in = olsr_cnf->interfaces; in != NULL; in = in->next) {
+-    /* set various stuff */
+-    in->configured = false;
+-    in->interf = NULL;
+-    in->host_emul = false;
++    for (in = olsr_cnf->interfaces; in != NULL; in = in->next) {
++      /* set various stuff */
++      in->configured = false;
++      in->interf = NULL;
++      in->host_emul = false;
++    }
+   }
+   return 0;
+ }
+diff --git a/src/main.c b/src/main.c
+index 2fda19a..d17b6c9 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -94,6 +94,7 @@ static void olsr_shutdown(int) __attribute__ ((noreturn));
+  * Local function prototypes
+  */
+ void olsr_reconfigure(int) __attribute__ ((noreturn));
++void olsr_reload_cnf(int) __attribute__ ((noreturn));
+ 
+ static void print_usage(bool error);
+ 
+@@ -180,7 +181,7 @@ static void olsr_create_lock_file(void) {
+  * @return <0 if load failed, 0 otherwise
+  */
+ static int
+-olsrmain_load_config(char *file) {
++olsrmain_load_config(char *file, bool reload_config) {
+   struct stat statbuf;
+ 
+   if (stat(file, &statbuf) < 0) {
+@@ -189,7 +190,9 @@ olsrmain_load_config(char *file) {
+     return -1;
+   }
+ 
+-  if (olsrd_parse_cnf(file) < 0) {
++  olsr_syslog(OLSR_LOG_INFO,"loading config %s!",file);
++
++  if (olsrd_parse_cnf(file, reload_config) < 0) {
+     fprintf(stderr, "Error while reading config file %s!\n", file);
+     return -1;
+   }
+@@ -294,7 +297,7 @@ int main(int argc, char *argv[]) {
+     if (strcmp(argv[i], "-f") == 0) {
+       loadedConfig = true;
+ 
+-      if (olsrmain_load_config(argv[i+1]) < 0) {
++      if (olsrmain_load_config(argv[i+1],false) < 0) {
+         exit(EXIT_FAILURE);
+       }
+ 
+@@ -311,7 +314,7 @@ int main(int argc, char *argv[]) {
+   /*
+    * set up configuration prior to processing commandline options
+    */
+-  if (!loadedConfig && olsrmain_load_config(conf_file_name) == 0) {
++  if (!loadedConfig && olsrmain_load_config(conf_file_name, false) == 0) {
+     loadedConfig = true;
+   }
+ 
+@@ -583,8 +586,7 @@ int main(int argc, char *argv[]) {
+   //  signal(SIGSEGV, olsr_shutdown);
+   signal(SIGTERM, olsr_shutdown);
+   signal(SIGPIPE, SIG_IGN);
+-  // Ignoring SIGUSR1 and SIGUSR1 by default to be able to use them in plugins
+-  signal(SIGUSR1, SIG_IGN);
++  signal(SIGUSR1, olsr_reload_cnf);
+   signal(SIGUSR2, SIG_IGN);
+ #endif
+ 
+@@ -597,6 +599,16 @@ int main(int argc, char *argv[]) {
+   return 1;
+ } /* main */
+ 
++#ifndef WIN32
++void olsr_reload_cnf(int signo __attribute__ ((unused)))
++{
++  if (olsrmain_load_config("/tmp/olsrd.conf",true) < 0 ) {
++    olsr_syslog(OLSR_LOG_ERR,"could not reload config!");
++  }
++}
++
++#endif
++
+ /**
+  * Reconfigure olsrd. Currently kind of a hack...
+  *
+diff --git a/src/olsr_cfg.h b/src/olsr_cfg.h
+index 7774b25..99d811f 100644
+--- a/src/olsr_cfg.h
++++ b/src/olsr_cfg.h
+@@ -311,7 +311,7 @@ extern "C" {
+  * Interface to parser
+  */
+ 
+-  int olsrd_parse_cnf(const char *);
++  int olsrd_parse_cnf(const char *, bool);
+ 
+   int olsrd_sanity_check_cnf(struct olsrd_config *);
+ 
