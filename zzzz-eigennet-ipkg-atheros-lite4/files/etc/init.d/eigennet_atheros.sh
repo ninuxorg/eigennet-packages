@@ -196,15 +196,6 @@ nameserver $meshDns
 nameserver $ipv4Dns
 "
 
-  DIBBLER_SERVER_CONF="
-#Automatically generated for Eigennet
-
-log-level 8
-log-mode short
-preference 5
-stateless
-
-"
   SYSCTL_CONF="
 #Automatically generated for Eigennet
 
@@ -397,13 +388,18 @@ function loadUsed6Subnets()
   echo "/hna" | nc 0::1 2006 | grep $OLSRHnaIpV6Prefix | awk -F $OLSRHnaIpV6Prefix '{ print $2 }' | awk -F: '{print $2}'| grep -v '^$' | sort -u  > "$used6SubnetsFile"
 
   temp6Used=""
+
   while read line
   do
-    temp6Used="$new6Used
-$(baseconvert 16 10 $line)"
+    temp6Used="$temp6Used $(baseconvert 16 10 $line)"
   done < $used6SubnetsFile
 
-  echo $temp6Used | sort -u -n > $used6SubnetsFile
+  echo 0 > $used6SubnetsFile
+
+  for sub in $(echo $temp6Used | sort -u -n )
+  do
+    echo $sub >> $used6SubnetsFile
+  done
 }
 
 function unLoadUsedSubnets()
@@ -483,7 +479,7 @@ function getFree6Subnet()
 {
   loadUsed6Subnets
 
-  free6Subnet=1
+  free6Subnet=0
 
   while read line
   do
