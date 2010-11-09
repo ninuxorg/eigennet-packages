@@ -411,7 +411,7 @@ function loadUsedSubnets()
 
 function loadUsed6Subnets()
 {
-  echo "/hna" | nc 0::1 2006 | grep $OLSRHnaIpV6Prefix | awk -F $OLSRHnaIpV6Prefix '{ print $2 }' | awk -F: '{print $2}'| grep -v '^$' | sort -u  > "$used6SubnetsFile"
+  echo "/hna" | nc 0::1 2006 | grep $OLSRHnaIpV6Prefix | awk -F $OLSRHnaIpV6Prefix '{ print $2 }' | awk -F: '{print $2}'| grep -v '^$' | sort -u > "$used6SubnetsFile"
 
   temp6Used=""
 
@@ -422,12 +422,13 @@ function loadUsed6Subnets()
 
   echo 0 > $used6SubnetsFile
 
-  for sub in $(echo $temp6Used)
+  for sub in $temp6Used
   do
     echo $sub >> $used6SubnetsFile
   done
 
-  cat $used6SubnetsFile | sort -u -n > $used6SubnetsFile
+  temp6Used="$(cat $used6SubnetsFile)" 
+  echo $temp6Used | sed 's/ /\n/g' | sort -u -n > $used6SubnetsFile
 }
 
 function unLoadUsedSubnets()
