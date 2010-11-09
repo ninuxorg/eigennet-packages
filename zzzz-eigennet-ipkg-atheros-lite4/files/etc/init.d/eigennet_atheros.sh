@@ -38,6 +38,7 @@ OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we use
 ipv4Dns="10.175.0.1"
 usedSubnetsFile="/tmp/usedSubnets"
 used6SubnetsFile="/tmp/used6Subnets"
+radvdConfFile="/tmp/radvd.conf"
 olsrdDynConfFile="/tmp/olsrd.conf"
 olsrdStaticConfFile="/etc/olsrd.conf"
 
@@ -51,6 +52,8 @@ networkWiredDevHWAddr[0]=""
 networkWiredDevHWAddr6[0]=""
 networkWiredCidr="27"
 networkWiredIpv4BigSubnet="10.174.0.0/16"
+
+RADVD_CONF=""
 
 function eigenDebug()
 {
@@ -138,6 +141,29 @@ Hna6
   killall -SIGUSR1 olsrd
   sleep 10s #We need that olsrd load the dynamic hna entry in his topology before deleting the temporary file from memory
   rm -f $olsrdDynConfFile
+}
+
+# Add interface to radvd
+#
+# usage:
+# addRadvdInterface interface ip6
+#
+# example:
+# addRadvdInterface eth0 2001:470:c8f6:1::1
+#
+function addRadvdInterface()
+{
+  echo "  
+interface $1
+{
+  AdvSendAdvert on;
+  prefix $2/64
+  {
+    AdvOnLink on;
+    AdvAutonomous on;
+  };
+};
+" >> $radvdConfFile
 }
 
 function configureNetwork()
@@ -396,10 +422,12 @@ function loadUsed6Subnets()
 
   echo 0 > $used6SubnetsFile
 
-  for sub in $(echo $temp6Used | sort -u -n )
+  for sub in $(echo $temp6Used)
   do
     echo $sub >> $used6SubnetsFile
   done
+
+  cat $used6SubnetsFile | sort -u -n > $used6SubnetsFile
 }
 
 function unLoadUsedSubnets()
@@ -501,7 +529,8 @@ function getFree6Subnet()
 function start()
 {
   echo "starting" >> /tmp/eigenlog
-  RADVD_CONF=""
+  
+  echo "" > $radvdConfFile
 
   sysctl -w net.ipv4.ip_forward=1
   sysctl -w net.ipv6.conf.all.forwarding=1
@@ -544,18 +573,7 @@ function start()
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=ath$(($indi*2)),`ipInt2Dotted $(($intMySubnetStartIp+2))`,$dotMySubnetEndIp,`ipInt2Dotted $intSubnet`,1h"
 	fi
 
-	RADVD_CONF="$RADVD_CONF
-interface ath$(($indi*2))
-{
-  AdvSendAdvert on;
-  prefix $myIP6/64
-  {
-    AdvOnLink on;
-    AdvAutonomous on;
-  };
-};
-
-"
+	addRadvdInterface ath$(($indi*2)) $myIP6
 
 	addOlsrdHna6 "0::ffff:`ipDotted2Colon $dotMySubnetStartIp`" "$((96+$mySubnetCidr))"
 	addOlsrdHna6 "$myIP6" "64"
@@ -587,18 +605,7 @@ interface ath$(($indi*2))
 	  dhcp_ranges="$dhcp_ranges --dhcp-range=${networkWiredDevice[$indx]},`ipInt2Dotted $(($intMySubnetStartIp+4))`,$dotMySubnetEndIp,`ipInt2Dotted $intSubnet`,2h"
 	fi
 
-	RADVD_CONF="$RADVD_CONF
-interface ${networkWiredDevice[$indx]}
-{
-  AdvSendAdvert on;
-  prefix $myIP6/64
-  {
-    AdvOnLink on;
-    AdvAutonomous on;
-  };
-};
-
-"
+	addRadvdInterface ${networkWiredDevice[$indx]} $myIP6
 
 	addOlsrdHna6 "0::ffff:`ipDotted2Colon $dotMySubnetStartIp`" "$((96+$mySubnetCidr))"
 	addOlsrdHna6 "$myIP6" "64"
@@ -610,8 +617,6 @@ interface ${networkWiredDevice[$indx]}
       echo $dhcp_ranges >> /tmp/eigenlog
       #force client mtu to 1400 --dhcp-option-force=26,1400
       dnsmasq --dhcp-option-force=26,1400 -K -D -y -Z -b -E -l /tmp/dhcp.leases -r /etc/resolv.conf.auto $dhcp_ranges
-
-      echo "$RADVD_CONF" > "/tmp/radvd.conf"
 
       radvd -C /tmp/radvd.conf
 
