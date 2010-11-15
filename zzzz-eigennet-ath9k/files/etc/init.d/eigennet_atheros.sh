@@ -323,6 +323,7 @@ config interface wifiapr$indi
    WIRELESS_CONF="$WIRELESS_CONF
 config 'wifi-device'         '${networkRadioDevice[$indx]}'
         option 'type'        'mac80211'
+	option 'macaddr'     '${networkRadioDevHWAddr[$indx]}'
         option 'channel'     '5'
         option 'disabled'    '0'
 
