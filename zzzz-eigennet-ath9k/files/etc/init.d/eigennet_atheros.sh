@@ -303,14 +303,14 @@ net.ipv6.conf.all.autoconf=0
 
   local indx=1
   local indi=0
-#Generate configuration for wireless interface
-  while [ "${networkWirelessDevice[$indx]}" != "" ]
+#Generate configuration for radio interface
+  while [ "${networkRadioDevice[$indx]}" != "" ]
   do
     NETWORK_CONF="$NETWORK_CONF
 
 config interface wifimeshr$indi
         option proto      static
-        option ip6addr    '$meshIpV6Subnet:0001:${networkWirelessDevHWAddr6[$indx]}/64'
+        option ip6addr    '$meshIpV6Subnet:0001:${networkRadioDevHWAddr6[$indx]}/64'
 
 config interface wifiapr$indi
         option proto      static
@@ -321,13 +321,13 @@ config interface wifiapr$indi
 #Mobile#        option netmask  '255.255.255.0'
 "
    WIRELESS_CONF="$WIRELESS_CONF
-config 'wifi-device'         '${networkWirelessDevice[$indx]}'
+config 'wifi-device'         '${networkRadioDevice[$indx]}'
         option 'type'        'mac80211'
         option 'channel'     '5'
         option 'disabled'    '0'
 
 config 'wifi-iface'
-        option 'device'      '${networkWirelessDevice[$indx]}'
+        option 'device'      '${networkRadioDevice[$indx]}'
         option 'network'     'wifimeshr$indi'
         option 'sw_merge'    '1'
         option 'mode'        'adhoc'
@@ -335,7 +335,7 @@ config 'wifi-iface'
         option 'encryption'  'none'
 
 config 'wifi-iface'
-        option 'device'      '${networkWirelessDevice[$indx]}'
+        option 'device'      '${networkRadioDevice[$indx]}'
         option 'network'     'wifiapr$indi'
         option 'sw_merge'    '1'
         option 'mode'        'ap'
@@ -343,7 +343,7 @@ config 'wifi-iface'
         option 'encryption'  'none'
 
 #Mobile#config 'wifi-iface'
-#Mobile#        option 'device'      '${networkWirelessDevice[$indx]}'
+#Mobile#        option 'device'      '${networkRadioDevice[$indx]}'
 #Mobile#        option 'network'     'apMobiler$indi'
 #Mobile#        option 'sw_merge'    '1'
 #Mobile#        option 'mode'        'ap'
@@ -352,7 +352,7 @@ config 'wifi-iface'
 "
 
    OLSRInterfaces="$OLSRInterfaces
-Interface \"ath$(($indi*2 + 1))\"
+Interface \"wlan$(($indi*2 + 1))\"
 {
     Mode \"mesh\"
     IPv6Multicast       $OLSRMulticast
@@ -361,7 +361,7 @@ Interface \"ath$(($indi*2 + 1))\"
 "
 
   OLSRD_PLUGIN_P2PD="$OLSRD_PLUGIN_P2PD
-  PlParam     \"NonOlsrIf\" \"ath$(($indi*2))\"
+  PlParam     \"NonOlsrIf\" \"wlan$(($indi*2))\"
 "
 
     ((indx++))
@@ -379,7 +379,7 @@ Interface \"ath$(($indi*2 + 1))\"
 config interface wifimesh$indi
         option ifname     ath$(($indi*2 + 1))
         option proto      static
-        option ip6addr    '$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}/64'
+        option ip6addr    '$meshIpV6Subnet:0002:${networkWirelessDevHWAddr6[$indx]}/64'
 
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
@@ -429,7 +429,7 @@ Interface \"ath$(($indi*2 + 1))\"
 {
     Mode \"mesh\"
     IPv6Multicast	$OLSRMulticast
-    IPv6Src		$meshIpV6Subnet:0000:${networkWirelessDevHWAddr6[$indx]}
+    IPv6Src		$meshIpV6Subnet:0002:${networkWirelessDevHWAddr6[$indx]}
 }
 "
 
