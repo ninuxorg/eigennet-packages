@@ -668,6 +668,14 @@ function start()
 {
   echo "starting" >> /tmp/eigenlog
   
+  [ ! -e "/etc/isNotFirstRun" ] &&
+  {
+	sleep 61s
+	echo "1" > "/etc/isNotFirstRun"
+	reboot
+	return 0
+  }  
+
   echo "" > $radvdConfFile
 
   sysctl -w net.ipv4.ip_forward=1
@@ -676,7 +684,7 @@ function start()
 
   loadDevicesInfo
 
-  if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "1" ]
+  if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "2" ]
   then
 
       ip link set dev niit4to6 up
@@ -687,7 +695,7 @@ function start()
 
   sleep 10s
 
-  echo "1" > "/etc/isNotFirstRun"
+  echo "2" > "/etc/isNotFirstRun"
 
   /etc/init.d/firewall disable
   /etc/init.d/dnsmasq disable
