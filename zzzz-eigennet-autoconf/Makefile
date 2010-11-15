@@ -17,8 +17,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet-autoconf
-PKG_VERSION:=0.3.7
-PKG_RELEASE:=alpha
+PKG_VERSION:=0.3.8
+PKG_RELEASE:=beta
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
