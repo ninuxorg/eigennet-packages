@@ -61,7 +61,7 @@ function eigenDebug()
 {
   if $eigenDebugEnabled
   then
-    echo "Debug: $1" >> /tmp/eigenlog
+    echo "Debug: $@" >> /tmp/eigenlog
   fi
 }
 
@@ -172,7 +172,7 @@ function loadDevicesInfo()
     ifbase=$(echo $device | sed -e 's/[0-9]*$//')
     ifindex=$(echo $device | sed -e 's/.*\([0-9]\)/\1/')
 
-    case $device in
+    case $ifbase in
 	"eth")
 		networkWiredDevice[${#networkWiredDevice[@]}]=$device
 		mac="$(get_mac $device)"
