@@ -186,10 +186,10 @@ function loadDevicesInfo()
 		networkWirelessDevHWAddr6[${#networkWirelessDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
 	;;
 	"radio")
-		networkRadioDevice[${#networkWirelessDevice[@]}]="$device"
+		networkRadioDevice[${#networkRadioDevice[@]}]="$device"
                 mac="$(get_mac $device)"
-                networkRadioDevHWAddr[${#networkWirelessDevHWAddr[@]}]="$mac"
-                networkRadioDevHWAddr6[${#networkWirelessDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
+                networkRadioDevHWAddr[${#networkRadioDevHWAddr[@]}]="$mac"
+                networkRadioDevHWAddr6[${#networkRadioDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
 	;;
     esac
     
@@ -356,7 +356,7 @@ Interface \"wlan$(($indi*2 + 1))\"
 {
     Mode \"mesh\"
     IPv6Multicast       $OLSRMulticast
-    IPv6Src             $meshIpV6Subnet:0001:${networkWirelessDevHWAddr6[$indx]}
+    IPv6Src             $meshIpV6Subnet:0001:${networkRadioDevHWAddr6[$indx]}
 }
 "
 
