@@ -134,7 +134,7 @@ scan_interfaces()
           wifi=$(ls -d | grep wifi)
       fi
 
-      echo "${eth} ${radio} ${wifi}"
+      echo "${eth} ${radio} ${wifi}" | sed 's/ /\n/g' | sed '/^$/d'
 }
 
 #[Doc]
