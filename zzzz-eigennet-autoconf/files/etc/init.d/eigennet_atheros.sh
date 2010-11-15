@@ -131,7 +131,7 @@ scan_interfaces()
       # Getting madwifi interfaces
       if [ -e /lib/wifi/madwifi.sh ]; then
           cd /proc/sys/dev/
-          wifi=$(ls -d | grep wifi)
+          wifi=$(ls | grep wifi)
       fi
 
       echo "${eth} ${radio} ${wifi}" | sed 's/ /\n/g' | sed '/^$/d'
