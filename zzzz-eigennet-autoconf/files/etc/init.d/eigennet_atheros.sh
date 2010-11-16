@@ -342,6 +342,7 @@ config 'wifi-iface'
         option 'mode'        'ap'
         option 'ssid'        'EigenNet'
         option 'encryption'  'none'
+	option 'hidden'      '1'
 
 #Mobile#config 'wifi-iface'
 #Mobile#        option 'device'      '${networkRadioDevice[$indx]}'
@@ -415,6 +416,7 @@ config 'wifi-iface'
         option 'mode'        'ap'
         option 'ssid'        'EigenNet'
         option 'encryption'  'none'
+        option 'hidden'      '1'
 
 #Mobile#config 'wifi-iface'
 #Mobile#        option 'device'      '${networkWirelessDevice[$indx]}'
@@ -720,3 +722,4 @@ function restart()
   sleep 2s
   start
 }
+
