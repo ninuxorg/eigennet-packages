@@ -1,1 +1,31 @@
 #Automatically generated for Eigennet
+
+#config 'dnsmasq'
+#        option domainneeded      1
+#        option filterwin2k       0
+#        option localise_queries  1
+#        option rebind_protection 1
+#        option rebind_localhost  0
+#        option authoritative     1
+#        option leasefile         '/tmp/dhcp.leases'
+#        option resolvfile        '/etc/resolv.conf.auto'
+
+#config 'dhcp' 'lan0'
+#        option 'interface'   'lan0'
+#        option 'start'       '4'
+#        option 'limit'       '28'
+#        option 'leasetime'   '2h'
+#        list   'dhcp_option' '26,1400'
+
+#config 'dhcp' 'wifiap0'
+#        option 'interface'   'wifiap0'
+#        option 'start'       '1'
+#        option 'limit'       '28'
+#        option 'leasetime'   '2h'
+#        list   'dhcp_option' '26,1400'
+
+#static lease example
+#config host
+#        option ip       '192.168.1.2'
+#        option mac      '00:11:22:33:44:55'
+#        option name     'mypc'
