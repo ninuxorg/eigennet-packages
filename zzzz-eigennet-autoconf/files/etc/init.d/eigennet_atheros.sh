@@ -713,7 +713,6 @@ function start()
 function stop()
 {
   echo "stopping" >> /tmp/eigenlog
-  killall dnsmasq
 }
 
 function restart()
