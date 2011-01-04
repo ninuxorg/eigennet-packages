@@ -25,12 +25,12 @@ STOP=10
 eigenDebugEnabled=false
 
 CONF_DIR="/etc/config/"
-meshIpV6Subnet="2001:470:1f12:325"
-meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
-OLSRHnaIpV6Prefix="2001:470:c8f6" #This should be one /48 assignet by Hurricane Electric
+meshIpV6Subnet="2001:470:1f13:32d"
+meshDns="$meshIpV6Subnet::120"
+OLSRHnaIpV6Prefix="2001:470:c8f7" #This should be one /48 assignet by Hurricane Electric
 OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we use this because is more "aggressive"(then our olsrd packets are also broadcasted inside SERRA)
 
-ipv4Dns="10.175.0.1"
+ipv4Dns="10.180.0.1"
 usedSubnetsFile="/tmp/usedSubnets"
 used6SubnetsFile="/tmp/used6Subnets"
 radvdConfFile="/tmp/radvd.conf"
@@ -41,19 +41,19 @@ networkWirelessDevice[0]=""
 networkWirelessDevHWAddr[0]=""
 networkWirelessDevHWAddr6[0]=""
 networkWirelessCidr="27"
-networkWirelessIpv4BigSubnet="10.174.0.0/16"
+networkWirelessIpv4BigSubnet="10.180.0.0/16"
 
 networkWiredDevice[0]=""
 networkWiredDevHWAddr[0]=""
 networkWiredDevHWAddr6[0]=""
 networkWiredCidr="27"
-networkWiredIpv4BigSubnet="10.174.0.0/16"
+networkWiredIpv4BigSubnet="10.180.0.0/16"
 
 networkRadioDevice[0]=""
 networkRadioDevHWAddr[0]=""
 networkRadioDevHWAddr6[0]=""
 networkRadioCidr="27"
-networkRadioIpv4BigSubnet="10.174.0.0/16"
+networkRadioIpv4BigSubnet="10.180.0.0/16"
 
 RADVD_CONF=""
 
@@ -281,11 +281,6 @@ config interface loopback
 
 "
 
-  DHCP_CONF="
-#Automatically generated for Eigennet
-
-"
-
   RESOLV_CONF_AUTO="
 nameserver $meshDns
 nameserver $ipv4Dns
@@ -340,7 +335,7 @@ config 'wifi-iface'
         option 'network'     'wifiapr$indi'
         option 'sw_merge'    '1'
         option 'mode'        'ap'
-        option 'ssid'        'EigenNet'
+        option 'ssid'        'NebrodiNet'
         option 'encryption'  'none'
 	option 'hidden'      '1'
 
@@ -414,7 +409,7 @@ config 'wifi-iface'
         option 'network'     'wifiap$indi'
         option 'sw_merge'    '1'
         option 'mode'        'ap'
-        option 'ssid'        'EigenNet'
+        option 'ssid'        'NebrodiNet'
         option 'encryption'  'none'
         option 'hidden'      '1'
 
@@ -487,14 +482,12 @@ Interface \"${networkWiredDevice[$indx]}\"
 
   #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
   #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
-  #echo "$DHCP_CONF" > "$CONF_DIR/dhcp.test"
   #echo "$OLSRD_ETC" > "$olsrdStaticConfFile.test"
 
   echo "$SSH_EIGENSERVER_KEY" >> "/etc/dropbear/authorized_keys"
   echo "$SYSCTL_CONF" > "/etc/sysctl.conf"
   echo "$NETWORK_CONF" > "$CONF_DIR/network"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
-  echo "$DHCP_CONF" > "$CONF_DIR/dhcp"
   echo "$OLSRD_ETC" > "$olsrdStaticConfFile"
   echo "$RESOLV_CONF_AUTO" > "/etc/resolv.conf.auto"
   echo "nameserver 127.0.0.1" > "/etc/resolv.conf"
