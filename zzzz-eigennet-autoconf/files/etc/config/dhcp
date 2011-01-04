@@ -19,7 +19,7 @@
 
 #config 'dhcp' 'wifiap0'
 #        option 'interface'   'wifiap0'
-#        option 'start'       '1'
+#        option 'start'       '2'
 #        option 'limit'       '28'
 #        option 'leasetime'   '2h'
 #        list   'dhcp_option' '26,1400'
