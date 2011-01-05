@@ -281,11 +281,6 @@ config interface loopback
 
 "
 
-  DHCP_CONF="
-#Automatically generated for Eigennet
-
-"
-
   RESOLV_CONF_AUTO="
 nameserver $meshDns
 nameserver $ipv4Dns
@@ -487,14 +482,12 @@ Interface \"${networkWiredDevice[$indx]}\"
 
   #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
   #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
-  #echo "$DHCP_CONF" > "$CONF_DIR/dhcp.test"
   #echo "$OLSRD_ETC" > "$olsrdStaticConfFile.test"
 
   echo "$SSH_EIGENSERVER_KEY" >> "/etc/dropbear/authorized_keys"
   echo "$SYSCTL_CONF" > "/etc/sysctl.conf"
   echo "$NETWORK_CONF" > "$CONF_DIR/network"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
-  echo "$DHCP_CONF" > "$CONF_DIR/dhcp"
   echo "$OLSRD_ETC" > "$olsrdStaticConfFile"
   echo "$RESOLV_CONF_AUTO" > "/etc/resolv.conf.auto"
   echo "nameserver 127.0.0.1" > "/etc/resolv.conf"
