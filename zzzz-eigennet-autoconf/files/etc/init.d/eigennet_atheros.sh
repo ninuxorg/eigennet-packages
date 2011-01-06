@@ -309,6 +309,9 @@ config interface wifimeshr$indi
 
 config interface wifiapr$indi
         option proto      static
+#       option ipaddr     '10.180.'
+#       option netmask    '255.255.255.224'
+#       option ip6addr    '2001:470:c8f7:x::1/64'
 
 #Mobile#config interface apMobiler$indi
 #Mobile#        option proto    static
@@ -382,6 +385,9 @@ config interface wifimesh$indi
 config interface wifiap$indi
         option ifname     ath$(($indi*2))
         option proto      static
+#       option ipaddr     '10.180.'
+#       option netmask    '255.255.255.224'
+#       option ip6addr    '2001:470:c8f7:x::1/64'
 
 #Mobile#config interface wifiMobile$indi
 #Mobile#	option ifname	ath$(($indi*2)) # check this index
@@ -451,6 +457,14 @@ config interface lan$indi
 	option ifname     ${networkWiredDevice[$indx]}
 	option proto      static
 	option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}/64'
+#       option ipaddr     '10.180.'
+#       option netmask    '255.255.255.224'
+
+#config alias 6lan$indi
+#        option interface  lan$indi
+#        option proto      static
+#        option ip6addr    '2001:470:c8f7:x::1/64'
+
 "
 
     OLSRInterfaces="$OLSRInterfaces
