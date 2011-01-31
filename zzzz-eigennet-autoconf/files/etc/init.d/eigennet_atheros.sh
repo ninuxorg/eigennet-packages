@@ -322,7 +322,7 @@ config interface wifiapr$indi
 config 'wifi-device'         '${networkRadioDevice[$indx]}'
         option 'type'        'mac80211'
 	option 'macaddr'     '${networkRadioDevHWAddr[$indx]}'
-        option 'channel'     '5'
+        option 'channel'     '13'
         option 'disabled'    '0'
 
 config 'wifi-iface'
@@ -399,7 +399,7 @@ config interface wifiap$indi
     WIRELESS_CONF="$WIRELESS_CONF
 config 'wifi-device'         '${networkWirelessDevice[$indx]}'
         option 'type'        'atheros'
-        option 'channel'     '5'
+        option 'channel'     '13'
         option 'disabled'    '0'
 
 config 'wifi-iface'
