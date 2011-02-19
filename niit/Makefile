@@ -18,7 +18,7 @@ include $(INCLUDE_DIR)/package.mk
 define KernelPackage/niit
   SUBMENU:=Network Support
   TITLE:=Stateless IP ICMP Translation Algorithm
-  DEPENDS:= @LINUX_2_6 +kmod-ipv6
+  DEPENDS:=+kmod-ipv6
   FILES:=$(PKG_BUILD_DIR)/niit.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,50,niit)
 endef
