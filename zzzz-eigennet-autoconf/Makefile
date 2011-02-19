@@ -35,7 +35,6 @@ endef
 
 define Package/$(PKG_NAME)
   $(call Package/$(PKG_NAME)/template)
-  MENU:=1
   DEPENDS:=+kmod-niit +bash +ip +olsrd-eigennet +olsrd-eigennet-mod-txtinfo +olsrd-eigennet-mod-mdns +dnsmasq +radvd
 endef
 
