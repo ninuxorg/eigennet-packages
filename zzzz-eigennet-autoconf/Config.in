@@ -1,6 +1,0 @@
-config EIGENNET_AUTOCONF
-	prompt "This packet configure hardware for EigenNet"
-	tristate
-	default m if CONFIG_DEVEL
-	help
-		For more info http://eigenlab.org

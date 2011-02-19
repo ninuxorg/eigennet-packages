@@ -19,29 +19,33 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet-autoconf
 PKG_VERSION:=0.3.8
-PKG_RELEASE:=beta
+PKG_RELEASE:=3
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/
+PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install/
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/$(PKG_NAME)
+define Package/$(PKG_NAME)/template
   SECTION:=admin
   CATEGORY:=Administration
+  TITLE:=EigenNet Autoconfig Package
+  URL:=http://www.eigenlab.org/
+endef
+
+define Package/$(PKG_NAME)
+  $(call Package/$(PKG_NAME)/template)
+  MENU:=1
   DEPENDS:=+kmod-niit +bash +ip +olsrd-eigennet +olsrd-eigennet-mod-txtinfo +olsrd-eigennet-mod-mdns +dnsmasq +radvd
-  TITLE:=EigenNet Auto Config Package
 endef
 
 define Package/$(PKG_NAME)/install
-	$(CP) -a ./files/* $(1)/
-endef
-
-define Package/$(PKG_NAME)/description
-  Prepare Node for EigenNet 
+  $(CP) -a ./files/* $(1)/
 endef
 
 define Build/Compile
+  rm -rf $(PKG_INSTALL_DIR)
+  mkdir -p $(PKG_INSTALL_DIR)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
