@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2010  Gioacchino Mazzurco <gmazzurco89@gmail.com>
+# Copyright (C) 2010-2011  Gioacchino Mazzurco <gmazzurco89@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,33 +19,31 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet-autoconf
 PKG_VERSION:=0.3.8
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install/
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/$(PKG_NAME)/template
+define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  TITLE:=EigenNet Autoconfig Package
-  URL:=http://www.eigenlab.org/
-endef
-
-define Package/$(PKG_NAME)
-  $(call Package/$(PKG_NAME)/template)
   DEPENDS:=+kmod-niit +bash +ip +olsrd-eigennet +olsrd-eigennet-mod-txtinfo +olsrd-eigennet-mod-mdns +dnsmasq +radvd
+  TITLE:=EigenNet Auto Config Package
 endef
 
 define Package/$(PKG_NAME)/install
-  $(CP) -a ./files/* $(1)/
+	$(CP) -a ./files/* $(1)/
+endef
+
+define Package/$(PKG_NAME)/description
+  Prepare Node for EigenNet 
 endef
 
 define Build/Compile
-  rm -rf $(PKG_INSTALL_DIR)
-  mkdir -p $(PKG_INSTALL_DIR)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
+
 
