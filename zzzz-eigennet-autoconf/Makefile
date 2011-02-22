@@ -29,7 +29,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+kmod-niit +bash +ip +olsrd-eigennet +olsrd-eigennet-mod-txtinfo +olsrd-eigennet-mod-mdns +dnsmasq +radvd
+  DEPENDS:=+kmod-niit +bash +ip +olsrd-eigennet +olsrd-eigennet-mod-txtinfo +olsrd-eigennet-mod-mdns +dnsmasq +radvd +mrd6
   TITLE:=EigenNet Auto Config Package
 endef
 
