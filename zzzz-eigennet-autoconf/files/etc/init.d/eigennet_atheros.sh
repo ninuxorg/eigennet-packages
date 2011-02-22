@@ -28,7 +28,7 @@ CONF_DIR="/etc/config/"
 meshIpV6Subnet="2001:470:1f12:325"
 meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
 OLSRHnaIpV6Prefix="2001:470:c8f6" #This should be one /48 assignet by Hurricane Electric
-OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we use this because is more "aggressive"(then our olsrd packets are also broadcasted inside SERRA)
+OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we ue this for compatibility with older version
 
 ipv4Dns="10.175.0.1"
 usedSubnetsFile="/tmp/usedSubnets"
@@ -237,7 +237,7 @@ interface $1
 
 function configureNetwork()
 {
-  SSH_EIGENSERVER_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAuBru7VgJ7Ti3GKX7UWhD4GuwxdRjn+RGnby4IVrSad7sGBdii4DX3jJVDB1UIlungcIDxYodMO3tnkoAaAIb+XcVVabWAdHZTtdSLNuubtmqVIgYRSR5BWK7unX+KG+iTuMxGpOfspnYCVYyYw78UhFVCSZiFLiC0i76EndpjNtJZQ4syMJAeOmpDFCO/6PnqOuiSlJy0xJgKRR2H3i8N0J1uMK0AIbfI+osRqIx4ZgIi8QV/vqc3trxlTFML2lbhV+xwO3xRNssA5WKAsdqB9+keo8lGxIUmj9rstYHdN/rqyocOrjuLvJ7ao48a4ryksqhfzRju1WdONwl9VTP7w== www-data@eigenserver"
+  SSH_EIGENSERVER_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver"
 
   WIRELESS_CONF="
 #Automatically generated for Eigennet
