@@ -7,7 +7,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=babeld
+PKG_NAME:=babelz-eigennet
 PKG_VERSION:=1.1.0
 PKG_RELEASE:=1
 
