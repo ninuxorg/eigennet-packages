@@ -25,9 +25,9 @@ STOP=10
 eigenDebugEnabled=false
 
 CONF_DIR="/etc/config/"
-meshIpV6Subnet="2001:470:1f12:325"
-meshDns="$meshIpV6Subnet:0000:0023:7d29:13fa"
-OLSRHnaIpV6Prefix="2001:470:c8f6" #This should be one /48 assignet by Hurricane Electric
+meshIpV6Subnet="2001:470:1f13:67f"
+meshDns="2001:470:1f12:325:0000:0023:7d29:13fa"
+OLSRHnaIpV6Prefix="2001:470:ca42" #This should be one /48 assignet by Hurricane Electric
 OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we ue this for compatibility with older version
 
 ipv4Dns="10.175.0.1"
