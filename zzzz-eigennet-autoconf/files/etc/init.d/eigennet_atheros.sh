@@ -184,6 +184,12 @@ net.ipv6.conf.all.autoconf=0
       uci set radvd.prefix$device.AdvOnLink=1
       uci set radvd.prefix$device.AdvAutonomous=1
       uci set radvd.prefix$device.ignore=1
+
+      uci set dhcp.$device=dhcp
+      uci set dhcp.$device.interface=$device
+      uci set dhcp.$device.start=2
+      uci set dhcp.$device.limit=28
+      uci set dhcp.$device.leasetime=1h
     ;;
 
     "wifi")
@@ -215,24 +221,30 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.ap$device.mode=ap
 	uci set wireless.ap$device.ssid=EigenNet
 	uci set wireless.ap$device.encryption=none
+
+	uci set network.ap$device=interface
+	uci set network.ap$device.proto=static
+	uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
+	uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
+	uci set network.ap$device.netmask=255.255.255.224
+
+	uci set radvd.ap$device=interface
+	uci set radvd.ap$device.interface=ap$device
+	uci set radvd.ap$device.AdvSendAdvert=1
+	uci set radvd.ap$device.ignore=1
+
+	uci set radvd.prefix$device=prefix
+	uci set radvd.prefix$device.interface=alias$device
+	uci set radvd.prefix$device.AdvOnLink=1
+	uci set radvd.prefix$device.AdvAutonomous=1
+	uci set radvd.prefix$device.ignore=1
+
+	uci set dhcp.ap$device=dhcp
+	uci set dhcp.ap$device.interface=$device
+	uci set dhcp.ap$device.start=2
+	uci set dhcp.ap$device.limit=28
+	uci set dhcp.ap$device.leasetime=5m
       }
-
-      uci set network.ap$device=interface
-      uci set network.ap$device.proto=static
-      uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
-      uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
-      uci set network.ap$device.netmask=255.255.255.224
-
-      uci set radvd.ap$device=interface
-      uci set radvd.ap$device.interface=ap$device
-      uci set radvd.ap$device.AdvSendAdvert=1
-      uci set radvd.ap$device.ignore=1
-
-      uci set radvd.prefix$device=prefix
-      uci set radvd.prefix$device.interface=alias$device
-      uci set radvd.prefix$device.AdvOnLink=1
-      uci set radvd.prefix$device.AdvAutonomous=1
-      uci set radvd.prefix$device.ignore=1
     ;;
 
     "radio")
@@ -266,24 +278,30 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.ap$device.mode=ap
 	uci set wireless.ap$device.ssid=EigenNet
 	uci set wireless.ap$device.encryption=none
+
+	uci set network.ap$device=interface
+	uci set network.ap$device.proto=static
+	uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
+	uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
+	uci set network.ap$device.netmask=255.255.255.224
+
+	uci set radvd.ap$device=interface
+	uci set radvd.ap$device.interface=ap$device
+	uci set radvd.ap$device.AdvSendAdvert=1
+	uci set radvd.ap$device.ignore=1
+
+	uci set radvd.prefix$device=prefix
+	uci set radvd.prefix$device.interface=alias$device
+	uci set radvd.prefix$device.AdvOnLink=1
+	uci set radvd.prefix$device.AdvAutonomous=1
+	uci set radvd.prefix$device.ignore=1
+
+	uci set dhcp.ap$device=dhcp
+	uci set dhcp.ap$device.interface=$device
+	uci set dhcp.ap$device.start=2
+	uci set dhcp.ap$device.limit=28
+	uci set dhcp.ap$device.leasetime=5m
       }
-
-      uci set network.ap$device=interface
-      uci set network.ap$device.proto=static
-      uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
-      uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
-      uci set network.ap$device.netmask=255.255.255.224
-
-      uci set radvd.ap$device=interface
-      uci set radvd.ap$device.interface=ap$device
-      uci set radvd.ap$device.AdvSendAdvert=1
-      uci set radvd.ap$device.ignore=1
-
-      uci set radvd.prefix$device=prefix
-      uci set radvd.prefix$device.interface=alias$device
-      uci set radvd.prefix$device.AdvOnLink=1
-      uci set radvd.prefix$device.AdvAutonomous=1
-      uci set radvd.prefix$device.ignore=1
     ;;
     esac
   done
