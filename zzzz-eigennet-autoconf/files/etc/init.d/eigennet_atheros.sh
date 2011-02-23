@@ -167,7 +167,7 @@ net.ipv6.conf.all.autoconf=0
       uci set network.alias$device=alias
       uci set network.alias$device.interface=$device
       uci set network.alias$device.proto=static
-      uci set network.alias$device.ip6addr=$ipv4prefix$devindex::1/64
+      uci set network.alias$device.ip6addr=$ipv6prefix$devindex::1/64
       uci set network.alias$device.ignore=1
 
       uci set babel.$device=interface
@@ -215,7 +215,7 @@ net.ipv6.conf.all.autoconf=0
 
       uci set network.ap$device=interface
       uci set network.ap$device.proto=static
-      uci set network.ap$device.ip6addr=$ipv4prefix$devindex::1/64
+      uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
       uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
       uci set network.ap$device.netmask=255.255.255.224
       uci set network.ap$device.ignore=1
@@ -264,7 +264,7 @@ net.ipv6.conf.all.autoconf=0
 
       uci set network.ap$device=interface
       uci set network.ap$device.proto=static
-      uci set network.ap$device.ip6addr=$ipv4prefix$devindex::1/64
+      uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
       uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
       uci set network.ap$device.netmask=255.255.255.224
       uci set network.ap$device.ignore=1
