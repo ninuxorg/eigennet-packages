@@ -160,7 +160,7 @@ net.ipv6.conf.all.autoconf=0
       uci set network.$device=interface
       uci set network.$device.ifname=$device
       uci set network.$device.proto=static
-      uci set network.$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))
+      uci set network.$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
       uci set network.$device.ipaddr=$ipv4prefix$devindex.1
       uci set network.$device.netmask=255.255.255.224
 
@@ -209,7 +209,7 @@ net.ipv6.conf.all.autoconf=0
 
       uci set network.mesh$device=interface
       uci set network.mesh$device.proto=static
-      uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))
+      uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
 
       uci set babel.mesh$device=interface
 
@@ -260,7 +260,7 @@ net.ipv6.conf.all.autoconf=0
 
       uci set network.mesh$device=interface
       uci set network.mesh$device.proto=static
-      uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))
+      uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
 
       uci set network.ap$device=interface
       uci set network.ap$device.proto=static
@@ -314,7 +314,7 @@ start()
 
   /etc/init.d/firewall disable
 
-  #configureNetwork
+  configureNetwork
 
   sleep 2s
 
