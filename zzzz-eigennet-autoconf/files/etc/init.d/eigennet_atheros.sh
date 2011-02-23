@@ -503,7 +503,7 @@ Interface \"${networkWiredDevice[$indx]}\"
   echo "$NETWORK_CONF" > "$CONF_DIR/network"
   echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
   echo "$OLSRD_ETC" > "$olsrdStaticConfFile"
-  echo "$RESOLV_CONF_AUTO" > "/etc/resolv.conf.auto"
+#  echo "$RESOLV_CONF_AUTO" > "/etc/resolv.conf.auto"
   echo "nameserver 127.0.0.1" > "/etc/resolv.conf"
 }
 
