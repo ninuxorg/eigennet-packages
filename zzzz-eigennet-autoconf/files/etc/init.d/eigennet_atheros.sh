@@ -1,8 +1,8 @@
-#!/bin/bash /etc/rc.common
+#!/bin/sh /etc/rc.common
 
 <<COPYRIGHT
 
-Copyright (C) 2010  Gioacchino Mazzurco <gmazzurco89@gmail.com>
+Copyright (C) 2010-2011  Gioacchino Mazzurco <gmazzurco89@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,86 +25,22 @@ STOP=10
 eigenDebugEnabled=false
 
 CONF_DIR="/etc/config/"
-meshIpV6Subnet="2001:470:1f13:67f"
-meshDns="2001:470:1f12:325:0000:0023:7d29:13fa"
-OLSRHnaIpV6Prefix="2001:470:ca42" #This should be one /48 assignet by Hurricane Electric
-OLSRMulticast="FF0E::1" #Newer version of olsrd use FF02:1 as default but we ue this for compatibility with older version
+meshPrefix="2001:470:1f13:67f:"
+mesh2channel=8
+mesh5channel=60
+ipv6prefix="2001:470:ca42:"   #at least a /48 prefix
+ipv4prefix="10.174."          #at least a /16 prefix
 
-ipv4Dns="10.175.0.1"
-usedSubnetsFile="/tmp/usedSubnets"
-used6SubnetsFile="/tmp/used6Subnets"
-radvdConfFile="/tmp/radvd.conf"
-olsrdDynConfFile="/tmp/olsrd.conf"
-olsrdStaticConfFile="/etc/olsrd.conf"
+resolvers="2001:470:1f12:325:0:23:7d29:13fa 10.175.0.101"
 
-networkWirelessDevice[0]=""
-networkWirelessDevHWAddr[0]=""
-networkWirelessDevHWAddr6[0]=""
-networkWirelessCidr="27"
-networkWirelessIpv4BigSubnet="10.174.0.0/16"
+SSH_EIGENSERVER_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver"
 
-networkWiredDevice[0]=""
-networkWiredDevHWAddr[0]=""
-networkWiredDevHWAddr6[0]=""
-networkWiredCidr="27"
-networkWiredIpv4BigSubnet="10.174.0.0/16"
-
-networkRadioDevice[0]=""
-networkRadioDevHWAddr[0]=""
-networkRadioDevHWAddr6[0]=""
-networkRadioCidr="27"
-networkRadioIpv4BigSubnet="10.174.0.0/16"
-
-RADVD_CONF=""
-
-function eigenDebug()
+eigenDebug()
 {
   if $eigenDebugEnabled
   then
     echo "Debug: $@" >> /tmp/eigenlog
   fi
-}
-
-# Convert number from a base to another
-#
-# usage:
-# baseconvert inputBase outputBase numberToConvert
-# inputBase and outputBase must be expressed in base 10, numberToConvert is expressed in inputBase NOTE: it cannot be a big number
-#
-# example:
-# baseconvert 2 10 1010101
-#
-function baseconvert()
-{
-  echo $1 $2 $3 | awk '{
-	  #our general alphabet
-	  alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	  # input base
-	  ibase=$1; 
-
-	  # output base
-	  obase=$2;
-
-	  # input number
-	  inumber=toupper($3);
-
-	  #convert third parameter to decimal base
-	  for (i=1;i<=length(inumber);i++) {
-		  number += (index(alphabet,substr(inumber,i,1))-1)*(ibase^(length(inumber)-i));
-	  }
-	  tmp=number;
-
-	  #convert "number" to the output base
-	  while (tmp>=obase) {
-		  nut=substr(alphabet,tmp%obase+1,1);
-		  final = nut final;
-		  tmp=int(tmp/obase);
-	  }
-	  final = substr(alphabet,tmp%obase+1,1) final;
-
-	  #printf("%s (b %s) -> %s (b 10) -> %s (b %s)\n",$3,ibase,number,final,obase);
-	  printf("%s\n",final)
-  }'
 }
 
 #[Doc]
@@ -113,9 +49,8 @@ function baseconvert()
 #[Doc] usage:
 #[Doc] scan_interfacer
 #[Doc]
-scan_interfaces()
+scan_devices()
 {
-
       eth=""
       radio=""
       wifi=""
@@ -145,7 +80,7 @@ scan_interfaces()
 #[Doc]
 #[Doc] example:
 #[Doc] get_mac eth0
-#[Doc]   
+#[Doc]
 get_mac()
 {
       ifname=${1}
@@ -164,519 +99,195 @@ get_mac()
       echo $mac | tr '[a-z]' ['A-Z']
 }
 
-function loadDevicesInfo()
+#[Doc]
+#[Doc] Return given mac in ipv6 like format
+#[Doc]
+#[Doc] usage:
+#[Doc] mac6ize mac_address
+#[Doc]
+#[Doc] example:
+#[Doc] mac6ize ff:ff:ff:ff:ff:ff
+#[Doc]
+mac6ize()
 {
-  for device in $(scan_interfaces)
-  do
-
-    ifbase=$(echo $device | sed -e 's/[0-9]*$//')
-    ifindex=$(echo $device | sed -e 's/.*\([0-9]\)/\1/')
-
-    case $ifbase in
-	"eth")
-		networkWiredDevice[${#networkWiredDevice[@]}]=$device
-		mac="$(get_mac $device)"
-		networkWiredDevHWAddr[${#networkWiredDevHWAddr[@]}]=$mac
-		networkWiredDevHWAddr6[${#networkWiredDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
-	;;
-    	"wifi")
-		networkWirelessDevice[${#networkWirelessDevice[@]}]="$device"
-		mac="$(get_mac $device)"
-		networkWirelessDevHWAddr[${#networkWirelessDevHWAddr[@]}]="$mac"
-		networkWirelessDevHWAddr6[${#networkWirelessDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
-	;;
-	"radio")
-		networkRadioDevice[${#networkRadioDevice[@]}]="$device"
-                mac="$(get_mac $device)"
-                networkRadioDevHWAddr[${#networkRadioDevHWAddr[@]}]="$mac"
-                networkRadioDevHWAddr6[${#networkRadioDevHWAddr6[@]}]="${mac:0:2}${mac:3:2}:${mac:6:2}${mac:9:2}:${mac:12:2}${mac:15:2}"
-	;;
-    esac
-    
-  done
+    echo $1 | awk -F: '{print $1$2":"$3$4":"$5$6}' | tr '[a-z]' ['A-Z']
 }
 
-function addOlsrdHna6() # $1=ipv6 address, $2=CIDR
+#[Doc]
+#[Doc] Del given uci interface from network file 
+#[Doc]
+#[Doc] usage:
+#[Doc] del_interface uci_interface_name
+#[Doc]
+#[Doc] example:
+#[Doc] del_interface lan0
+#[Doc]
+del_interface()
 {
+  uci del network.$1
+}
+
+configureNetwork()
+{
+  echo "$SSH_EIGENSERVER_KEY" >> "/etc/dropbear/authorized_keys"
+
   echo "
-IpVersion	6
-
-Hna6
-{
-  $1 $2
-}
-" > "$olsrdDynConfFile"
-
-  killall -SIGUSR1 olsrd
-  sleep 10s #We need that olsrd load the dynamic hna entry in his topology before deleting the temporary file from memory
-  rm -f $olsrdDynConfFile
-}
-
-# Add interface to radvd
-#
-# usage:
-# addRadvdInterface interface ip6
-#
-# example:
-# addRadvdInterface eth0 2001:470:c8f6:1::1
-#
-function addRadvdInterface()
-{
-  echo "  
-interface $1
-{
-  AdvSendAdvert on;
-  prefix $2/64
-  {
-    AdvOnLink on;
-    AdvAutonomous on;
-  };
-};
-" >> $radvdConfFile
-}
-
-function configureNetwork()
-{
-  SSH_EIGENSERVER_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver"
-
-  WIRELESS_CONF="
-#Automatically generated for Eigennet
-"
-
-  OLSRD_ETC="
 #Automatically generated for Eigennet
 
-DebugLevel	1
-
-IpVersion	6
-
-LoadPlugin \"olsrd_txtinfo.so.0.1\"
-{
-  PlParam     \"Accept\"   \"0::0\"
-}
-
-"
-
-  OLSRHna6="
-Hna6
-{
-
-"
-
-  OLSRD_PLUGIN_P2PD="
-LoadPlugin \"olsrd_mdns.so.1.0.0\"
-{
-  PlParam     \"MDNS_TTL\"     \"10\"
-
-"
-
-  OLSRInterfaces=""
-
-  NETWORK_CONF="
-#Automatically generated for Eigennet
-
-config interface loopback
-	option ifname lo
-	option proto static
-
-"
-
-  RESOLV_CONF_AUTO="
-nameserver $meshDns
-nameserver $ipv4Dns
-"
-
-  SYSCTL_CONF="
-#Automatically generated for Eigennet
-
-`cat /etc/sysctl.conf | grep -v net.ipv4.ip_forward | grep -v net.ipv6.conf.all.forwarding | grep -v net.ipv6.conf.all.autoconf`
+$(cat /etc/sysctl.conf | grep -v net.ipv4.ip_forward | grep -v net.ipv6.conf.all.forwarding | grep -v net.ipv6.conf.all.autoconf)
 
 net.ipv4.ip_forward=1
 net.ipv6.conf.all.forwarding=1
 net.ipv6.conf.all.autoconf=0
-"
+" > /etc/sysctl.conf
 
-  local indx=1
-  local indi=0
-#Generate configuration for radio interface
-  while [ "${networkRadioDevice[$indx]}" != "" ]
+  for dns in $resolvers
   do
-    NETWORK_CONF="$NETWORK_CONF
-
-config interface wifimeshr$indi
-        option proto      static
-        option ip6addr    '$meshIpV6Subnet:0001:${networkRadioDevHWAddr6[$indx]}/64'
-
-config interface wifiapr$indi
-        option proto      static
-#       option ipaddr     '10.174.'
-#       option netmask    '255.255.255.224'
-#       option ip6addr    '2001:470:c8f6:x::1/64'
-
-#Mobile#config interface apMobiler$indi
-#Mobile#        option proto    static
-#Mobile#        option ipaddr   '192.168.174.1'
-#Mobile#        option netmask  '255.255.255.0'
-"
-   WIRELESS_CONF="$WIRELESS_CONF
-config 'wifi-device'         '${networkRadioDevice[$indx]}'
-        option 'type'        'mac80211'
-	option 'macaddr'     '${networkRadioDevHWAddr[$indx]}'
-        option 'channel'     '8'
-        option 'disabled'    '0'
-
-config 'wifi-iface'
-        option 'device'      '${networkRadioDevice[$indx]}'
-        option 'network'     'wifimeshr$indi'
-        option 'sw_merge'    '1'
-        option 'mode'        'adhoc'
-        option 'ssid'        'Ninux.org'
-        option 'encryption'  'none'
-
-config 'wifi-iface'
-        option 'device'      '${networkRadioDevice[$indx]}'
-        option 'network'     'wifiapr$indi'
-        option 'sw_merge'    '1'
-        option 'mode'        'ap'
-        option 'ssid'        'EigenNet'
-        option 'encryption'  'none'
-	option 'hidden'      '1'
-
-#Mobile#config 'wifi-iface'
-#Mobile#        option 'device'      '${networkRadioDevice[$indx]}'
-#Mobile#        option 'network'     'apMobiler$indi'
-#Mobile#        option 'sw_merge'    '1'
-#Mobile#        option 'mode'        'ap'
-#Mobile#        option 'ssid'        'EigenNet_Mobile'
-#Mobile#        option 'encryption'  'none'
-"
-
-   OLSRInterfaces="$OLSRInterfaces
-Interface \"wlan$(($indi*2 + 1))\"
-{
-    Mode \"mesh\"
-    IPv6Multicast       $OLSRMulticast
-    IPv6Src             $meshIpV6Subnet:0001:${networkRadioDevHWAddr6[$indx]}
-}
-"
-
-  OLSRD_PLUGIN_P2PD="$OLSRD_PLUGIN_P2PD
-  PlParam     \"NonOlsrIf\" \"wlan$(($indi*2))\"
-"
-
-    ((indx++))
-    ((indi++))
-
+    echo nameserver $dns >> /etc/resolv.conf.auto
   done
 
-  local indx=1
-  local indi=0
-#Generate configuration for wireless interface
-  while [ "${networkWirelessDevice[$indx]}" != "" ]
+  . /etc/functions.sh
+  config_load network
+  config_foreach del_interface interface
+
+  for device in $(scan_devices)
   do
-    NETWORK_CONF="$NETWORK_CONF
+    devtype=$(echo $device | sed -e 's/[0-9]*$//')
+    devindex=$(echo $device | sed -e 's/.*\([0-9]\)/\1/')
 
-config interface wifimesh$indi
-        option ifname     ath$(($indi*2 + 1))
-        option proto      static
-        option ip6addr    '$meshIpV6Subnet:0002:${networkWirelessDevHWAddr6[$indx]}/64'
+    case $devtype in
+    "eth")
+      uci set network.$device=interface
+      uci set network.$device.ifname=$device
+      uci set network.$device.proto=static
+      uci set network.$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))
+      uci set network.$device.ipaddr=$ipv4prefix$devindex.$devindex
+      uci set network.$device.netmask=255.255.255.224
 
-config interface wifiap$indi
-        option ifname     ath$(($indi*2))
-        option proto      static
-#       option ipaddr     '10.174.'
-#       option netmask    '255.255.255.224'
-#       option ip6addr    '2001:470:c8f6:x::1/64'
+      uci set network.alias$device=alias
+      uci set network.alias$device.interface=$device
+      uci set network.alias$device.proto=static
+      uci set network.alias$device.ip6addr=$ipv4prefix$devindex::1/64
+      uci set network.alias$device.ignore=1
 
-#Mobile#config interface wifiMobile$indi
-#Mobile#	option ifname	ath$(($indi*2)) # check this index
-#Mobile#	option proto	static
-#Mobile#	option ipaddr	'192.168.174.1'
-#Mobile#	option netmask	'255.255.255.0'
+      uci set babel.$device=interface
 
-"
+      uci set radvd.alias$device=interface
+      uci set radvd.alias$device.interface=alias$device
+      uci set radvd.alias$device.AdvSendAdvert=1
+      uci set radvd.alias$device.ignore=1
 
-    WIRELESS_CONF="$WIRELESS_CONF
-config 'wifi-device'         '${networkWirelessDevice[$indx]}'
-        option 'type'        'atheros'
-        option 'channel'     '8'
-        option 'disabled'    '0'
+      uci set radvd.prefix$device=prefix
+      uci set radvd.prefix$device.interface=alias$device
+      uci set radvd.prefix$device.AdvOnLink=1
+      uci set radvd.prefix$device.AdvAutonomous=1
+      uci set radvd.prefix$device.ignore=1
+    ;;
 
-config 'wifi-iface'
-        option 'device'      '${networkWirelessDevice[$indx]}'
-        option 'network'     'wifimesh$indi'
-        option 'sw_merge'    '1'
-        option 'mode'        'adhoc'
-        option 'ssid'        'Ninux.org'
-        option 'encryption'  'none'
+    "wifi")
+      uci set wireless.$device=wifi-device
+      uci set wireless.$device.type=atheros
+      uci set wireless.$device.channel=$mesh2channel
+      uci set wireless.$device.disabled=0
 
-config 'wifi-iface'
-        option 'device'      '${networkWirelessDevice[$indx]}'
-        option 'network'     'wifiap$indi'
-        option 'sw_merge'    '1'
-        option 'mode'        'ap'
-        option 'ssid'        'EigenNet'
-        option 'encryption'  'none'
-        option 'hidden'      '1'
+      uci set wireless.mesh$device=wifi-iface
+      uci set wireless.mesh$device.device=$device
+      uci set wireless.mesh$device.network=mesh$device
+      uci set wireless.mesh$device.sw_merge=1
+      uci set wireless.mesh$device.mode=adhoc
+      uci set wireless.mesh$device.ssid=Ninux.org
+      uci set wireless.mesh$device.encryption=none
 
-#Mobile#config 'wifi-iface'
-#Mobile#        option 'device'      '${networkWirelessDevice[$indx]}'
-#Mobile#        option 'network'     'wifiMobile$indi'
-#Mobile#        option 'sw_merge'    '1'
-#Mobile#        option 'mode'        'ap'
-#Mobile#        option 'ssid'        'EigenNet_Mobile'
-#Mobile#        option 'encryption'  'none'
-"
+      uci set wireless.ap$device=wifi-iface
+      uci set wireless.ap$device.device=$device
+      uci set wireless.ap$device.network=ap$device
+      uci set wireless.ap$device.sw_merge=1
+      uci set wireless.ap$device.mode=ap
+      uci set wireless.ap$device.ssid=EigenNet
+      uci set wireless.ap$device.encryption=none
+      uci set wireless.ap$device.ignore=1
 
-    OLSRInterfaces="$OLSRInterfaces
-Interface \"ath$(($indi*2 + 1))\"
-{
-    Mode \"mesh\"
-    IPv6Multicast	$OLSRMulticast
-    IPv6Src		$meshIpV6Subnet:0002:${networkWirelessDevHWAddr6[$indx]}
-}
-"
+      uci set network.mesh$device=interface
+      uci set network.mesh$device.proto=static
+      uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))
 
-  OLSRD_PLUGIN_P2PD="$OLSRD_PLUGIN_P2PD
-  PlParam     \"NonOlsrIf\" \"ath$(($indi*2))\"
-"
+      uci set babel.mesh$device=interface
 
-    ((indx++))
-    ((indi++))
+      uci set network.ap$device=interface
+      uci set network.ap$device.proto=static
+      uci set network.ap$device.ip6addr=$ipv4prefix$devindex::1/64
+      uci set network.ap$device.ipaddr=$ipv4prefix$devindex.$devindex
+      uci set network.ap$device.netmask=255.255.255.224
+      uci set network.ap$device.ignore=1
+
+      uci set radvd.ap$device=interface
+      uci set radvd.ap$device.interface=ap$device
+      uci set radvd.ap$device.AdvSendAdvert=1
+      uci set radvd.ap$device.ignore=1
+
+      uci set radvd.prefix$device=prefix
+      uci set radvd.prefix$device.interface=alias$device
+      uci set radvd.prefix$device.AdvOnLink=1
+      uci set radvd.prefix$device.AdvAutonomous=1
+      uci set radvd.prefix$device.ignore=1
+    ;;
+
+    "radio")
+      uci set wireless.$device=wifi-device
+      uci set wireless.$device.type=mac80211
+      uci set wireless.$device.macaddr=$(get_mac $device)
+      uci set wireless.$device.channel=$mesh2channel
+      uci set wireless.$device.disabled=0
+
+      uci set wireless.mesh$device=wifi-iface
+      uci set wireless.mesh$device.device=$device
+      uci set wireless.mesh$device.network=mesh$device
+      uci set wireless.mesh$device.sw_merge=1
+      uci set wireless.mesh$device.mode=adhoc
+      uci set wireless.mesh$device.ssid=Ninux.org
+      uci set wireless.mesh$device.encryption=none
+
+      uci set babel.mesh$device=interface
+
+      uci set wireless.ap$device=wifi-iface
+      uci set wireless.ap$device.device=$device
+      uci set wireless.ap$device.network=ap$device
+      uci set wireless.ap$device.sw_merge=1
+      uci set wireless.ap$device.mode=ap
+      uci set wireless.ap$device.ssid=EigenNet
+      uci set wireless.ap$device.encryption=none
+      uci set wireless.ap$device.ignore=1
+
+      uci set network.mesh$device=interface
+      uci set network.mesh$device.proto=static
+      uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))
+
+      uci set network.ap$device=interface
+      uci set network.ap$device.proto=static
+      uci set network.ap$device.ip6addr=$ipv4prefix$devindex::1/64
+      uci set network.ap$device.ipaddr=$ipv4prefix$devindex.$devindex
+      uci set network.ap$device.netmask=255.255.255.224
+      uci set network.ap$device.ignore=1
+
+      uci set radvd.ap$device=interface
+      uci set radvd.ap$device.interface=ap$device
+      uci set radvd.ap$device.AdvSendAdvert=1
+      uci set radvd.ap$device.ignore=1
+
+      uci set radvd.prefix$device=prefix
+      uci set radvd.prefix$device.interface=alias$device
+      uci set radvd.prefix$device.AdvOnLink=1
+      uci set radvd.prefix$device.AdvAutonomous=1
+      uci set radvd.prefix$device.ignore=1
+    ;;
+    esac
   done
+}
 
-#Generate configuration for wired interface
-  indx=1
-  indi=0
-  while [ "${networkWiredDevice[$indx]}" != "" ]
-  do
-    NETWORK_CONF="$NETWORK_CONF
-config interface lan$indi
-	option ifname     ${networkWiredDevice[$indx]}
-	option proto      static
-	option ip6addr    '$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}/64'
-#       option ipaddr     '10.174.'
-#       option netmask    '255.255.255.224'
 
-#config alias 6lan$indi
-#        option interface  lan$indi
-#        option proto      static
-#        option ip6addr    '2001:470:c8f6:x::1/64'
-
-"
-
-    OLSRInterfaces="$OLSRInterfaces
-
-Interface \"${networkWiredDevice[$indx]}\"
+start()
 {
-    Mode \"ether\"
-    IPv6Multicast	$OLSRMulticast
-    IPv6Src		$meshIpV6Subnet:0000:${networkWiredDevHWAddr6[$indx]}
-}
-"
-
-    ((indx++))
-    ((indi++))
-  done
-
-  OLSRHna6="$OLSRHna6
-}
-"
-
-  OLSRD_PLUGIN_P2PD="$OLSRD_PLUGIN_P2PD
-}
-"
-
-  OLSRD_ETC="$OLSRD_ETC$OLSRD_PLUGIN_P2PD$OLSRHna6$OLSRInterfaces"
-
-  #cp "$CONF_DIR/network" "$CONF_DIR/network.back"
-  #cp "$CONF_DIR/wireless" "$CONF_DIR/wireless.back"
-  #cp "$CONF_DIR/dhcp" "$CONF_DIR/dhcp.back"
-  #cp "$olsrdStaticConfFile" "$olsrdStaticConfFile.back"
-
-  #echo "$NETWORK_CONF" > "$CONF_DIR/network.test"
-  #echo "$WIRELESS_CONF" > "$CONF_DIR/wireless.test"
-  #echo "$OLSRD_ETC" > "$olsrdStaticConfFile.test"
-
-  echo "$SSH_EIGENSERVER_KEY" >> "/etc/dropbear/authorized_keys"
-  echo "$SYSCTL_CONF" > "/etc/sysctl.conf"
-  echo "$NETWORK_CONF" > "$CONF_DIR/network"
-  echo "$WIRELESS_CONF" > "$CONF_DIR/wireless"
-  echo "$OLSRD_ETC" > "$olsrdStaticConfFile"
-#  echo "$RESOLV_CONF_AUTO" > "/etc/resolv.conf.auto"
-  echo "nameserver 127.0.0.1" > "/etc/resolv.conf"
-}
-
-function ipDotted2Int() # $1 = dotted ip
-{
-  #we must use this way because awk can't handle big integer on little device
-  printf "%u\n" $(( 
-    (`echo "$1" | awk -F\. '{printf "%u", ($4)}'`) +
-    (256*`echo "$1" | awk -F\. '{printf "%u", ($3)}'`) +
-    (256*256*`echo "$1" | awk -F\. '{printf "%u", ($2)}'`) +
-    (256*256*256*`echo "$1" | awk -F\. '{printf "%u", ($1)}'`)
-  ))
-}
-
-function ipDotted2Colon() # $1 = dotted ip
-{
-  printf "%02X%02X:%02X%02X\n" `echo "$1" | awk -F\. '{print ($1)}'` `echo "$1" | awk -F\. '{print ($2)}'` `echo "$1" | awk -F\. '{print ($3)}'` `echo "$1" | awk -F\. '{print ($4)}'`
-}
-
-function ipInt2Dotted() # $1 = int 32 ip
-{
-  local intIp="$1"
-  local dottedIp=""
-  local dottedIp="$[($intIp&255<<(0*8))>>(0*8)]"
-  local dottedIp="$[($intIp&255<<(1*8))>>(1*8)].$dottedIp"
-  local dottedIp="$[($intIp&255<<(2*8))>>(2*8)].$dottedIp"
-  local dottedIp="$[($intIp&255<<(3*8))>>(3*8)].$dottedIp"
-
-  echo "$dottedIp"
-}
-
-function cidr2Int() # $1 = cidr  looking to a subnet you see for example 192.168.0.1/$1
-{
-  echo "$((2**(32-`printf %u $1`)))"
-}
-
-function int2cidrU() # $1 = number of needed ip (this function round up to an integer for example `int2cidr 250`=24)
-{
-  echo $((32 - `echo "$1" | awk '{printf "%u",(log($1)/log(2) == int(log($1)/log(2))) ? log($1)/log(2) : int(log($1)/log(2))+1}'`))
-}
-
-function int2cidrD() # $1 = number of needed ip (this function round down to an integer for example `int2cidr 250`=23)
-{
-  echo $((32 - `echo "$1" | awk '{printf "%u", int(log($1)/log(2))}'`))
-}
-
-function loadUsedSubnets()
-{
-  echo "/hna" | nc 0::1 2006 | grep ::ffff: | awk -F ::ffff: '{ print $2 }' | awk '{print $1}'| grep -v : | grep -v '^$' | sort -u | sed 's/\//./g' | awk -F. '{printf("%03d.%03d.%03d.%03d.%03d\n", $1,$2,$3,$4,$5)};' | sort -n  -t "." | awk -F. '{printf("%d.%d.%d.%d/%03d\n", $1,$2,$3,$4,$5)};' > "$usedSubnetsFile"
-  #sed 's/\//./g' #temporary replace "/" with "."
-}
-
-function loadUsed6Subnets()
-{
-  echo "/hna" | nc 0::1 2006 | grep $OLSRHnaIpV6Prefix | awk -F $OLSRHnaIpV6Prefix '{ print $2 }' | awk -F: '{print $2}'| grep -v '^$' | sort -u > "$used6SubnetsFile"
-
-  temp6Used=""
-
-  while read line
-  do
-    temp6Used="$temp6Used $(baseconvert 16 10 $line)"
-  done < $used6SubnetsFile
-
-  echo 0 > $used6SubnetsFile
-
-  for sub in $temp6Used
-  do
-    echo $sub >> $used6SubnetsFile
-  done
-
-  temp6Used="$(cat $used6SubnetsFile)" 
-  echo $temp6Used | sed 's/ /\n/g' | sort -u -n > $used6SubnetsFile
-}
-
-function unLoadUsedSubnets()
-{
-    rm -f "$usedSubnetsFile"
-}
-
-function unLoadUsed6Subnets()
-{
-    rm -f "$used6SubnetsFile"
-}
-
-function getFreeSubnet() # $1 = big subnet where to look for free ip space $2 = Mask bit for example if you need 10.y.z.x/24 from 10.0.0.0/8 $1=10.0.0.0/8 $2=24
-{
-  local ipv4BigSubnet=$1
-  local intBigSubnetStartIp=`ipDotted2Int "${ipv4BigSubnet%/*}"`
-  local intBigSubnetEndIp=$(($intBigSubnetStartIp+`cidr2Int "${ipv4BigSubnet#*/}"`))
-
-  local intTestIfFreeStartIp=$intBigSubnetStartIp
-  local intTestIfFreeEndIp=$intBigSubnetEndIp
-
-  local row=1
-  loadUsedSubnets
-  local len="`wc -l "$usedSubnetsFile" | awk '{print $1}'`"
-
-  while [ $row -le $len ];
-  do
-    local dotUsedIp="`head -$row "$usedSubnetsFile" | tail -1`" #Get one used subnet
-    local usedCidr=$(expr $(echo $dotUsedIp | awk -F "/" '{print $2}') - 96 )	# get cidr -96 is because in the file we have the subnets as ipv4 mapped -> ipv6
-    local dotUsedIp=$(echo $dotUsedIp | awk -F "/" '{print $1}')	# get dotted ip
-
-    eigenDebug "reading $dotUsedIp/$usedCidr"
-
-    local intStartUsedIp=`ipDotted2Int "$dotUsedIp"`
-    local intEndUsedIp=$((`ipDotted2Int "$dotUsedIp"`+`cidr2Int $usedCidr`))
-
-    if [ $intStartUsedIp -ge $intBigSubnetStartIp ] && [ $intEndUsedIp -le $intBigSubnetEndIp ]
-    then
-      eigenDebug "Used subnet $dotUsedIp/$usedCidr found inside BigSubnet"
-
-      while [ $intTestIfFreeStartIp -ge $intStartUsedIp ] && [ $intTestIfFreeStartIp -le $intEndUsedIp ];
-      do
-	eigenDebug "Testing free ip start is inside used range!"
-	local intTestIfFreeStartIp=$(($intTestIfFreeStartIp + `cidr2Int $2`))
-      done
-
-      if [ $intTestIfFreeEndIp -ge $intEndUsedIp ] && [ $intTestIfFreeEndIp -le $intEndUsedIp ]
-      then
-	eigenDebug "Testing free ip end is inside used range!"
-	local intTestIfFreeIp=$(($intStartUsedIp-1))
-      fi
-    fi
-    ((row++))
-  done
-
-  unLoadUsedSubnets
-
-  if [ $intTestIfFreeStartIp -lt $intTestIfFreeEndIp ]
-  then
-    if [ $(($intTestIfFreeEndIp-$intTestIfFreeStartIp)) -ge `cidr2Int $2` ]
-    then
-      eigenDebug "Testing ip is Free!"
-      echo "`ipInt2Dotted "$intTestIfFreeStartIp"`/$2"	#output
-      return
-    fi
-    eigenDebug "Testing ip is Free! But with shorter range then requested"
-    echo "`ipInt2Dotted "$intTestIfFreeStartIp"`/`int2cidrD "$(($intTestIfFreeEndIp-$intTestIfFreeStartIp))"`"
-    
-    return
-  fi
-
-  eigenDebug "Big Subnet Exausted"
-  echo "0"
-}
-
-function getFree6Subnet()
-{
-  loadUsed6Subnets
-
-  free6Subnet=0
-
-  while read line
-  do
-    [ $free6Subnet -lt $line ] &&
-    {
-      break
-    }
-    [ $free6Subnet -eq $line ] &&
-    {
-      ((free6Subnet++))
-    }
-  done < $used6SubnetsFile
-
-  unLoadUsed6Subnets
-
-  echo $(baseconvert 10 16 $free6Subnet)
-}
-
-function start()
-{
-  echo "starting" >> /tmp/eigenlog
+  eigenDebug "starting"
   
   [ ! -e "/etc/isNotFirstRun" ] &&
   {
@@ -686,29 +297,15 @@ function start()
 	return 0
   }  
 
-  echo "" > $radvdConfFile
-
   sysctl -w net.ipv4.ip_forward=1
   sysctl -w net.ipv6.conf.all.forwarding=1
   sysctl -w net.ipv6.conf.all.autoconf=0
-
-  loadDevicesInfo
-
-  if [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "2" ]
-  then
-
-      ip link set dev niit4to6 up
-      ip link set dev niit6to4 up
-
-      return 0
-  fi
 
   sleep 10s
 
   echo "2" > "/etc/isNotFirstRun"
 
   /etc/init.d/firewall disable
-  /etc/init.d/dnsmasq disable
 
   configureNetwork
 
@@ -717,12 +314,12 @@ function start()
   reboot
 }
 
-function stop()
+stop()
 {
-  echo "stopping" >> /tmp/eigenlog
+  eigenDebug "stopping"
 }
 
-function restart()
+restart()
 {
   stop
   sleep 2s

@@ -18,8 +18,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet-autoconf
-PKG_VERSION:=0.3.8
-PKG_RELEASE:=4
+PKG_VERSION:=0.4
+PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
@@ -29,7 +29,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+babeld +bash +dnsmasq +ip +mrd6 +radvd
+  DEPENDS:=+babeld +dnsmasq +ip +mrd6 +radvd
   TITLE:=EigenNet Auto Config Package
 endef
 
