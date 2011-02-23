@@ -161,7 +161,7 @@ net.ipv6.conf.all.autoconf=0
       uci set network.$device.ifname=$device
       uci set network.$device.proto=static
       uci set network.$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))
-      uci set network.$device.ipaddr=$ipv4prefix$devindex.$devindex
+      uci set network.$device.ipaddr=$ipv4prefix$devindex.1
       uci set network.$device.netmask=255.255.255.224
 
       uci set network.alias$device=alias
@@ -216,7 +216,7 @@ net.ipv6.conf.all.autoconf=0
       uci set network.ap$device=interface
       uci set network.ap$device.proto=static
       uci set network.ap$device.ip6addr=$ipv4prefix$devindex::1/64
-      uci set network.ap$device.ipaddr=$ipv4prefix$devindex.$devindex
+      uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
       uci set network.ap$device.netmask=255.255.255.224
       uci set network.ap$device.ignore=1
 
@@ -265,7 +265,7 @@ net.ipv6.conf.all.autoconf=0
       uci set network.ap$device=interface
       uci set network.ap$device.proto=static
       uci set network.ap$device.ip6addr=$ipv4prefix$devindex::1/64
-      uci set network.ap$device.ipaddr=$ipv4prefix$devindex.$devindex
+      uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
       uci set network.ap$device.netmask=255.255.255.224
       uci set network.ap$device.ignore=1
 
