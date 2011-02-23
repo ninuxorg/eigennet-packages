@@ -33,6 +33,9 @@ ipv4prefix="10.174."          #at least a /16 prefix
 
 resolvers="2001:470:1f12:325:0:23:7d29:13fa 10.175.0.101"
 
+ath9kVAPWorking="false"
+madwifiVAPWorking="true"
+
 SSH_EIGENSERVER_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver"
 
 eigenDebug()
@@ -168,9 +171,8 @@ net.ipv6.conf.all.autoconf=0
       uci set network.alias$device.interface=$device
       uci set network.alias$device.proto=static
       uci set network.alias$device.ip6addr=$ipv6prefix$devindex::1/64
-      uci set network.alias$device.ignore=1
 
-      uci set babel.$device=interface
+      uci set babeld.$device=interface
 
       uci set radvd.alias$device=interface
       uci set radvd.alias$device.interface=alias$device
@@ -198,27 +200,28 @@ net.ipv6.conf.all.autoconf=0
       uci set wireless.mesh$device.ssid=Ninux.org
       uci set wireless.mesh$device.encryption=none
 
-      uci set wireless.ap$device=wifi-iface
-      uci set wireless.ap$device.device=$device
-      uci set wireless.ap$device.network=ap$device
-      uci set wireless.ap$device.sw_merge=1
-      uci set wireless.ap$device.mode=ap
-      uci set wireless.ap$device.ssid=EigenNet
-      uci set wireless.ap$device.encryption=none
-      uci set wireless.ap$device.ignore=1
-
       uci set network.mesh$device=interface
       uci set network.mesh$device.proto=static
       uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
 
-      uci set babel.mesh$device=interface
+      uci set babeld.mesh$device=interface
+
+      [ "$madwifiVAPWorking" == "true" ] &&
+      {
+	uci set wireless.ap$device=wifi-iface
+	uci set wireless.ap$device.device=$device
+	uci set wireless.ap$device.network=ap$device
+	uci set wireless.ap$device.sw_merge=1
+	uci set wireless.ap$device.mode=ap
+	uci set wireless.ap$device.ssid=EigenNet
+	uci set wireless.ap$device.encryption=none
+      }
 
       uci set network.ap$device=interface
       uci set network.ap$device.proto=static
       uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
       uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
       uci set network.ap$device.netmask=255.255.255.224
-      uci set network.ap$device.ignore=1
 
       uci set radvd.ap$device=interface
       uci set radvd.ap$device.interface=ap$device
@@ -247,27 +250,29 @@ net.ipv6.conf.all.autoconf=0
       uci set wireless.mesh$device.ssid=Ninux.org
       uci set wireless.mesh$device.encryption=none
 
-      uci set babel.mesh$device=interface
-
-      uci set wireless.ap$device=wifi-iface
-      uci set wireless.ap$device.device=$device
-      uci set wireless.ap$device.network=ap$device
-      uci set wireless.ap$device.sw_merge=1
-      uci set wireless.ap$device.mode=ap
-      uci set wireless.ap$device.ssid=EigenNet
-      uci set wireless.ap$device.encryption=none
-      uci set wireless.ap$device.ignore=1
+      uci set babeld.mesh$device=interface
 
       uci set network.mesh$device=interface
       uci set network.mesh$device.proto=static
       uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
+
+
+      [ "$ath9kVAPWorking" == "true" ] &&
+      {
+	uci set wireless.ap$device=wifi-iface
+	uci set wireless.ap$device.device=$device
+	uci set wireless.ap$device.network=ap$device
+	uci set wireless.ap$device.sw_merge=1
+	uci set wireless.ap$device.mode=ap
+	uci set wireless.ap$device.ssid=EigenNet
+	uci set wireless.ap$device.encryption=none
+      }
 
       uci set network.ap$device=interface
       uci set network.ap$device.proto=static
       uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
       uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
       uci set network.ap$device.netmask=255.255.255.224
-      uci set network.ap$device.ignore=1
 
       uci set radvd.ap$device=interface
       uci set radvd.ap$device.interface=ap$device
