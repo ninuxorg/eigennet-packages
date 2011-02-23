@@ -25,7 +25,7 @@ STOP=10
 eigenDebugEnabled=false
 
 CONF_DIR="/etc/config/"
-meshPrefix="2001:470:1f13:67f:"
+meshPrefix="2001:470:1f13:67f:0:"
 mesh2channel=8
 mesh5channel=60
 ipv6prefix="2001:470:ca42:"   #at least a /48 prefix
