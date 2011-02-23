@@ -282,6 +282,8 @@ net.ipv6.conf.all.autoconf=0
     ;;
     esac
   done
+
+  uci commit
 }
 
 
