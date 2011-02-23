@@ -314,7 +314,7 @@ start()
 
   /etc/init.d/firewall disable
 
-  configureNetwork
+  #configureNetwork
 
   sleep 2s
 
