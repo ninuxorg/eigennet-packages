@@ -303,6 +303,11 @@ start()
   sysctl -w net.ipv6.conf.all.forwarding=1
   sysctl -w net.ipv6.conf.all.autoconf=0
 
+  [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "2" ] &&
+  {
+    return 0
+  }
+
   sleep 10s
 
   echo "2" > "/etc/isNotFirstRun"
