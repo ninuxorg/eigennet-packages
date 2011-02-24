@@ -135,7 +135,7 @@ configureNetwork()
   echo "$SSH_EIGENSERVER_KEY" >> "/etc/dropbear/authorized_keys"
 
   echo "
-#Automatically generated for Eigennet
+#Automatically generated for EigenNet
 
 $(cat /etc/sysctl.conf | grep -v net.ipv4.ip_forward | grep -v net.ipv6.conf.all.forwarding | grep -v net.ipv6.conf.all.autoconf)
 
@@ -144,6 +144,8 @@ net.ipv6.conf.all.forwarding=1
 net.ipv6.conf.all.autoconf=0
 " > /etc/sysctl.conf
 
+  echo "#Automatically generated for EigenNet" > $CONF_DIR/wireless
+  
   for dns in $resolvers
   do
     echo nameserver $dns >> /etc/resolv.conf.auto
@@ -320,7 +322,7 @@ start()
 	echo "1" > "/etc/isNotFirstRun"
 	reboot
 	return 0
-  }  
+  }
 
   sysctl -w net.ipv4.ip_forward=1
   sysctl -w net.ipv6.conf.all.forwarding=1
