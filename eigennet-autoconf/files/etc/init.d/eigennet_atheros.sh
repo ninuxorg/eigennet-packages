@@ -22,28 +22,14 @@ COPYRIGHT
 START=99
 STOP=10
 
-eigenDebugEnabled=false
-
 CONF_DIR="/etc/config/"
-meshPrefix="2001:470:1f13:67f:0:"
-mesh2channel=8
-mesh5channel=60
-ipv6prefix="2001:470:ca42:"   #at least a /48 prefix
-ipv4prefix="10.174."          #at least a /16 prefix
-
-resolvers="2001:470:1f12:325:0:23:7d29:13fa 10.175.0.101"
-
-ath9kVAPWorking="false"
-madwifiVAPWorking="true"
-
-SSH_EIGENSERVER_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver"
 
 eigenDebug()
 {
-  if $eigenDebugEnabled
-  then
+  [ $1 -ge $debugLevel ] &&
+  {
     echo "Debug: $@" >> /tmp/eigenlog
-  fi
+  }
 }
 
 #[Doc]
@@ -132,7 +118,27 @@ del_interface()
 
 configureNetwork()
 {
-  echo "$SSH_EIGENSERVER_KEY" >> "/etc/dropbear/authorized_keys"
+  local accept_clients		; config_get accept_clients	network		accept_clients 
+  local firewallEnabled		; config_get firewallEnabled	network		firewallEnabled
+  local ipv6prefix		; config_get ipv4prefix		network		client4Prefix
+  local ipv4prefix		; config_get ipv6prefix		network		client6Prefix
+  local meshPrefix		; config_get meshPrefix		network		mesh6Prefix
+  local resolvers		; config_get resolvers		network		resolvers
+  local sshEigenserverKey	; config_get sshEigenserverKey	network		sshEigenserverKey
+
+  local ath9k_clients		; config_get ath9k_clients	wireless	ath9k_clients
+  local ath9k_mesh		; config_get ath9k_mesh		wireless	ath9k_mesh
+  local madwifi_clients		; config_get madwifi_clients	wireless	madwifi_clients
+  local madwifi_mesh		; config_get madwifi_mesh	wireless	madwifi_mesh
+  local mesh2channel		; config_get mesh2channel	wireless	mesh2channel
+  local mesh5channel		; config_get mesh5channel	wireless	mesh5channel
+  
+  [ $firewallEnabled -eq 0 ] &&
+  {
+    /etc/init.d/firewall disable
+  }
+  
+  echo "$sshEigenserverKey" >> "/etc/dropbear/authorized_keys"
 
   echo "
 #Automatically generated for EigenNet
@@ -151,7 +157,6 @@ net.ipv6.conf.all.autoconf=0
     echo nameserver $dns >> /etc/resolv.conf.auto
   done
 
-  . /etc/functions.sh
   config_load network
   config_foreach del_interface interface
 
@@ -166,32 +171,36 @@ net.ipv6.conf.all.autoconf=0
       uci set network.$device.ifname=$device
       uci set network.$device.proto=static
       uci set network.$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
-      uci set network.$device.ipaddr=$ipv4prefix$devindex.1
-      uci set network.$device.netmask=255.255.255.224
+      
+      [ $accept_clients -eq 1 ] &&
+      {
+	uci set babeld.$device=interface
+	
+	uci set network.$device.ipaddr=$ipv4prefix$devindex.1
+	uci set network.$device.netmask=255.255.255.224
 
-      uci set network.alias$device=alias
-      uci set network.alias$device.interface=$device
-      uci set network.alias$device.proto=static
-      uci set network.alias$device.ip6addr=$ipv6prefix$devindex::1/64
+	uci set network.alias$device=alias
+	uci set network.alias$device.interface=$device
+	uci set network.alias$device.proto=static
+	uci set network.alias$device.ip6addr=$ipv6prefix$devindex::1/64
 
-      uci set babeld.$device=interface
+	uci set radvd.alias$device=interface
+	uci set radvd.alias$device.interface=alias$device
+	uci set radvd.alias$device.AdvSendAdvert=1
+	uci set radvd.alias$device.ignore=1
 
-      uci set radvd.alias$device=interface
-      uci set radvd.alias$device.interface=alias$device
-      uci set radvd.alias$device.AdvSendAdvert=1
-      uci set radvd.alias$device.ignore=1
+	uci set radvd.prefix$device=prefix
+	uci set radvd.prefix$device.interface=alias$device
+	uci set radvd.prefix$device.AdvOnLink=1
+	uci set radvd.prefix$device.AdvAutonomous=1
+	uci set radvd.prefix$device.ignore=1
 
-      uci set radvd.prefix$device=prefix
-      uci set radvd.prefix$device.interface=alias$device
-      uci set radvd.prefix$device.AdvOnLink=1
-      uci set radvd.prefix$device.AdvAutonomous=1
-      uci set radvd.prefix$device.ignore=1
-
-      uci set dhcp.$device=dhcp
-      uci set dhcp.$device.interface=$device
-      uci set dhcp.$device.start=2
-      uci set dhcp.$device.limit=28
-      uci set dhcp.$device.leasetime=1h
+	uci set dhcp.$device=dhcp
+	uci set dhcp.$device.interface=$device
+	uci set dhcp.$device.start=2
+	uci set dhcp.$device.limit=28
+	uci set dhcp.$device.leasetime=1h
+      }
     ;;
 
     "wifi")
@@ -200,21 +209,24 @@ net.ipv6.conf.all.autoconf=0
       uci set wireless.$device.channel=$mesh2channel
       uci set wireless.$device.disabled=0
 
-      uci set wireless.mesh$device=wifi-iface
-      uci set wireless.mesh$device.device=$device
-      uci set wireless.mesh$device.network=mesh$device
-      uci set wireless.mesh$device.sw_merge=1
-      uci set wireless.mesh$device.mode=adhoc
-      uci set wireless.mesh$device.ssid=Ninux.org
-      uci set wireless.mesh$device.encryption=none
+      [ $madwifi_mesh -eq 1 ] &&
+      {
+	uci set wireless.mesh$device=wifi-iface
+	uci set wireless.mesh$device.device=$device
+	uci set wireless.mesh$device.network=mesh$device
+	uci set wireless.mesh$device.sw_merge=1
+	uci set wireless.mesh$device.mode=adhoc
+	uci set wireless.mesh$device.ssid=Ninux.org
+	uci set wireless.mesh$device.encryption=none
 
-      uci set network.mesh$device=interface
-      uci set network.mesh$device.proto=static
-      uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
+	uci set network.mesh$device=interface
+	uci set network.mesh$device.proto=static
+	uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
 
-      uci set babeld.mesh$device=interface
+	uci set babeld.mesh$device=interface
+      }
 
-      [ "$madwifiVAPWorking" == "true" ] &&
+      [ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
       {
 	uci set wireless.ap$device=wifi-iface
 	uci set wireless.ap$device.device=$device
@@ -256,22 +268,24 @@ net.ipv6.conf.all.autoconf=0
       uci set wireless.$device.channel=$mesh2channel
       uci set wireless.$device.disabled=0
 
-      uci set wireless.mesh$device=wifi-iface
-      uci set wireless.mesh$device.device=$device
-      uci set wireless.mesh$device.network=mesh$device
-      uci set wireless.mesh$device.sw_merge=1
-      uci set wireless.mesh$device.mode=adhoc
-      uci set wireless.mesh$device.ssid=Ninux.org
-      uci set wireless.mesh$device.encryption=none
+      [ $ath9k_mesh -eq 1 ] &&
+      {
+	uci set wireless.mesh$device=wifi-iface
+	uci set wireless.mesh$device.device=$device
+	uci set wireless.mesh$device.network=mesh$device
+	uci set wireless.mesh$device.sw_merge=1
+	uci set wireless.mesh$device.mode=adhoc
+	uci set wireless.mesh$device.ssid=Ninux.org
+	uci set wireless.mesh$device.encryption=none
 
-      uci set babeld.mesh$device=interface
+	uci set network.mesh$device=interface
+	uci set network.mesh$device.proto=static
+	uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
 
-      uci set network.mesh$device=interface
-      uci set network.mesh$device.proto=static
-      uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
+	uci set babeld.mesh$device=interface
+      }
 
-
-      [ "$ath9kVAPWorking" == "true" ] &&
+      [ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
       {
 	uci set wireless.ap$device=wifi-iface
 	uci set wireless.ap$device.device=$device
@@ -308,47 +322,52 @@ net.ipv6.conf.all.autoconf=0
     esac
   done
 
+  uci set eigennet.general.bootmode=2
+
   uci commit
 }
 
 
 start()
 {
-  eigenDebug "starting"
+  config_load	eigennet
+
+  config_get debugLevel	general	debugLevel
+  config_get bootmode	general	bootmode
   
-  [ ! -e "/etc/isNotFirstRun" ] &&
+  eigenDebug 0 "Starting"
+
+  [ $bootmode -eq 0 ] &&
   {
 	sleep 61s
-	echo "1" > "/etc/isNotFirstRun"
+	uci set eigennet.general.bootmode=1
+	uci commit eigennet
 	reboot
 	return 0
   }
 
-  sysctl -w net.ipv4.ip_forward=1
-  sysctl -w net.ipv6.conf.all.forwarding=1
-  sysctl -w net.ipv6.conf.all.autoconf=0
-
-  [ -e "/etc/isNotFirstRun" ] && [ "`cat "/etc/isNotFirstRun"`" == "2" ] &&
+  [ $bootmode -eq 1 ] &&
   {
-    return 0
+    sleep 10s
+    
+    configureNetwork
+
+    reboot
   }
 
-  sleep 10s
+  [ $bootmode -ge 2 ] &&
+  {
+	sysctl -w net.ipv4.ip_forward=1
+	sysctl -w net.ipv6.conf.all.forwarding=1
+	sysctl -w net.ipv6.conf.all.autoconf=0
 
-  echo "2" > "/etc/isNotFirstRun"
-
-  /etc/init.d/firewall disable
-
-  configureNetwork
-
-  sleep 2s
-
-  reboot
+	return 0
+  }
 }
 
 stop()
 {
-  eigenDebug "stopping"
+  eigenDebug 0 "Stopping"
 }
 
 restart()
