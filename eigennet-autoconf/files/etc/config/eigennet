@@ -1,0 +1,20 @@
+config section general
+	option	'debugLevel'		'0'
+	option	'bootmode'		'0'		# 0 First boot, 1 Run Autoconfig, 2 Auto Configured, 3 or greater added custom configuration.
+
+config section network
+	option	'accept_clients'	'1'
+	option	'client4Prefix'		'10.174.'			# /16 prefix
+	option	'client6Prefix'		'2001:470:ca42:'		# /48 prefix
+	option	'mesh6Prefix'		'2001:470:1f13:67f:0:'		# /80 prefix
+	option	'firewallEnabled'	'0'
+	list	'resolvers'		'2001:470:1f12:325:0:23:7d29:13fa 10.175.0.101'
+	option	'sshEigenserverKey'	'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
+
+config section wireless
+	option	'ath9k_clients'		'0'
+	option	'ath9k_mesh'		'1'
+	option	'madwifi_clients'	'0'
+	option	'madwifi_mesh'		'1'
+	option	'mesh2channel'		'8'
+	option	'mesh5channel'		'60'
