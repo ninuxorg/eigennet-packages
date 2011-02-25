@@ -172,10 +172,10 @@ net.ipv6.conf.all.autoconf=0
       uci set network.$device.proto=static
       uci set network.$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
       
+      uci set babeld.$device=interface
+      
       [ $accept_clients -eq 1 ] &&
-      {
-	uci set babeld.$device=interface
-	
+      {	
 	uci set network.$device.ipaddr=$ipv4prefix$devindex.1
 	uci set network.$device.netmask=255.255.255.224
 
@@ -321,6 +321,25 @@ net.ipv6.conf.all.autoconf=0
     ;;
     esac
   done
+
+  [ $accept_clients -eq 1 ] &&
+  {
+    uci set babeld.fallback64=filter
+    uci set babeld.fallback64.type=redistribute
+    uci set babeld.fallback64.ip="$meshPrefix:/64"
+    uci set babeld.fallback64.action=deny
+    
+    uci set babeld.clients=filter
+    uci set babeld.clients.type=redistribute
+    uci set babeld.clients.ip="::0/0"
+    uci set babeld.clients.action="metric 384"
+    
+    uci set babeld.clients3=filter
+    uci set babeld.clients3.type=redistribute
+    uci set babeld.clients3.proto=3
+    uci set babeld.clients3.ip="::0/0"
+    uci set babeld.clients3.action="metric 384"
+  }
 
   uci set eigennet.general.bootmode=2
 
