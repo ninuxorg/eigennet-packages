@@ -187,13 +187,13 @@ net.ipv6.conf.all.autoconf=0
 	uci set radvd.alias$device=interface
 	uci set radvd.alias$device.interface=alias$device
 	uci set radvd.alias$device.AdvSendAdvert=1
-	uci set radvd.alias$device.ignore=1
+	uci set radvd.alias$device.ignore=0
 
 	uci set radvd.prefix$device=prefix
 	uci set radvd.prefix$device.interface=alias$device
 	uci set radvd.prefix$device.AdvOnLink=1
 	uci set radvd.prefix$device.AdvAutonomous=1
-	uci set radvd.prefix$device.ignore=1
+	uci set radvd.prefix$device.ignore=0
 
 	uci set dhcp.$device=dhcp
 	uci set dhcp.$device.interface=$device
@@ -245,13 +245,13 @@ net.ipv6.conf.all.autoconf=0
 	uci set radvd.ap$device=interface
 	uci set radvd.ap$device.interface=ap$device
 	uci set radvd.ap$device.AdvSendAdvert=1
-	uci set radvd.ap$device.ignore=1
+	uci set radvd.ap$device.ignore=0
 
 	uci set radvd.prefix$device=prefix
 	uci set radvd.prefix$device.interface=alias$device
 	uci set radvd.prefix$device.AdvOnLink=1
 	uci set radvd.prefix$device.AdvAutonomous=1
-	uci set radvd.prefix$device.ignore=1
+	uci set radvd.prefix$device.ignore=0
 
 	uci set dhcp.ap$device=dhcp
 	uci set dhcp.ap$device.interface=$device
@@ -304,13 +304,13 @@ net.ipv6.conf.all.autoconf=0
 	uci set radvd.ap$device=interface
 	uci set radvd.ap$device.interface=ap$device
 	uci set radvd.ap$device.AdvSendAdvert=1
-	uci set radvd.ap$device.ignore=1
+	uci set radvd.ap$device.ignore=0
 
 	uci set radvd.prefix$device=prefix
 	uci set radvd.prefix$device.interface=alias$device
 	uci set radvd.prefix$device.AdvOnLink=1
 	uci set radvd.prefix$device.AdvAutonomous=1
-	uci set radvd.prefix$device.ignore=1
+	uci set radvd.prefix$device.ignore=0
 
 	uci set dhcp.ap$device=dhcp
 	uci set dhcp.ap$device.interface=$device
@@ -338,6 +338,8 @@ net.ipv6.conf.all.autoconf=0
     uci set babeld.clients4.type=redistribute
     uci set babeld.clients4.ip="0.0.0.0/0"
     uci set babeld.clients4.action="metric 384"
+    
+    uci set dhcp.eigennet.ignore=0
   }
 
   uci set eigennet.general.bootmode=2
