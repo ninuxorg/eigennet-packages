@@ -24,12 +24,128 @@ STOP=10
 
 CONF_DIR="/etc/config/"
 
+
+# Convert number from a base to another
+#
+# usage:
+# baseconvert inputBase outputBase numberToConvert
+# inputBase and outputBase must be expressed in base 10, numberToConvert is expressed in inputBase NOTE: it cannot be a big number
+#
+# example:
+# baseconvert 2 10 1010101
+#
+baseconvert()
+{
+  echo $1 $2 $3 | awk '{
+	  #our general alphabet
+	  alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	  # input base
+	  ibase=$1; 
+
+	  # output base
+	  obase=$2;
+
+	  # input number
+	  inumber=toupper($3);
+
+	  #convert third parameter to decimal base
+	  for (i=1;i<=length(inumber);i++) {
+		  number += (index(alphabet,substr(inumber,i,1))-1)*(ibase^(length(inumber)-i));
+	  }
+	  tmp=number;
+
+	  #convert "number" to the output base
+	  while (tmp>=obase) {
+		  nut=substr(alphabet,tmp%obase+1,1);
+		  final = nut final;
+		  tmp=int(tmp/obase);
+	  }
+	  final = substr(alphabet,tmp%obase+1,1) final;
+
+	  #printf("%s (b %s) -> %s (b 10) -> %s (b %s)\n",$3,ibase,number,final,obase);
+	  printf("%s\n",final)
+  }'
+}
+
+#[Doc]
+#[Doc] Del given uci interface from network file 
+#[Doc]
+#[Doc] usage:
+#[Doc] del_interface uci_interface_name
+#[Doc]
+#[Doc] example:
+#[Doc] del_interface lan0
+#[Doc]
+del_interface()
+{
+  uci del network.$1
+}
+
 eigenDebug()
 {
   [ $1 -ge $debugLevel ] &&
   {
     echo "Debug: $@" >> /tmp/eigenlog
   }
+}
+
+#[Doc]
+#[Doc] Return MAC of given interface
+#[Doc]
+#[Doc] usage:
+#[Doc] get_mac ifname
+#[Doc]
+#[Doc] example:
+#[Doc] get_mac eth0
+#[Doc]
+get_mac()
+{
+      ifname=${1}
+      ifbase=$(echo $ifname | sed -e 's/[0-9]*$//')
+
+      if [ $ifbase == "wifi" ]; then
+          mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}' | cut -c-17 | sed -e 's/-/:/g')
+      elif [ $ifbase == "radio" ]; then
+          mac=$(cat /sys/class/ieee80211/$(echo ${ifname} | sed 's/radio/phy/g')/addresses)
+      elif [ $ifbase == "phy" ]; then
+          mac=$(cat /sys/class/ieee80211/${ifname}/addresses)
+      else
+          mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}')
+      fi
+
+      echo $mac | tr '[a-z]' ['A-Z']
+}
+
+#[Doc]
+#[Doc] Return part of given mac in ipv4 like format
+#[Doc]
+#[Doc] usage:
+#[Doc] mac4ize mac_address
+#[Doc]
+#[Doc] example:
+#[Doc] mac4ize ff:ff:ff:ff:ff:ff
+#[Doc]
+mac4ize()
+{
+  returnValue="$(baseconvert 16 10 $(echo $1 | awk -F: '{print $6}'))"
+  returnValue="$(baseconvert 16 10 $(echo $1 | awk -F: '{print $5}')).$returnValue"
+  returnValue="$(baseconvert 16 10 $(echo $1 | awk -F: '{print $4}')).$returnValue"
+  
+  echo $returnValue
+}
+
+#[Doc]
+#[Doc] Return given mac in ipv6 like format
+#[Doc]
+#[Doc] usage:
+#[Doc] mac6ize mac_address
+#[Doc]
+#[Doc] example:
+#[Doc] mac6ize ff:ff:ff:ff:ff:ff
+#[Doc]
+mac6ize()
+{
+    echo $1 | awk -F: '{print $1$2":"$3$4":"$5$6}' | tr '[a-z]' ['A-Z']
 }
 
 #[Doc]
@@ -61,68 +177,14 @@ scan_devices()
       echo "${eth} ${radio} ${wifi}" | sed 's/ /\n/g' | sed '/^$/d'
 }
 
-#[Doc]
-#[Doc] Return MAC of given interface
-#[Doc]
-#[Doc] usage:
-#[Doc] get_mac ifname
-#[Doc]
-#[Doc] example:
-#[Doc] get_mac eth0
-#[Doc]
-get_mac()
-{
-      ifname=${1}
-      ifbase=$(echo $ifname | sed -e 's/[0-9]*$//')
-
-      if [ $ifbase == "wifi" ]; then
-          mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}' | cut -c-17 | sed -e 's/-/:/g')
-      elif [ $ifbase == "radio" ]; then
-          mac=$(cat /sys/class/ieee80211/$(echo ${ifname} | sed 's/radio/phy/g')/addresses)
-      elif [ $ifbase == "phy" ]; then
-          mac=$(cat /sys/class/ieee80211/${ifname}/addresses)
-      else
-          mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}')
-      fi
-
-      echo $mac | tr '[a-z]' ['A-Z']
-}
-
-#[Doc]
-#[Doc] Return given mac in ipv6 like format
-#[Doc]
-#[Doc] usage:
-#[Doc] mac6ize mac_address
-#[Doc]
-#[Doc] example:
-#[Doc] mac6ize ff:ff:ff:ff:ff:ff
-#[Doc]
-mac6ize()
-{
-    echo $1 | awk -F: '{print $1$2":"$3$4":"$5$6}' | tr '[a-z]' ['A-Z']
-}
-
-#[Doc]
-#[Doc] Del given uci interface from network file 
-#[Doc]
-#[Doc] usage:
-#[Doc] del_interface uci_interface_name
-#[Doc]
-#[Doc] example:
-#[Doc] del_interface lan0
-#[Doc]
-del_interface()
-{
-  uci del network.$1
-}
-
 configureNetwork()
 {
   local accept_clients		; config_get accept_clients	network		accept_clients 
   local firewallEnabled		; config_get firewallEnabled	network		firewallEnabled
   local ipv6prefix		; config_get ipv4prefix		network		client4Prefix
   local ipv4prefix		; config_get ipv6prefix		network		client6Prefix
-  local meshPrefix		; config_get meshPrefix		network		mesh6Prefix
+  local mesh6Prefix		; config_get mesh6Prefix	network		mesh6Prefix
+  local mesh4Prefix		; config_get mesh4Prefix	network		mesh4Prefix
   local resolvers		; config_get resolvers		network		resolvers
   local sshEigenserverKey	; config_get sshEigenserverKey	network		sshEigenserverKey
 
@@ -170,7 +232,9 @@ net.ipv6.conf.all.autoconf=0
       uci set network.$device=interface
       uci set network.$device.ifname=$device
       uci set network.$device.proto=static
-      uci set network.$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
+      uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+      uci set network.$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
+      uci set network.$device.netmask=255.255.255.255
       
       uci set babeld.$device=interface
       
@@ -221,7 +285,9 @@ net.ipv6.conf.all.autoconf=0
 
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
-	uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
+	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.mesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
+	uci set network.mesh$device.netmask=255.255.255.255
 
 	uci set babeld.mesh$device=interface
       }
@@ -280,7 +346,9 @@ net.ipv6.conf.all.autoconf=0
 
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
-	uci set network.mesh$device.ip6addr=$meshPrefix$(mac6ize $(get_mac $device))/64
+	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.mesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
+	uci set network.mesh$device.netmask=255.255.255.255
 
 	uci set babeld.mesh$device=interface
       }
@@ -326,7 +394,7 @@ net.ipv6.conf.all.autoconf=0
   {
     uci set babeld.fallback64=filter
     uci set babeld.fallback64.type=redistribute
-    uci set babeld.fallback64.ip="$meshPrefix:/64"
+    uci set babeld.fallback64.ip="$mesh6Prefix:/64"
     uci set babeld.fallback64.action=deny
     
     uci set babeld.clients6=filter
