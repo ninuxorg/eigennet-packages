@@ -329,16 +329,15 @@ net.ipv6.conf.all.autoconf=0
     uci set babeld.fallback64.ip="$meshPrefix:/64"
     uci set babeld.fallback64.action=deny
     
-    uci set babeld.clients=filter
-    uci set babeld.clients.type=redistribute
-    uci set babeld.clients.ip="::0/0"
-    uci set babeld.clients.action="metric 384"
+    uci set babeld.clients6=filter
+    uci set babeld.clients6.type=redistribute
+    uci set babeld.clients6.ip="::0/0"
+    uci set babeld.clients6.action="metric 386"
     
-    uci set babeld.clients3=filter
-    uci set babeld.clients3.type=redistribute
-    uci set babeld.clients3.proto=3
-    uci set babeld.clients3.ip="::0/0"
-    uci set babeld.clients3.action="metric 384"
+    uci set babeld.clients4=filter
+    uci set babeld.clients4.type=redistribute
+    uci set babeld.clients4.ip="0.0.0.0/0"
+    uci set babeld.clients4.action="metric 384"
   }
 
   uci set eigennet.general.bootmode=2
