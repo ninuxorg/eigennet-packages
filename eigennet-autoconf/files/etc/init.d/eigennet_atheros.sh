@@ -254,7 +254,7 @@ net.ipv6.conf.all.autoconf=0
 	uci set radvd.prefix$device.ignore=0
 
 	uci set dhcp.ap$device=dhcp
-	uci set dhcp.ap$device.interface=$device
+	uci set dhcp.ap$device.interface=ap$device
 	uci set dhcp.ap$device.start=2
 	uci set dhcp.ap$device.limit=28
 	uci set dhcp.ap$device.leasetime=5m
@@ -313,7 +313,7 @@ net.ipv6.conf.all.autoconf=0
 	uci set radvd.prefix$device.ignore=0
 
 	uci set dhcp.ap$device=dhcp
-	uci set dhcp.ap$device.interface=$device
+	uci set dhcp.ap$device.interface=ap$device
 	uci set dhcp.ap$device.start=2
 	uci set dhcp.ap$device.limit=28
 	uci set dhcp.ap$device.leasetime=5m
