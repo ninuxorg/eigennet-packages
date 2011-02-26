@@ -6,7 +6,7 @@ config section network
 	option	'accept_clients'	'1'
 	option	'client4Prefix'		'10.174.'			# /16 prefix
 	option	'client6Prefix'		'2001:470:ca42:'		# /48 prefix
-	option	'mesh4Prefix'		'240.'				# /8 prefix
+	option	'mesh4Prefix'		'22.'				# /8 prefix
 	option	'mesh6Prefix'		'2001:470:1f13:67f:0:'		# /80 prefix
 	option	'firewallEnabled'	'0'
 	list	'resolvers'		'2001:470:1f12:325:0:23:7d29:13fa 10.175.0.101'
