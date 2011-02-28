@@ -299,7 +299,7 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.ap$device.network=ap$device
 	uci set wireless.ap$device.sw_merge=1
 	uci set wireless.ap$device.mode=ap
-	uci set wireless.ap$device.ssid=EigenNet
+	uci set wireless.ap$device.ssid=EigenNet_$(get_mac $device | tr -d [=:=])
 	uci set wireless.ap$device.encryption=none
 
 	uci set network.ap$device=interface
@@ -323,7 +323,7 @@ net.ipv6.conf.all.autoconf=0
 	uci set dhcp.ap$device.interface=ap$device
 	uci set dhcp.ap$device.start=2
 	uci set dhcp.ap$device.limit=28
-	uci set dhcp.ap$device.leasetime=5m
+	uci set dhcp.ap$device.leasetime=1h
       }
     ;;
 
@@ -360,7 +360,7 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.ap$device.network=ap$device
 	uci set wireless.ap$device.sw_merge=1
 	uci set wireless.ap$device.mode=ap
-	uci set wireless.ap$device.ssid=EigenNet
+	uci set wireless.ap$device.ssid=EigenNet_$(get_mac $device | tr -d [=:=])
 	uci set wireless.ap$device.encryption=none
 
 	uci set network.ap$device=interface
@@ -384,7 +384,7 @@ net.ipv6.conf.all.autoconf=0
 	uci set dhcp.ap$device.interface=ap$device
 	uci set dhcp.ap$device.start=2
 	uci set dhcp.ap$device.limit=28
-	uci set dhcp.ap$device.leasetime=5m
+	uci set dhcp.ap$device.leasetime=1h
       }
     ;;
     esac
