@@ -23,11 +23,11 @@ PKG_NAME:=babeld-eigennet
 PKG_VERSION:=1.1.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_PROTO:=darcs
-PKG_SOURCE_URL:=http://www.pps.jussieu.fr/~jch/software/repos/babelz/
-PKG_SOURCE_VERSION:=babelz
-
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE_URL:=git://git.gitorious.org/eigennet/babeld.git
+PKG_SOURCE_VERSION:=origin/master
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
