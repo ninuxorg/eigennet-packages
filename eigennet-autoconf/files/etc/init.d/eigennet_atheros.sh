@@ -194,6 +194,8 @@ configureNetwork()
   local madwifi_mesh		; config_get madwifi_mesh	wireless	madwifi_mesh
   local mesh2channel		; config_get mesh2channel	wireless	mesh2channel
   local mesh5channel		; config_get mesh5channel	wireless	mesh5channel
+  local meshIfnames=""
+  local clientIfnames="bat0"
   
   [ $firewallEnabled -eq 0 ] &&
   {
@@ -231,40 +233,17 @@ net.ipv6.conf.all.autoconf=0
     "eth")
       uci set network.$device=interface
       uci set network.$device.ifname=$device
+      uci set network.$device.mtu=1524
       uci set network.$device.proto=static
       uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-      uci set network.$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
-      uci set network.$device.netmask=255.255.255.255
       
-      uci set babeld.$device=interface
-      
+      meshIfnames="$meshIfnames $device"
+
       [ $accept_clients -eq 1 ] &&
-      {	
-	uci set network.$device.ipaddr=$ipv4prefix$devindex.1
-	uci set network.$device.netmask=255.255.255.224
-
-	uci set network.alias$device=alias
-	uci set network.alias$device.interface=$device
-	uci set network.alias$device.proto=static
-	uci set network.alias$device.ip6addr=$ipv6prefix$devindex::1/64
-
-	uci set radvd.alias$device=interface
-	uci set radvd.alias$device.interface=alias$device
-	uci set radvd.alias$device.AdvSendAdvert=1
-	uci set radvd.alias$device.ignore=0
-
-	uci set radvd.prefix$device=prefix
-	uci set radvd.prefix$device.interface=alias$device
-	uci set radvd.prefix$device.AdvOnLink=1
-	uci set radvd.prefix$device.AdvAutonomous=1
-	uci set radvd.prefix$device.ignore=0
-
-	uci set dhcp.$device=dhcp
-	uci set dhcp.$device.interface=$device
-	uci set dhcp.$device.start=2
-	uci set dhcp.$device.limit=28
-	uci set dhcp.$device.leasetime=1h
+      {
+	clientIfnames="$clientIfnames $device"
       }
+
     ;;
 
     "wifi")
@@ -272,6 +251,8 @@ net.ipv6.conf.all.autoconf=0
       uci set wireless.$device.type=atheros
       uci set wireless.$device.channel=$mesh2channel
       uci set wireless.$device.disabled=0
+
+      mif=""
 
       [ $madwifi_mesh -eq 1 ] &&
       {
@@ -285,15 +266,22 @@ net.ipv6.conf.all.autoconf=0
 
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
+	uci set network.mesh$device.mtu=1524
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-	uci set network.mesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
-	uci set network.mesh$device.netmask=255.255.255.255
 
-	uci set babeld.mesh$device=interface
+	mif="ath$devindex"
       }
 
       [ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
       {
+	cif="ath$devindex"
+
+	[ $madwifi_mesh -eq 1 ]
+	{
+	  mif="ath$(($devindex+1))"
+	  cif="ath$(($devindex*2))"
+	}
+
 	uci set wireless.ap$device=wifi-iface
 	uci set wireless.ap$device.device=$device
 	uci set wireless.ap$device.network=ap$device
@@ -302,29 +290,12 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.ap$device.ssid=EigenNet_$(get_mac $device | tr -d [=:=])
 	uci set wireless.ap$device.encryption=none
 
-	uci set network.ap$device=interface
-	uci set network.ap$device.proto=static
-	uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
-	uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
-	uci set network.ap$device.netmask=255.255.255.224
+	clientIfnames="$clientIfnames $cif"
 
-	uci set radvd.ap$device=interface
-	uci set radvd.ap$device.interface=ap$device
-	uci set radvd.ap$device.AdvSendAdvert=1
-	uci set radvd.ap$device.ignore=0
-
-	uci set radvd.prefix$device=prefix
-	uci set radvd.prefix$device.interface=alias$device
-	uci set radvd.prefix$device.AdvOnLink=1
-	uci set radvd.prefix$device.AdvAutonomous=1
-	uci set radvd.prefix$device.ignore=0
-
-	uci set dhcp.ap$device=dhcp
-	uci set dhcp.ap$device.interface=ap$device
-	uci set dhcp.ap$device.start=2
-	uci set dhcp.ap$device.limit=28
-	uci set dhcp.ap$device.leasetime=1h
       }
+
+      meshIfnames="$meshIfnames $mif"
+
     ;;
 
     "radio")
@@ -333,6 +304,8 @@ net.ipv6.conf.all.autoconf=0
       uci set wireless.$device.macaddr=$(get_mac $device)
       uci set wireless.$device.channel=$mesh2channel
       uci set wireless.$device.disabled=0
+
+      mif=""
 
       [ $ath9k_mesh -eq 1 ] &&
       {
@@ -346,15 +319,21 @@ net.ipv6.conf.all.autoconf=0
 
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
+	uci set network.mesh$device.mtu=1524
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-	uci set network.mesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
-	uci set network.mesh$device.netmask=255.255.255.255
 
-	uci set babeld.mesh$device=interface
+	mif="wlan$devindex"
       }
 
       [ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
       {
+	cif="wlan$devindex"
+	[ $ath9k_mesh -eq 1 ]
+	{
+	  mif="wlan$(($devindex+1))"
+	  cif="wlan$(($devindex*2))"
+	}
+
 	uci set wireless.ap$device=wifi-iface
 	uci set wireless.ap$device.device=$device
 	uci set wireless.ap$device.network=ap$device
@@ -363,51 +342,23 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.ap$device.ssid=EigenNet_$(get_mac $device | tr -d [=:=])
 	uci set wireless.ap$device.encryption=none
 
-	uci set network.ap$device=interface
-	uci set network.ap$device.proto=static
-	uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
-	uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
-	uci set network.ap$device.netmask=255.255.255.224
+	clientIfnames="$clientIfnames $cif"
 
-	uci set radvd.ap$device=interface
-	uci set radvd.ap$device.interface=ap$device
-	uci set radvd.ap$device.AdvSendAdvert=1
-	uci set radvd.ap$device.ignore=0
-
-	uci set radvd.prefix$device=prefix
-	uci set radvd.prefix$device.interface=alias$device
-	uci set radvd.prefix$device.AdvOnLink=1
-	uci set radvd.prefix$device.AdvAutonomous=1
-	uci set radvd.prefix$device.ignore=0
-
-	uci set dhcp.ap$device=dhcp
-	uci set dhcp.ap$device.interface=ap$device
-	uci set dhcp.ap$device.start=2
-	uci set dhcp.ap$device.limit=28
-	uci set dhcp.ap$device.leasetime=1h
       }
+
+      meshIfnames="$meshIfnames $mif"
     ;;
     esac
   done
 
+  uci set batman-adv.bat0.interfaces="$meshInterfaces"
+
   [ $accept_clients -eq 1 ] &&
   {
-    uci set babeld.fallback64=filter
-    uci set babeld.fallback64.type=redistribute
-    uci set babeld.fallback64.ip="$mesh6Prefix:/64"
-    uci set babeld.fallback64.action=deny
-    
-    uci set babeld.clients6=filter
-    uci set babeld.clients6.type=redistribute
-    uci set babeld.clients6.ip="::0/0"
-    uci set babeld.clients6.action="metric 386"
-    
-    uci set babeld.clients4=filter
-    uci set babeld.clients4.type=redistribute
-    uci set babeld.clients4.ip="0.0.0.0/0"
-    uci set babeld.clients4.action="metric 384"
-    
-    uci set dhcp.eigennet.ignore=0
+    uci set network.clients=interface
+    uci set network.clients.proto=static
+    uci set network.clients.type=bridge
+    uci set network.clients.ifname="$clientIfnames"
   }
 
   uci set eigennet.general.bootmode=2
