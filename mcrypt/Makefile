@@ -41,8 +41,7 @@ define Package/$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)/description
-	Mcrypt is a simple encryption program,
-	intended to be replacement for the old unix crypt. 
+	Mcrypt is a simple encryption program, intended to be replacement for the old unix crypt.
 endef
 
 define Build/Configure
