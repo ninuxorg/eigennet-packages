@@ -26,22 +26,18 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/mcrypt
 PKG_MD5SUM:=97639f8821b10f80943fa17da302607e
 
-PKG_FIXUP:=libtool
-
 include $(INCLUDE_DIR)/package.mk
-
-TARGET_CFLAGS += $(FPIC)
 
 define Package/$(PKG_NAME)
   SECTION:=utils
   CATEGORY:=Utilities
-  TITLE:=mcrypt is a simple encryption program
+  TITLE:=mcrypt simple encryption program
   URL:=http://mcrypt.sourceforge.net/
   DEPENDS:=+libmcrypt
 endef
 
 define Package/$(PKG_NAME)/description
-	Mcrypt is a simple encryption program, intended to be replacement for the old unix crypt.
+	mcrypt is a simple encryption program intended to be replacement for the old unix crypt
 endef
 
 define Build/Configure
@@ -56,4 +52,4 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/mcrypt $(1)/usr/bin/
 endef
 
-$(eval $(call BuildPackage,libmcrypt))
+$(eval $(call BuildPackage,$(PKG_NAME)))
