@@ -387,11 +387,12 @@ start()
 
   [ $bootmode -eq 1 ] &&
   {
-    sleep 10s
+	return 0
+	sleep 10s
     
-    #configureNetwork
+	configureNetwork
 
-    #reboot
+	reboot
   }
 
   [ $bootmode -ge 2 ] &&
