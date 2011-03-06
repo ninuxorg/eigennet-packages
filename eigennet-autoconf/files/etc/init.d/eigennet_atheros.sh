@@ -389,9 +389,9 @@ start()
   {
     sleep 10s
     
-    configureNetwork
+    #configureNetwork
 
-    reboot
+    #reboot
   }
 
   [ $bootmode -ge 2 ] &&
