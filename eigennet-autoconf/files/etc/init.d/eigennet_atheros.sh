@@ -194,8 +194,6 @@ configureNetwork()
   local madwifi_mesh		; config_get madwifi_mesh	wireless	madwifi_mesh
   local mesh2channel		; config_get mesh2channel	wireless	mesh2channel
   local mesh5channel		; config_get mesh5channel	wireless	mesh5channel
-  local meshIfnames=""
-  local clientIfnames="bat0"
   
   [ $firewallEnabled -eq 0 ] &&
   {
@@ -224,6 +222,19 @@ net.ipv6.conf.all.autoconf=0
   config_load network
   config_foreach del_interface interface
 
+  [ $accept_clients -eq 1 ] &&
+  {
+    uci set network.clients=interface
+    uci set network.clients.proto=static
+    uci set network.clients.type=bridge
+    uci set network.clients.mtu=1476
+    uci add_list network.clients.ifname="bat0"
+    #Assuming that on all devices we have eth0
+    uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64 
+    uci set network.clients.ipaddr=192.168.1.1
+    uci set network.clients.netmask=255.255.255.0
+  }
+
   for device in $(scan_devices)
   do
     devtype=$(echo $device | sed -e 's/[0-9]*$//')
@@ -231,11 +242,11 @@ net.ipv6.conf.all.autoconf=0
 
     case $devtype in
     "eth")
-      meshIfnames="$meshIfnames $device"
+      uci add_list batman-adv.bat0.interfaces="$device"
 
       [ $accept_clients -eq 1 ] &&
       {
-	clientIfnames="$clientIfnames $device"
+	uci add_list network.clients.ifname=$device
       }
 
     ;;
@@ -267,27 +278,21 @@ net.ipv6.conf.all.autoconf=0
 
       [ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
       {
-	cif="ath$devindex"
-
 	[ $madwifi_mesh -eq 1 ]
 	{
-	  mif="ath$(($devindex+1))"
-	  cif="ath$(($devindex*2))"
+	  mif="ath$(($devindex*2+1))"
 	}
 
 	uci set wireless.ap$device=wifi-iface
 	uci set wireless.ap$device.device=$device
-	uci set wireless.ap$device.network=ap$device
+	uci set wireless.ap$device.network=clients
 	uci set wireless.ap$device.sw_merge=1
 	uci set wireless.ap$device.mode=ap
 	uci set wireless.ap$device.ssid=EigenNet
 	uci set wireless.ap$device.encryption=none
-
-	clientIfnames="$clientIfnames $cif"
-
       }
 
-      meshIfnames="$meshIfnames $mif"
+      uci add_list batman-adv.bat0.interfaces="$mif"
 
     ;;
 
@@ -319,43 +324,24 @@ net.ipv6.conf.all.autoconf=0
 
       [ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
       {
-	cif="wlan$devindex"
 	[ $ath9k_mesh -eq 1 ]
 	{
-	  mif="wlan$(($devindex+1))"
-	  cif="wlan$(($devindex*2))"
+	  mif="wlan$(($devindex*2+1))"
 	}
 
 	uci set wireless.ap$device=wifi-iface
 	uci set wireless.ap$device.device=$device
-	uci set wireless.ap$device.network=ap$device
+	uci set wireless.ap$device.network=clients
 	uci set wireless.ap$device.sw_merge=1
 	uci set wireless.ap$device.mode=ap
 	uci set wireless.ap$device.ssid=EigenNet
 	uci set wireless.ap$device.encryption=none
-
-	clientIfnames="$clientIfnames $cif"
-
       }
 
-      meshIfnames="$meshIfnames $mif"
+      uci add_list batman-adv.bat0.interfaces="$mif"
     ;;
     esac
   done
-
-  uci set batman-adv.bat0.interfaces="$meshIfnames"
-
-  [ $accept_clients -eq 1 ] &&
-  {
-    uci set network.clients=interface
-    uci set network.clients.proto=static
-    uci set network.clients.type=bridge
-    uci set network.clients.mtu=1476
-    uci set network.clients.ifname="$clientIfnames"
-    uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
-    uci set network.clients.ipaddr=192.168.1.1
-    uci set network.clients.netmask=255.255.255.0
-  }
 
   uci set eigennet.general.bootmode=2
 
