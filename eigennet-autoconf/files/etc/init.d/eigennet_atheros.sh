@@ -233,16 +233,18 @@ net.ipv6.conf.all.autoconf=0
     "eth")
       uci set network.$device=interface
       uci set network.$device.ifname=$device
-      uci set network.$device.mtu=1524
+#      uci set network.$device.mtu=1524
       uci set network.$device.proto=static
       uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+      uci set network.$device.ipaddr=192.168.1.1
+      uci set network.$device.netmask=255.255.255.0
       
-      meshIfnames="$meshIfnames $device"
+#      meshIfnames="$meshIfnames $device"
 
-      [ $accept_clients -eq 1 ] &&
-      {
-	clientIfnames="$clientIfnames $device"
-      }
+#      [ $accept_clients -eq 1 ] &&
+#      {
+#	clientIfnames="$clientIfnames $device"
+#      }
 
     ;;
 
@@ -387,7 +389,6 @@ start()
 
   [ $bootmode -eq 1 ] &&
   {
-	return 0
 	sleep 10s
     
 	configureNetwork
