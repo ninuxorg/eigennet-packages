@@ -194,8 +194,8 @@ configureNetwork()
   local madwifi_mesh		; config_get madwifi_mesh	wireless	madwifi_mesh
   local mesh2channel		; config_get mesh2channel	wireless	mesh2channel
   local mesh5channel		; config_get mesh5channel	wireless	mesh5channel
-  local meshIfnames=""
-  local clientIfnames="bat0"
+  meshIfnames=""
+  clientIfnames="bat0"
   
   [ $firewallEnabled -eq 0 ] &&
   {
