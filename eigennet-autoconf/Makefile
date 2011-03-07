@@ -30,7 +30,7 @@ define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
   MAINTAINER:=Gioacchino Mazzurco <gmazzurco89@gmail.com>
-  DEPENDS:=+kmod-batman-adv +ip
+  DEPENDS:=+kmod-ipv6 +kmod-batman-adv +ip
   TITLE:=EigenNet Auto Config Package
 endef
 
