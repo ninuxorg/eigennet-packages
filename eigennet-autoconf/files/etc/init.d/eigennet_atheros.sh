@@ -234,9 +234,6 @@ net.ipv6.conf.all.autoconf=0
       uci set network.$device=interface
       uci set network.$device.ifname=$device
       uci set network.$device.proto=static
-      uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-      uci set network.$device.ipaddr=192.168.1.1
-      uci set network.$device.netmask=255.255.255.0
       
       meshIfnames="$meshIfnames $device"
 
@@ -357,7 +354,11 @@ net.ipv6.conf.all.autoconf=0
     uci set network.clients=interface
     uci set network.clients.proto=static
     uci set network.clients.type=bridge
+    uci set network.clients.mtu=1476
     uci set network.clients.ifname="$clientIfnames"
+    uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
+    uci set network.clients.ipaddr=192.168.1.1
+    uci set network.clients.netmask=255.255.255.0
   }
 
   uci set eigennet.general.bootmode=2
