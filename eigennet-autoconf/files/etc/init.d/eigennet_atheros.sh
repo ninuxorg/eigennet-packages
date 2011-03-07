@@ -194,8 +194,8 @@ configureNetwork()
   local madwifi_mesh		; config_get madwifi_mesh	wireless	madwifi_mesh
   local mesh2channel		; config_get mesh2channel	wireless	mesh2channel
   local mesh5channel		; config_get mesh5channel	wireless	mesh5channel
-  meshIfnames=""
-  clientIfnames="bat0"
+  local meshIfnames=""
+  local clientIfnames="bat0"
   
   [ $firewallEnabled -eq 0 ] &&
   {
@@ -233,7 +233,6 @@ net.ipv6.conf.all.autoconf=0
     "eth")
       uci set network.$device=interface
       uci set network.$device.ifname=$device
-#      uci set network.$device.mtu=1524
       uci set network.$device.proto=static
       uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
       uci set network.$device.ipaddr=192.168.1.1
@@ -268,7 +267,6 @@ net.ipv6.conf.all.autoconf=0
 
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
-	uci set network.mesh$device.mtu=1524
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
 
 	mif="ath$devindex"
@@ -321,7 +319,6 @@ net.ipv6.conf.all.autoconf=0
 
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
-	uci set network.mesh$device.mtu=1524
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
 
 	mif="wlan$devindex"
@@ -353,7 +350,7 @@ net.ipv6.conf.all.autoconf=0
     esac
   done
 
-  uci set batman-adv.bat0.interfaces="$meshInterfaces"
+  uci set batman-adv.bat0.interfaces="$meshIfnames"
 
   [ $accept_clients -eq 1 ] &&
   {
