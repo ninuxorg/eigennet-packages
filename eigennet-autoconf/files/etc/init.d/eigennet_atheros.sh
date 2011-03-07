@@ -231,10 +231,6 @@ net.ipv6.conf.all.autoconf=0
 
     case $devtype in
     "eth")
-      uci set network.$device=interface
-      uci set network.$device.ifname=$device
-      uci set network.$device.proto=static
-      
       meshIfnames="$meshIfnames $device"
 
       [ $accept_clients -eq 1 ] &&
