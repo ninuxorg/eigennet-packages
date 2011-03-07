@@ -238,12 +238,12 @@ net.ipv6.conf.all.autoconf=0
       uci set network.$device.ipaddr=192.168.1.1
       uci set network.$device.netmask=255.255.255.0
       
-#      meshIfnames="$meshIfnames $device"
+      meshIfnames="$meshIfnames $device"
 
-#      [ $accept_clients -eq 1 ] &&
-#      {
-#	clientIfnames="$clientIfnames $device"
-#      }
+      [ $accept_clients -eq 1 ] &&
+      {
+	clientIfnames="$clientIfnames $device"
+      }
 
     ;;
 
