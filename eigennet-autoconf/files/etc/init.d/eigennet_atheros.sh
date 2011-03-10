@@ -271,6 +271,7 @@ net.ipv6.conf.all.autoconf=0
 
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
+	uci set network.mesh$device.mtu=1524
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
 
 	mif="ath$devindex"
@@ -317,6 +318,7 @@ net.ipv6.conf.all.autoconf=0
 
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
+	uci set network.mesh$device.mtu=1524
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
 
 	mif="wlan$devindex"
