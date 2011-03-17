@@ -233,13 +233,11 @@ net.ipv6.conf.all.autoconf=0
       uci set network.$device.ifname=$device
       uci set network.$device.proto=static
       uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-      uci set network.$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
-      uci set network.$device.netmask=255.255.255.255
       
-      uci set babeld.$device=interface
+      uci add_list olsrd.meshif.interface=$device
       
       [ $accept_clients -eq 1 ] &&
-      {	
+      {
 	uci set network.$device.ipaddr=$ipv4prefix$devindex.1
 	uci set network.$device.netmask=255.255.255.224
 
@@ -247,6 +245,11 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.alias$device.interface=$device
 	uci set network.alias$device.proto=static
 	uci set network.alias$device.ip6addr=$ipv6prefix$devindex::1/64
+
+	uci set olsrd.alias$device=Hna6
+	uci set olsrd.alias$device.netaddr=0::ffff:
+	uci set olsrd.alias$device.prefix=123
+	uci set olsrd.alias$device.ignore=1
 
 	uci set radvd.alias$device=interface
 	uci set radvd.alias$device.interface=alias$device
@@ -286,10 +289,8 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-	uci set network.mesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
-	uci set network.mesh$device.netmask=255.255.255.255
 
-	uci set babeld.mesh$device=interface
+	uci add_list olsrd.meshif.interface=mesh$device
       }
 
       [ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
@@ -307,6 +308,11 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
 	uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
 	uci set network.ap$device.netmask=255.255.255.224
+
+	uci set olsrd.ap$device=Hna6
+	uci set olsrd.ap$device.netaddr=0::ffff:
+	uci set olsrd.ap$device.prefix=123
+	uci set olsrd.ap$device.ignore=1
 
 	uci set radvd.ap$device=interface
 	uci set radvd.ap$device.interface=ap$device
@@ -347,10 +353,8 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.mesh$device=interface
 	uci set network.mesh$device.proto=static
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-	uci set network.mesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
-	uci set network.mesh$device.netmask=255.255.255.255
 
-	uci set babeld.mesh$device=interface
+	uci add_list olsrd.meshif.interface=mesh$device
       }
 
       [ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
@@ -368,6 +372,11 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
 	uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
 	uci set network.ap$device.netmask=255.255.255.224
+
+	uci set olsrd.ap$device=Hna6
+	uci set olsrd.ap$device.netaddr=0::ffff:
+	uci set olsrd.ap$device.prefix=123
+	uci set olsrd.ap$device.ignore=1
 
 	uci set radvd.ap$device=interface
 	uci set radvd.ap$device.interface=ap$device
@@ -391,22 +400,7 @@ net.ipv6.conf.all.autoconf=0
   done
 
   [ $accept_clients -eq 1 ] &&
-  {
-    uci set babeld.fallback64=filter
-    uci set babeld.fallback64.type=redistribute
-    uci set babeld.fallback64.ip="$mesh6Prefix:/64"
-    uci set babeld.fallback64.action=deny
-    
-    uci set babeld.clients6=filter
-    uci set babeld.clients6.type=redistribute
-    uci set babeld.clients6.ip="::0/0"
-    uci set babeld.clients6.action="metric 386"
-    
-    uci set babeld.clients4=filter
-    uci set babeld.clients4.type=redistribute
-    uci set babeld.clients4.ip="0.0.0.0/0"
-    uci set babeld.clients4.action="metric 384"
-    
+  {    
     uci set dhcp.eigennet.ignore=0
   }
 
@@ -448,6 +442,9 @@ start()
 	sysctl -w net.ipv4.ip_forward=1
 	sysctl -w net.ipv6.conf.all.forwarding=1
 	sysctl -w net.ipv6.conf.all.autoconf=0
+
+	ip link set dev niit4to6 up
+	ip link set dev niit6to4 up
 
 	return 0
   }

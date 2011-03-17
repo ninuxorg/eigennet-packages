@@ -30,7 +30,7 @@ define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
   MAINTAINER:=Gioacchino Mazzurco <gmazzurco89@gmail.com>
-  DEPENDS:=+babeld +dnsmasq +ip +radvd
+  DEPENDS:=+olsrd +dnsmasq +ip +radvd
   TITLE:=EigenNet Auto Config Package
 endef
 

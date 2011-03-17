@@ -1,1 +1,0 @@
-../init.d/eigennet_atheros.sh

@@ -1,4 +1,21 @@
-#Automatically generated for Eigennet
+#Automatically generated for EigenNet
 
-config olsrd
-  option config_file '/etc/olsrd.conf'
+config olsrd general
+  option IpVersion '6'
+
+config LoadPlugin txtinfo
+  option library	'olsrd_txtinfo.so.0.1'
+  option accept		'0::0'
+
+config Interface meshif
+  list interface ''
+
+config Hna6 internet
+  option netaddr '0::ffff:0000:0000'
+  option prefix '96'
+  option ignore 1
+
+config Hna6 internet6
+  option netaddr '2000::0'
+  option prefix '3'
+  option ignore 1
