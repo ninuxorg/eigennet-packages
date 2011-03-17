@@ -7,10 +7,7 @@ config LoadPlugin txtinfo
   option library	'olsrd_txtinfo.so.0.1'
   option accept		'0::0'
 
-config Interface meshif
-  list interface ''
-
-config Hna6 internet
+config Hna6 internet4
   option netaddr '0::ffff:0000:0000'
   option prefix '96'
   option ignore 1

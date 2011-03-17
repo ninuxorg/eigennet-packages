@@ -234,7 +234,10 @@ net.ipv6.conf.all.autoconf=0
       uci set network.$device.proto=static
       uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
       
-      uci add_list olsrd.meshif.interface=$device
+      uci set olsrd.$device=Interface
+      uci set olsrd.$device.interface=$device
+      uci set olsrd.$device.IPv6Src=$mesh6Prefix$(mac6ize $(get_mac $device))
+      uci set olsrd.$device.Mode=ether
       
       [ $accept_clients -eq 1 ] &&
       {
@@ -290,7 +293,10 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.mesh$device.proto=static
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
 
-	uci add_list olsrd.meshif.interface=mesh$device
+	uci set olsrd.mesh$device=Interface
+	uci set olsrd.mesh$device.interface=mesh$device
+	uci set olsrd.mesh$device.IPv6Src=$mesh6Prefix$(mac6ize $(get_mac $device))
+	uci set olsrd.mesh$device.Mode=mesh
       }
 
       [ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
@@ -354,7 +360,10 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.mesh$device.proto=static
 	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
 
-	uci add_list olsrd.meshif.interface=mesh$device
+	uci set olsrd.mesh$device=Interface
+	uci set olsrd.mesh$device.interface=mesh$device
+	uci set olsrd.mesh$device.IPv6Src=$mesh6Prefix$(mac6ize $(get_mac $device))
+	uci set olsrd.mesh$device.Mode=mesh
       }
 
       [ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
