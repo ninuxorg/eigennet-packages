@@ -225,6 +225,13 @@ net.ipv6.conf.all.autoconf=0
   config_load network
   config_foreach del_interface interface
 
+  uci set network.loopback=interface
+  uci set network.loopback.ifname=lo
+  uci set network.loopback.proto=static
+  uci set network.loopback.ipaddr="127.0.0.1"
+  uci set network.loopback.netmask="255.0.0.0"
+  uci set network.loopback.ip6addr="0::1/128"
+
   for device in $(scan_devices)
   do
     devtype=$(echo $device | sed -e 's/[0-9]*$//')
