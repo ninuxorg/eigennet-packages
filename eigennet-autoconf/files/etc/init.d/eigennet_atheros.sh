@@ -438,11 +438,9 @@ start()
 
   [ $bootmode -eq 1 ] &&
   {
-    sleep 10s
-    
-    configureNetwork
-
-    reboot
+	sleep 10s
+	configureNetwork
+	reboot
   }
 
   [ $bootmode -ge 2 ] &&
