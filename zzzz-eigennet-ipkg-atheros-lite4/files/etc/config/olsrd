@@ -1,4 +1,0 @@
-#Automatically generated for Eigennet
-
-config olsrd
-  option config_file '/etc/olsrd.conf'

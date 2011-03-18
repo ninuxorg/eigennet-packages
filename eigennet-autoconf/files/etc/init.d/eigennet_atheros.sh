@@ -24,6 +24,10 @@ STOP=10
 
 CONF_DIR="/etc/config/"
 
+config_load eigennet
+
+config_get debugLevel	general	debugLevel
+config_get bootmode	general	bootmode
 
 # Convert number from a base to another
 #
@@ -418,10 +422,6 @@ net.ipv6.conf.all.autoconf=0
 
 start()
 {
-  config_load	eigennet
-
-  config_get debugLevel	general	debugLevel
-  config_get bootmode	general	bootmode
   
   eigenDebug 0 "Starting"
 
