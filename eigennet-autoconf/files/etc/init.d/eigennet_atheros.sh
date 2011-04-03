@@ -240,41 +240,41 @@ net.ipv6.conf.all.autoconf=0
 
     case $devtype in
     "eth")
-      uci set network.$device=interface
-      uci set network.$device.ifname=$device
-      uci set network.$device.proto=static
-      uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-      uci set network.$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
-      uci set network.$device.netmask=255.255.255.255
+      uci set network.n$device=interface
+      uci set network.n$device.ifname=$device
+      uci set network.n$device.proto=static
+      uci set network.n$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+      uci set network.n$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
+      uci set network.n$device.netmask=255.255.255.255
       
       uci set babeld.$device=interface
       
       [ $accept_clients -eq 1 ] &&
       {	
-	uci set network.$device.ipaddr=$ipv4prefix$devindex.1
-	uci set network.$device.netmask=255.255.255.224
+	uci set network.n$device.ipaddr=$ipv4prefix$devindex.1
+	uci set network.n$device.netmask=255.255.255.224
 
-	uci set network.alias$device=alias
-	uci set network.alias$device.interface=$device
-	uci set network.alias$device.proto=static
-	uci set network.alias$device.ip6addr=$ipv6prefix$devindex::1/64
+	uci set network.nalias$device=alias
+	uci set network.nalias$device.interface=$device
+	uci set network.nalias$device.proto=static
+	uci set network.nalias$device.ip6addr=$ipv6prefix$devindex::1/64
 
-	uci set radvd.alias$device=interface
-	uci set radvd.alias$device.interface=alias$device
-	uci set radvd.alias$device.AdvSendAdvert=1
-	uci set radvd.alias$device.ignore=0
+	uci set radvd.ralias$device=interface
+	uci set radvd.ralias$device.interface=alias$device
+	uci set radvd.ralias$device.AdvSendAdvert=1
+	uci set radvd.ralias$device.ignore=0
 
-	uci set radvd.prefix$device=prefix
-	uci set radvd.prefix$device.interface=alias$device
-	uci set radvd.prefix$device.AdvOnLink=1
-	uci set radvd.prefix$device.AdvAutonomous=1
-	uci set radvd.prefix$device.ignore=0
+	uci set radvd.rprefix$device=prefix
+	uci set radvd.rprefix$device.interface=alias$device
+	uci set radvd.rprefix$device.AdvOnLink=1
+	uci set radvd.rprefix$device.AdvAutonomous=1
+	uci set radvd.rprefix$device.ignore=0
 
-	uci set dhcp.$device=dhcp
-	uci set dhcp.$device.interface=$device
-	uci set dhcp.$device.start=2
-	uci set dhcp.$device.limit=28
-	uci set dhcp.$device.leasetime=1h
+	uci set dhcp.d$device=dhcp
+	uci set dhcp.d$device.interface=$device
+	uci set dhcp.d$device.start=2
+	uci set dhcp.d$device.limit=28
+	uci set dhcp.d$device.leasetime=1h
       }
     ;;
 
@@ -294,13 +294,13 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.mesh$device.ssid=Ninux.org
 	uci set wireless.mesh$device.encryption=none
 
-	uci set network.mesh$device=interface
-	uci set network.mesh$device.proto=static
-	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-	uci set network.mesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
-	uci set network.mesh$device.netmask=255.255.255.255
+	uci set network.nmesh$device=interface
+	uci set network.nmesh$device.proto=static
+	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.nmesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
+	uci set network.nmesh$device.netmask=255.255.255.255
 
-	uci set babeld.mesh$device=interface
+	uci set babeld.bmesh$device=interface
       }
 
       [ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
@@ -313,28 +313,28 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.ap$device.ssid=EigenNet_$(get_mac $device | tr -d [=:=])
 	uci set wireless.ap$device.encryption=none
 
-	uci set network.ap$device=interface
-	uci set network.ap$device.proto=static
-	uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
-	uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
-	uci set network.ap$device.netmask=255.255.255.224
+	uci set network.nap$device=interface
+	uci set network.nap$device.proto=static
+	uci set network.nap$device.ip6addr=$ipv6prefix$devindex::1/64
+	uci set network.nap$device.ipaddr=$ipv4prefix$devindex.1
+	uci set network.nap$device.netmask=255.255.255.224
 
-	uci set radvd.ap$device=interface
-	uci set radvd.ap$device.interface=ap$device
-	uci set radvd.ap$device.AdvSendAdvert=1
-	uci set radvd.ap$device.ignore=0
+	uci set radvd.rap$device=interface
+	uci set radvd.rap$device.interface=ap$device
+	uci set radvd.rap$device.AdvSendAdvert=1
+	uci set radvd.rap$device.ignore=0
 
-	uci set radvd.prefix$device=prefix
-	uci set radvd.prefix$device.interface=alias$device
-	uci set radvd.prefix$device.AdvOnLink=1
-	uci set radvd.prefix$device.AdvAutonomous=1
-	uci set radvd.prefix$device.ignore=0
+	uci set radvd.rprefix$device=prefix
+	uci set radvd.rprefix$device.interface=alias$device
+	uci set radvd.rprefix$device.AdvOnLink=1
+	uci set radvd.rprefix$device.AdvAutonomous=1
+	uci set radvd.rprefix$device.ignore=0
 
-	uci set dhcp.ap$device=dhcp
-	uci set dhcp.ap$device.interface=ap$device
-	uci set dhcp.ap$device.start=2
-	uci set dhcp.ap$device.limit=28
-	uci set dhcp.ap$device.leasetime=1h
+	uci set dhcp.dap$device=dhcp
+	uci set dhcp.dap$device.interface=ap$device
+	uci set dhcp.dap$device.start=2
+	uci set dhcp.dap$device.limit=28
+	uci set dhcp.dap$device.leasetime=1h
       }
     ;;
 
@@ -355,13 +355,13 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.mesh$device.ssid=Ninux.org
 	uci set wireless.mesh$device.encryption=none
 
-	uci set network.mesh$device=interface
-	uci set network.mesh$device.proto=static
-	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-	uci set network.mesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
-	uci set network.mesh$device.netmask=255.255.255.255
+	uci set network.nmesh$device=interface
+	uci set network.nmesh$device.proto=static
+	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.nmesh$device.ipaddr=$mesh4Prefix$(mac4ize $(get_mac $device))
+	uci set network.nmesh$device.netmask=255.255.255.255
 
-	uci set babeld.mesh$device=interface
+	uci set babeld.bmesh$device=interface
       }
 
       [ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
@@ -374,28 +374,28 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.ap$device.ssid=EigenNet_$(get_mac $device | tr -d [=:=])
 	uci set wireless.ap$device.encryption=none
 
-	uci set network.ap$device=interface
-	uci set network.ap$device.proto=static
-	uci set network.ap$device.ip6addr=$ipv6prefix$devindex::1/64
-	uci set network.ap$device.ipaddr=$ipv4prefix$devindex.1
-	uci set network.ap$device.netmask=255.255.255.224
+	uci set network.nap$device=interface
+	uci set network.nap$device.proto=static
+	uci set network.nap$device.ip6addr=$ipv6prefix$devindex::1/64
+	uci set network.nap$device.ipaddr=$ipv4prefix$devindex.1
+	uci set network.nap$device.netmask=255.255.255.224
 
-	uci set radvd.ap$device=interface
-	uci set radvd.ap$device.interface=ap$device
-	uci set radvd.ap$device.AdvSendAdvert=1
-	uci set radvd.ap$device.ignore=0
+	uci set radvd.rap$device=interface
+	uci set radvd.rap$device.interface=ap$device
+	uci set radvd.rap$device.AdvSendAdvert=1
+	uci set radvd.rap$device.ignore=0
 
-	uci set radvd.prefix$device=prefix
-	uci set radvd.prefix$device.interface=alias$device
-	uci set radvd.prefix$device.AdvOnLink=1
-	uci set radvd.prefix$device.AdvAutonomous=1
-	uci set radvd.prefix$device.ignore=0
+	uci set radvd.rprefix$device=prefix
+	uci set radvd.rprefix$device.interface=alias$device
+	uci set radvd.rprefix$device.AdvOnLink=1
+	uci set radvd.rprefix$device.AdvAutonomous=1
+	uci set radvd.rprefix$device.ignore=0
 
-	uci set dhcp.ap$device=dhcp
-	uci set dhcp.ap$device.interface=ap$device
-	uci set dhcp.ap$device.start=2
-	uci set dhcp.ap$device.limit=28
-	uci set dhcp.ap$device.leasetime=1h
+	uci set dhcp.dap$device=dhcp
+	uci set dhcp.dap$device.interface=ap$device
+	uci set dhcp.dap$device.start=2
+	uci set dhcp.dap$device.limit=28
+	uci set dhcp.dap$device.leasetime=1h
       }
     ;;
     esac
