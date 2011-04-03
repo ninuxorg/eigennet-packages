@@ -274,7 +274,7 @@ net.ipv6.conf.all.autoconf=0
       {
 	uci set wireless.mesh$device=wifi-iface
 	uci set wireless.mesh$device.device=$device
-	uci set wireless.mesh$device.network=mesh$device
+	uci set wireless.mesh$device.network=nmesh$device
 	uci set wireless.mesh$device.sw_merge=1
 	uci set wireless.mesh$device.mode=adhoc
 	uci set wireless.mesh$device.ssid=Ninux.org
@@ -321,7 +321,7 @@ net.ipv6.conf.all.autoconf=0
       {
 	uci set wireless.mesh$device=wifi-iface
 	uci set wireless.mesh$device.device=$device
-	uci set wireless.mesh$device.network=mesh$device
+	uci set wireless.mesh$device.network=nmesh$device
 	uci set wireless.mesh$device.sw_merge=1
 	uci set wireless.mesh$device.mode=adhoc
 	uci set wireless.mesh$device.ssid=Ninux.org
@@ -378,9 +378,9 @@ start()
   [ $bootmode -eq 1 ] &&
   {
 	sleep 10s
-    
 	configureNetwork
 
+	sleep 2s
 	reboot
   }
 
@@ -405,4 +405,3 @@ restart()
   sleep 2s
   start
 }
-
