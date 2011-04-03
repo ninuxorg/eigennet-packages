@@ -280,10 +280,10 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.mesh$device.ssid=Ninux.org
 	uci set wireless.mesh$device.encryption=none
 
-	uci set network.mesh$device=interface
-	uci set network.mesh$device.proto=static
-	uci set network.mesh$device.mtu=1524
-	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.nmesh$device=interface
+	uci set network.nmesh$device.proto=static
+	uci set network.nmesh$device.mtu=1524
+	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
 
 	mif="ath$devindex"
       }
@@ -327,10 +327,10 @@ net.ipv6.conf.all.autoconf=0
 	uci set wireless.mesh$device.ssid=Ninux.org
 	uci set wireless.mesh$device.encryption=none
 
-	uci set network.mesh$device=interface
-	uci set network.mesh$device.proto=static
-	uci set network.mesh$device.mtu=1524
-	uci set network.mesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.nmesh$device=interface
+	uci set network.nmesh$device.proto=static
+	uci set network.nmesh$device.mtu=1524
+	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
 
 	mif="wlan$devindex"
       }
