@@ -254,27 +254,27 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.n$device.ipaddr=$ipv4prefix$devindex.1
 	uci set network.n$device.netmask=255.255.255.224
 
-	uci set network.nalias$device=alias
-	uci set network.nalias$device.interface=n$device
-	uci set network.nalias$device.proto=static
-	uci set network.nalias$device.ip6addr=$ipv6prefix$devindex::1/64
+	uci set network.alias$device=alias
+	uci set network.alias$device.interface=n$device
+	uci set network.alias$device.proto=static
+	uci set network.alias$device.ip6addr=$ipv6prefix$devindex::1/64
 
-	uci set radvd.ralias$device=interface
-	uci set radvd.ralias$device.interface=nalias$device
-	uci set radvd.ralias$device.AdvSendAdvert=1
-	uci set radvd.ralias$device.ignore=0
+	uci set radvd.alias$device=interface
+	uci set radvd.alias$device.interface=n$device
+	uci set radvd.alias$device.AdvSendAdvert=1
+	uci set radvd.alias$device.ignore=0
 
-	uci set radvd.rprefix$device=prefix
-	uci set radvd.rprefix$device.interface=ralias$device
-	uci set radvd.rprefix$device.AdvOnLink=1
-	uci set radvd.rprefix$device.AdvAutonomous=1
-	uci set radvd.rprefix$device.ignore=0
+	uci set radvd.prefix$device=prefix
+	uci set radvd.prefix$device.interface=n$device
+	uci set radvd.prefix$device.AdvOnLink=1
+	uci set radvd.prefix$device.AdvAutonomous=1
+	uci set radvd.prefix$device.ignore=0
 
-	uci set dhcp.d$device=dhcp
-	uci set dhcp.d$device.interface=n$device
-	uci set dhcp.d$device.start=2
-	uci set dhcp.d$device.limit=28
-	uci set dhcp.d$device.leasetime=1h
+	uci set dhcp.$device=dhcp
+	uci set dhcp.$device.interface=n$device
+	uci set dhcp.$device.start=2
+	uci set dhcp.$device.limit=28
+	uci set dhcp.$device.leasetime=1h
       }
     ;;
 
@@ -319,22 +319,22 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.nap$device.ipaddr=$ipv4prefix$devindex.1
 	uci set network.nap$device.netmask=255.255.255.224
 
-	uci set radvd.rap$device=interface
-	uci set radvd.rap$device.interface=nap$device
-	uci set radvd.rap$device.AdvSendAdvert=1
-	uci set radvd.rap$device.ignore=0
+	uci set radvd.ap$device=interface
+	uci set radvd.ap$device.interface=nap$device
+	uci set radvd.ap$device.AdvSendAdvert=1
+	uci set radvd.ap$device.ignore=0
 
-	uci set radvd.rprefix$device=prefix
-	uci set radvd.rprefix$device.interface=rap$device
-	uci set radvd.rprefix$device.AdvOnLink=1
-	uci set radvd.rprefix$device.AdvAutonomous=1
-	uci set radvd.rprefix$device.ignore=0
+	uci set radvd.prefix$device=prefix
+	uci set radvd.prefix$device.interface=nap$device
+	uci set radvd.prefix$device.AdvOnLink=1
+	uci set radvd.prefix$device.AdvAutonomous=1
+	uci set radvd.prefix$device.ignore=0
 
-	uci set dhcp.dap$device=dhcp
-	uci set dhcp.dap$device.interface=nap$device
-	uci set dhcp.dap$device.start=2
-	uci set dhcp.dap$device.limit=28
-	uci set dhcp.dap$device.leasetime=1h
+	uci set dhcp.ap$device=dhcp
+	uci set dhcp.ap$device.interface=nap$device
+	uci set dhcp.ap$device.start=2
+	uci set dhcp.ap$device.limit=28
+	uci set dhcp.ap$device.leasetime=1h
       }
     ;;
 
@@ -380,22 +380,22 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.nap$device.ipaddr=$ipv4prefix$devindex.1
 	uci set network.nap$device.netmask=255.255.255.224
 
-	uci set radvd.rap$device=interface
-	uci set radvd.rap$device.interface=nap$device
-	uci set radvd.rap$device.AdvSendAdvert=1
-	uci set radvd.rap$device.ignore=0
+	uci set radvd.ap$device=interface
+	uci set radvd.ap$device.interface=nap$device
+	uci set radvd.ap$device.AdvSendAdvert=1
+	uci set radvd.ap$device.ignore=0
 
-	uci set radvd.rprefix$device=prefix
-	uci set radvd.rprefix$device.interface=rap$device
-	uci set radvd.rprefix$device.AdvOnLink=1
-	uci set radvd.rprefix$device.AdvAutonomous=1
-	uci set radvd.rprefix$device.ignore=0
+	uci set radvd.prefix$device=prefix
+	uci set radvd.prefix$device.interface=rap$device
+	uci set radvd.prefix$device.AdvOnLink=1
+	uci set radvd.prefix$device.AdvAutonomous=1
+	uci set radvd.prefix$device.ignore=0
 
-	uci set dhcp.dap$device=dhcp
-	uci set dhcp.dap$device.interface=nap$device
-	uci set dhcp.dap$device.start=2
-	uci set dhcp.dap$device.limit=28
-	uci set dhcp.dap$device.leasetime=1h
+	uci set dhcp.ap$device=dhcp
+	uci set dhcp.ap$device.interface=nap$device
+	uci set dhcp.ap$device.start=2
+	uci set dhcp.ap$device.limit=28
+	uci set dhcp.ap$device.leasetime=1h
       }
     ;;
     esac
