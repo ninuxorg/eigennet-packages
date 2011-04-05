@@ -242,7 +242,7 @@ net.ipv6.conf.all.autoconf=0
     uci add_list network.clients.ifname="bat0"
     #Assuming that on all devices we have eth0
     uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64 
-    uci set network.clients.ipaddr=192.168.1.1
+    uci set network.clients.ipaddr=192.168.1.21
     uci set network.clients.netmask=255.255.255.0
   }
 
@@ -258,6 +258,13 @@ net.ipv6.conf.all.autoconf=0
       [ $accept_clients -eq 1 ] &&
       {
 	uci add_list network.clients.ifname=$device
+      } ||
+      {
+	uci set network.$device=interface
+	uci set network.$device.proto=static
+	uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64 
+	uci set network.$device.ipaddr=192.168.1.21
+	uci set network.$device.netmask=255.255.255.0
       }
 
     ;;
