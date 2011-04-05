@@ -291,6 +291,8 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.nmesh$device.proto=static
 	uci set network.nmesh$device.mtu=1524
 	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.nmesh$device.ipaddr=192.168.1.21
+	uci set network.nmesh$device.netmask=255.255.255.0
 
 	mif="ath$devindex"
       }
@@ -338,6 +340,8 @@ net.ipv6.conf.all.autoconf=0
 	uci set network.nmesh$device.proto=static
 	uci set network.nmesh$device.mtu=1524
 	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.nmesh$device.ipaddr=192.168.1.21
+	uci set network.nmesh$device.netmask=255.255.255.0
 
 	mif="wlan$devindex"
       }
