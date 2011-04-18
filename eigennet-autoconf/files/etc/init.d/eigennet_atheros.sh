@@ -184,25 +184,26 @@ scan_devices()
 configureNetwork()
 {
   local accept_clients		; config_get accept_clients		network		accept_clients
-  local firewallEnabled		; config_get firewallEnabled	network		firewallEnabled
-  local ipv6prefix			; config_get ipv4prefix			network		client4Prefix
-  local ipv4prefix			; config_get ipv6prefix			network		client6Prefix
-  local mesh6Prefix			; config_get mesh6Prefix		network		mesh6Prefix
-  local mesh4Prefix			; config_get mesh4Prefix		network		mesh4Prefix
-  local resolvers			; config_get resolvers			network		resolvers
-  local sshEigenserverKey	; config_get sshEigenserverKey	network		sshEigenserverKey
+  local firewallEnabled		; config_get firewallEnabled		network		firewallEnabled
+  local ipv6prefix		; config_get ipv4prefix			network		client4Prefix
+  local ipv4prefix		; config_get ipv6prefix			network		client6Prefix
+  local mesh6Prefix		; config_get mesh6Prefix		network		mesh6Prefix
+  local ip6gw			; config_get ip6gw			network		ip6gw
+  local resolvers		; config_get resolvers			network		resolvers
+  local sshEigenserverKey	; config_get sshEigenserverKey		network		sshEigenserverKey
 
   local ath9k_clients		; config_get ath9k_clients		wireless	ath9k_clients
-  local ath9k_mesh			; config_get ath9k_mesh			wireless	ath9k_mesh
-  local madwifi_clients		; config_get madwifi_clients	wireless	madwifi_clients
+  local ath9k_mesh		; config_get ath9k_mesh			wireless	ath9k_mesh
+  local madwifi_clients		; config_get madwifi_clients		wireless	madwifi_clients
   local madwifi_mesh		; config_get madwifi_mesh		wireless	madwifi_mesh
   local mesh2channel		; config_get mesh2channel		wireless	mesh2channel
   local mesh5channel		; config_get mesh5channel		wireless	mesh5channel
-  local meshSSID			; config_get meshSSID			wireless	meshSSID
-  local apSSID				; config_get apSSID				wireless	apSSID
+  local meshSSID		; config_get meshSSID			wireless	meshSSID
+  local meshBSSID		; config_get meshBSSID			wireless	meshBSSID
+  local apSSID			; config_get apSSID			wireless	apSSID
 
-  local eth_mesh			; config_get eth_mesh			wired		eth_mesh
-  local eth_clients			; config_get eth_clients		wired		eth_clients
+  local eth_mesh		; config_get eth_mesh			wired		eth_mesh
+  local eth_clients		; config_get eth_clients		wired		eth_clients
   
   [ $firewallEnabled -eq 0 ] &&
   {
@@ -246,7 +247,8 @@ net.ipv6.conf.all.autoconf=0
     uci set network.clients.mtu=1476
     uci add_list network.clients.ifname="bat0"
     #Assuming that on all devices we have eth0
-    uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64 
+    uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
+    uci set network.clients.ip6gw=$ip6gw
     uci set network.clients.ipaddr=192.168.1.21
     uci set network.clients.netmask=255.255.255.0
   }
@@ -292,6 +294,7 @@ net.ipv6.conf.all.autoconf=0
 		uci set wireless.mesh$device.network=nmesh$device
 		uci set wireless.mesh$device.sw_merge=1
 		uci set wireless.mesh$device.mode=adhoc
+		uci set wireless.mesh$device.bssid=$meshBSSID
 		uci set wireless.mesh$device.ssid=$meshSSID
 		uci set wireless.mesh$device.encryption=none
 
@@ -343,6 +346,7 @@ net.ipv6.conf.all.autoconf=0
 		uci set wireless.mesh$device.network=nmesh$device
 		uci set wireless.mesh$device.sw_merge=1
 		uci set wireless.mesh$device.mode=adhoc
+		uci set wireless.mesh$device.bssid=$meshBSSID
 		uci set wireless.mesh$device.ssid=$meshSSID
 		uci set wireless.mesh$device.encryption=none
 
