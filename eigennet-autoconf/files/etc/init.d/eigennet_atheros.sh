@@ -223,7 +223,10 @@ net.ipv6.conf.all.autoconf=0
 " > /etc/sysctl.conf
 
   echo "#Automatically generated for EigenNet" > $CONF_DIR/wireless
-  
+
+  echo "#Automatically generated for EigenNet
+config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
+
   for dns in $resolvers
   do
     echo nameserver $dns >> /etc/resolv.conf.auto
@@ -260,23 +263,27 @@ net.ipv6.conf.all.autoconf=0
 
     case $devtype in
     "eth")
-	  [ $eth_mesh -eq 1 ] &&
-	  {
-		uci add_list batman-adv.bat0.interfaces="$device"
-	  }
-
-      [ $accept_clients -eq 1 ] && [ $eth_clients -eq 1 ] &&
+      if [ $accept_clients -eq 1 ] && [ $eth_clients -eq 1 ]; then
       {
 		uci add_list network.clients.ifname=$device
-      } ||
-      {
+      } &&
+	  [ $eth_mesh -eq 1 ] &&
+	  {
+		uci add_list batman-adv.bat0.interfaces="clients"
+	  }
+	  else
+	  {
 		uci set network.$device=interface
 		uci set network.$device.proto=static
 		uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
 		uci set network.$device.ipaddr=192.168.1.21
 		uci set network.$device.netmask=255.255.255.0
-      }
-
+	  } &&
+	  [ $eth_mesh -eq 1 ] &&
+	  {
+		uci add_list batman-adv.bat0.interfaces="$device"
+	  }
+      fi
     ;;
 
     "wifi")
@@ -284,8 +291,6 @@ net.ipv6.conf.all.autoconf=0
       uci set wireless.$device.type=atheros
       uci set wireless.$device.channel=$mesh2channel
       uci set wireless.$device.disabled=0
-
-      mif=""
 
       [ $madwifi_mesh -eq 1 ] &&
       {
@@ -305,16 +310,11 @@ net.ipv6.conf.all.autoconf=0
 		uci set network.nmesh$device.ipaddr=192.168.1.21
 		uci set network.nmesh$device.netmask=255.255.255.0
 
-		mif="ath$devindex"
+		uci add_list batman-adv.bat0.interfaces="nmesh$device"
       }
 
       [ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
       {
-		[ $madwifi_mesh -eq 1 ]
-		{
-		  mif="ath$(($devindex*2+1))"
-		}
-
 		uci set wireless.ap$device=wifi-iface
 		uci set wireless.ap$device.device=$device
 		uci set wireless.ap$device.network=clients
@@ -323,11 +323,6 @@ net.ipv6.conf.all.autoconf=0
 		uci set wireless.ap$device.ssid=$apSSID
 		uci set wireless.ap$device.encryption=none
       }
-
-	  [ "void$mif" != "void" ] &&
-	  {
-		uci add_list batman-adv.bat0.interfaces="$mif"
-	  }
     ;;
 
     "radio")
@@ -357,16 +352,11 @@ net.ipv6.conf.all.autoconf=0
 		uci set network.nmesh$device.ipaddr=192.168.1.21
 		uci set network.nmesh$device.netmask=255.255.255.0
 
-		mif="wlan$devindex"
+		uci add_list batman-adv.bat0.interfaces="nmesh$device"
       }
 
       [ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
-      {
-		[ $ath9k_mesh -eq 1 ]
-		{
-		  mif="wlan$(($devindex*2+1))"
-		}
-
+	  {
 		uci set wireless.ap$device=wifi-iface
 		uci set wireless.ap$device.device=$device
 		uci set wireless.ap$device.network=clients
@@ -375,11 +365,6 @@ net.ipv6.conf.all.autoconf=0
 		uci set wireless.ap$device.ssid=$apSSID
 		uci set wireless.ap$device.encryption=none
       }
-
-      [ "void$mif" != "void" ] &&
-	  {
-		uci add_list batman-adv.bat0.interfaces="$mif"
-	  }
     ;;
     esac
   done
