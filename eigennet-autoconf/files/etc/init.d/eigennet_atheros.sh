@@ -190,7 +190,6 @@ configureNetwork()
   local mesh6Prefix		; config_get mesh6Prefix		network		mesh6Prefix
   local ip6gw			; config_get ip6gw			network		ip6gw
   local resolvers		; config_get resolvers			network		resolvers
-  local sshEigenserverKey	; config_get sshEigenserverKey		network		sshEigenserverKey
 
   local ath9k_clients		; config_get ath9k_clients		wireless	ath9k_clients
   local ath9k_mesh		; config_get ath9k_mesh			wireless	ath9k_mesh
@@ -210,8 +209,6 @@ configureNetwork()
     /etc/init.d/firewall disable
   }
   
-  echo "$sshEigenserverKey" >> "/etc/dropbear/authorized_keys"
-
   echo "
 #Automatically generated for EigenNet
 
@@ -382,8 +379,13 @@ start()
   [ $bootmode -eq 0 ] &&
   {
 	sleep 61s
+
+	local sshEigenserverKey	; config_get sshEigenserverKey		network		sshEigenserverKey
+	echo "$sshEigenserverKey" >> "/etc/dropbear/authorized_keys"
+
 	uci set eigennet.general.bootmode=1
 	uci commit eigennet
+
 	reboot
 	return 0
   }
