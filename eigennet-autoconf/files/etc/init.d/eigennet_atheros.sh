@@ -244,7 +244,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
     uci set network.clients=interface
     uci set network.clients.proto=static
     uci set network.clients.type=bridge
-    uci set network.clients.mtu=1476
+    uci set network.clients.mtu=1350
     uci add_list network.clients.ifname="bat0"
     #Assuming that on all devices we have eth0
     uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
@@ -404,6 +404,17 @@ start()
 	sysctl -w net.ipv4.ip_forward=1
 	sysctl -w net.ipv6.conf.all.forwarding=1
 	sysctl -w net.ipv6.conf.all.autoconf=0
+
+	if [ $accept_clients -eq 1 ]; then
+	{
+	  ip link set dev br-clients up
+	  ip link set mtu 1350 dev br-clients
+	}
+	else
+	{
+	  ip link set dev bat0 up
+	  ip link set mtu 1350 dev bat0
+	}
 
 	return 0
   }
