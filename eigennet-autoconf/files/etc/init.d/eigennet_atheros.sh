@@ -239,6 +239,8 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
   uci set network.loopback.netmask="255.0.0.0"
   uci set network.loopback.ip6addr="0::1/128"
 
+  uci set batman-adv.bat0.fragmentation=0
+
   [ $accept_clients -eq 1 ] &&
   {
     uci set network.clients=interface
@@ -413,7 +415,7 @@ start()
 	else
 	{
 	  ip link set dev bat0 up
-	  ip link set mtu 1350 dev bat0
+	  ip link set mtu 1373 dev bat0
 	}
 
 	return 0
