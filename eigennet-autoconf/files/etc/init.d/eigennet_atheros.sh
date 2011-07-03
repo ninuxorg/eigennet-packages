@@ -185,8 +185,6 @@ configureNetwork()
 {
   local accept_clients		; config_get accept_clients		network		accept_clients
   local firewallEnabled		; config_get firewallEnabled		network		firewallEnabled
-  local ipv6prefix		; config_get ipv4prefix			network		client4Prefix
-  local ipv4prefix		; config_get ipv6prefix			network		client6Prefix
   local mesh6Prefix		; config_get mesh6Prefix		network		mesh6Prefix
   local ip6gw			; config_get ip6gw			network		ip6gw
   local resolvers		; config_get resolvers			network		resolvers
@@ -224,9 +222,10 @@ net.ipv6.conf.all.autoconf=0
   echo "#Automatically generated for EigenNet
 config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
+  rm -rf /etc/resolv.conf
   for dns in $resolvers
   do
-    echo nameserver $dns >> /etc/resolv.conf.auto
+    echo nameserver $dns >> /etc/resolv.conf
   done
 
   config_load network
