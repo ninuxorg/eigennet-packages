@@ -227,6 +227,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
   do
     echo nameserver $dns >> /etc/resolv.conf
   done
+  /etc/init.d/dnsmasq disable
 
   config_load network
   config_foreach del_interface interface
