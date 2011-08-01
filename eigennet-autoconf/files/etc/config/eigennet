@@ -17,9 +17,10 @@ config section wireless
 	option	'madwifi_mesh'		'1'
 	option	'mesh2channel'		'8'
 	option	'mesh5channel'		'60'
-	option	'meshSSID'		'www.eigenlab.org-www.ninux.org'
+	option	'meshSSID'		'www.ninux.org'
 	option	'meshBSSID'		'02:aa:bb:cc:dd:ee'
-	option	'apSSID'		'EigenNet'
+	option	'apSSID'		'NebrodiNet'
+	option  'apKEY'                 'nebrodi'
 
 config section wired
 	option	'eth_mesh'		'1'
