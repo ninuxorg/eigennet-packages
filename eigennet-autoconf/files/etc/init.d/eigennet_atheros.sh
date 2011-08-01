@@ -198,6 +198,7 @@ configureNetwork()
   local meshSSID		; config_get meshSSID			wireless	meshSSID
   local meshBSSID		; config_get meshBSSID			wireless	meshBSSID
   local apSSID			; config_get apSSID			wireless	apSSID
+  local apKEY			; config_get apKEY			wireless	apKEY
 
   local eth_mesh		; config_get eth_mesh			wired		eth_mesh
   local eth_clients		; config_get eth_clients		wired		eth_clients
@@ -320,7 +321,14 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 		uci set wireless.ap$device.sw_merge=1
 		uci set wireless.ap$device.mode=ap
 		uci set wireless.ap$device.ssid=$apSSID
-		uci set wireless.ap$device.encryption=none
+		[ $apKEY"null" == "null" ] &&
+		{
+		  uci set wireless.ap$device.encryption=none
+		} ||
+		{
+		  uci set wireless.ap$device.encryption=psk
+		  uci set wireless.ap$device.key=$apKEY
+		}
       }
     ;;
 
@@ -362,7 +370,14 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 		uci set wireless.ap$device.sw_merge=1
 		uci set wireless.ap$device.mode=ap
 		uci set wireless.ap$device.ssid=$apSSID
-		uci set wireless.ap$device.encryption=none
+		[ $apKEY"null" == "null" ] &&
+		{
+		  uci set wireless.ap$device.encryption=none
+		} ||
+		{
+		  uci set wireless.ap$device.encryption=psk
+		  uci set wireless.ap$device.key=$apKEY
+		}
       }
     ;;
     esac
@@ -415,7 +430,7 @@ start()
 	else
 	{
 	  ip link set dev bat0 up
-	  ip link set mtu 1373 dev bat0
+	  ip link set mtu 1350 dev bat0
 	}
 
 	return 0

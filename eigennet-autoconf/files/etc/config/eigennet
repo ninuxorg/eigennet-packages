@@ -20,6 +20,7 @@ config section wireless
 	option	'meshSSID'		'www.eigenlab.org-www.ninux.org'
 	option	'meshBSSID'		'02:aa:bb:cc:dd:ee'
 	option	'apSSID'		'EigenNet'
+	option  'apKEY'                 ''
 
 config section wired
 	option	'eth_mesh'		'1'
