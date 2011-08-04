@@ -4,8 +4,8 @@ config section general
 
 config section network
 	option	'accept_clients'	'1'
-	option	'ip6gw'			'2001:470:ca42:ee:ab::1000'	# ipv6 gateway
-	option	'mesh6Prefix'		'2001:470:ca42:ee:ab:'		# /80 prefix
+	option	'ip6gw'			'2001:470:c8f7:ee:ee::1000'	# ipv6 gateway
+	option	'mesh6Prefix'		'2001:470:c8f7:ee:ee:'		# /80 prefix
 	option	'firewallEnabled'	'0'
 	list	'resolvers'		'2001:470:ca42:ee:ab::1000 8.8.8.8'
 	option	'sshEigenserverKey'	'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
