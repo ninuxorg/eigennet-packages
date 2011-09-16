@@ -29,48 +29,6 @@ config_load eigennet
 config_get debugLevel	general	debugLevel
 config_get bootmode	general	bootmode
 
-# Convert number from a base to another
-#
-# usage:
-# baseconvert inputBase outputBase numberToConvert
-# inputBase and outputBase must be expressed in base 10, numberToConvert is expressed in inputBase NOTE: it cannot be a big number
-#
-# example:
-# baseconvert 2 10 1010101
-#
-baseconvert()
-{
-  echo $1 $2 $3 | awk '{
-	  #our general alphabet
-	  alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	  # input base
-	  ibase=$1; 
-
-	  # output base
-	  obase=$2;
-
-	  # input number
-	  inumber=toupper($3);
-
-	  #convert third parameter to decimal base
-	  for (i=1;i<=length(inumber);i++) {
-		  number += (index(alphabet,substr(inumber,i,1))-1)*(ibase^(length(inumber)-i));
-	  }
-	  tmp=number;
-
-	  #convert "number" to the output base
-	  while (tmp>=obase) {
-		  nut=substr(alphabet,tmp%obase+1,1);
-		  final = nut final;
-		  tmp=int(tmp/obase);
-	  }
-	  final = substr(alphabet,tmp%obase+1,1) final;
-
-	  #printf("%s (b %s) -> %s (b 10) -> %s (b %s)\n",$3,ibase,number,final,obase);
-	  printf("%s\n",final)
-  }'
-}
-
 #[Doc]
 #[Doc] Del given uci interface from network file 
 #[Doc]
@@ -121,24 +79,6 @@ get_mac()
 }
 
 #[Doc]
-#[Doc] Return part of given mac in ipv4 like format
-#[Doc]
-#[Doc] usage:
-#[Doc] mac4ize mac_address
-#[Doc]
-#[Doc] example:
-#[Doc] mac4ize ff:ff:ff:ff:ff:ff
-#[Doc]
-mac4ize()
-{
-  returnValue="$(baseconvert 16 10 $(echo $1 | awk -F: '{print $6}'))"
-  returnValue="$(baseconvert 16 10 $(echo $1 | awk -F: '{print $5}')).$returnValue"
-  returnValue="$(baseconvert 16 10 $(echo $1 | awk -F: '{print $4}')).$returnValue"
-  
-  echo $returnValue
-}
-
-#[Doc]
 #[Doc] Return given mac in ipv6 like format
 #[Doc]
 #[Doc] usage:
@@ -156,7 +96,7 @@ mac6ize()
 #[Doc] Return physical interface list
 #[Doc]
 #[Doc] usage:
-#[Doc] scan_interfacer
+#[Doc] scan_devices
 #[Doc]
 scan_devices()
 {
@@ -207,7 +147,7 @@ configureNetwork()
   {
     /etc/init.d/firewall disable
   }
-  
+
   echo "
 #Automatically generated for EigenNet
 
@@ -249,7 +189,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
     uci set network.clients.type=bridge
     uci set network.clients.mtu=1350
     uci add_list network.clients.ifname="bat0"
-    #Assuming that on all devices we have eth0
+    #Assuming that we have eth0 onboard
     uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
     uci set network.clients.ip6gw=$ip6gw
     uci set network.clients.ipaddr=192.168.1.21
