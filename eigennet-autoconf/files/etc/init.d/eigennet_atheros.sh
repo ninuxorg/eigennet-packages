@@ -103,7 +103,7 @@ mac6ize()
 #[Doc] Return physical interface list
 #[Doc]
 #[Doc] usage:
-#[Doc] scan_interfacer
+#[Doc] scan_devices
 #[Doc]
 scan_devices()
 {
@@ -154,7 +154,7 @@ configureNetwork()
   {
     /etc/init.d/firewall disable
   }
-  
+
   echo "
 #Automatically generated for EigenNet
 
@@ -196,7 +196,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
     uci set network.clients.type=bridge
     uci set network.clients.mtu=1350
     uci add_list network.clients.ifname="bat0"
-    #Assuming that on all devices we have eth0
+    #Assuming that we have eth0 onboard
     uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
     uci set network.clients.ip6gw=$ip6gw
     uci set network.clients.ipaddr=192.168.1.21
