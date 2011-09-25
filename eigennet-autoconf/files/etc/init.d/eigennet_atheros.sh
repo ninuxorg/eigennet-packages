@@ -29,46 +29,19 @@ config_load eigennet
 config_get debugLevel	general	debugLevel
 config_get bootmode	general	bootmode
 
-# Convert number from a base to another
-#
-# usage:
-# baseconvert inputBase outputBase numberToConvert
-# inputBase and outputBase must be expressed in base 10, numberToConvert is expressed in inputBase NOTE: it cannot be a big number
-#
-# example:
-# baseconvert 2 10 1010101
-#
-baseconvert()
+#[Doc]
+#[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
+#[Doc]
+#[Doc] usage: eigenDebug mydebuglevel mystring 
+#[Doc]
+#[Doc] example: eigenDebug 2 "setting autorized keys"
+#[Doc]
+eigenDebug()
 {
-  echo $1 $2 $3 | awk '{
-	  #our general alphabet
-	  alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	  # input base
-	  ibase=$1; 
-
-	  # output base
-	  obase=$2;
-
-	  # input number
-	  inumber=toupper($3);
-
-	  #convert third parameter to decimal base
-	  for (i=1;i<=length(inumber);i++) {
-		  number += (index(alphabet,substr(inumber,i,1))-1)*(ibase^(length(inumber)-i));
-	  }
-	  tmp=number;
-
-	  #convert "number" to the output base
-	  while (tmp>=obase) {
-		  nut=substr(alphabet,tmp%obase+1,1);
-		  final = nut final;
-		  tmp=int(tmp/obase);
-	  }
-	  final = substr(alphabet,tmp%obase+1,1) final;
-
-	  #printf("%s (b %s) -> %s (b 10) -> %s (b %s)\n",$3,ibase,number,final,obase);
-	  printf("%s\n",final)
-  }'
+  [ $1 -ge $debugLevel ] &&
+  {
+    echo "Debug: $@" >> /tmp/eigenlog
+  }
 }
 
 #[Doc]
@@ -83,14 +56,6 @@ baseconvert()
 del_interface()
 {
   uci del network.$1
-}
-
-eigenDebug()
-{
-  [ $1 -ge $debugLevel ] &&
-  {
-    echo "Debug: $@" >> /tmp/eigenlog
-  }
 }
 
 #[Doc]
@@ -118,24 +83,6 @@ get_mac()
       fi
 
       echo $mac | tr '[a-z]' ['A-Z']
-}
-
-#[Doc]
-#[Doc] Return part of given mac in ipv4 like format
-#[Doc]
-#[Doc] usage:
-#[Doc] mac4ize mac_address
-#[Doc]
-#[Doc] example:
-#[Doc] mac4ize ff:ff:ff:ff:ff:ff
-#[Doc]
-mac4ize()
-{
-  returnValue="$(baseconvert 16 10 $(echo $1 | awk -F: '{print $6}'))"
-  returnValue="$(baseconvert 16 10 $(echo $1 | awk -F: '{print $5}')).$returnValue"
-  returnValue="$(baseconvert 16 10 $(echo $1 | awk -F: '{print $4}')).$returnValue"
-  
-  echo $returnValue
 }
 
 #[Doc]
@@ -397,9 +344,6 @@ start()
   {
 	sleep 61s
 
-	local sshEigenserverKey	; config_get sshEigenserverKey		network		sshEigenserverKey
-	echo "$sshEigenserverKey" >> "/etc/dropbear/authorized_keys"
-
 	uci set eigennet.general.bootmode=1
 	uci commit eigennet
 
@@ -410,6 +354,10 @@ start()
   [ $bootmode -eq 1 ] &&
   {
 	sleep 10s
+
+	local sshAuthorizedKeys	; config_get sshAuthorizedKeys		network		sshAuthorizedKeys
+	echo "$sshAuthorizedKeys" > "/etc/dropbear/authorized_keys" 
+
 	configureNetwork
 
 	sleep 2s
