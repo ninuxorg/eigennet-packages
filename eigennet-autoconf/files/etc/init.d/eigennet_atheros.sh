@@ -373,13 +373,14 @@ start()
 	if [ $accept_clients -eq 1 ]; then
 	{
 	  ip link set dev br-clients up
-	  ip link set mtu 1350 dev br-clients
+	  ip link set mtu 1350 dev bat0
 	}
 	else
 	{
 	  ip link set dev bat0 up
 	  ip link set mtu 1350 dev bat0
 	}
+	fi
 
 	return 0
   }
