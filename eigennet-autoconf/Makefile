@@ -18,7 +18,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet-autoconf
-PKG_VERSION:=0.4
+PKG_VERSION:=0.4.1
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -30,7 +30,7 @@ define Package/$(PKG_NAME)
   SECTION:=admin
   CATEGORY:=Administration
   MAINTAINER:=Gioacchino Mazzurco <gmazzurco89@gmail.com>
-  DEPENDS:=+ip +kmod-batman-adv +kmod-ipv6
+  DEPENDS:=+ip +kmod-batman-adv +kmod-ipv6 +mini-snmpd
   TITLE:=EigenNet Auto Config Package
 endef
 

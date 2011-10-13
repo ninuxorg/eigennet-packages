@@ -170,6 +170,13 @@ net.ipv6.conf.all.autoconf=0
   echo "#Automatically generated for EigenNet
 config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
+  echo "#Automatically generated for EigenNet
+config 'mini_snmpd'
+  option enabled	'1'
+  option ipv6		'1'
+  option community	'public'
+" > $CONF_DIR/mini_snmpd
+
   rm -rf /etc/resolv.conf
   for dns in $resolvers
   do
