@@ -194,7 +194,6 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
     uci set network.clients=interface
     uci set network.clients.proto=static
     uci set network.clients.type=bridge
-    uci set network.clients.mtu=1350
     uci add_list network.clients.ifname="bat0"
     #Assuming that we have eth0 onboard
     uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
