@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigen-mini-snmpd
 PKG_VERSION:=1.2b
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=mini_snmpd-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://members.aon.at/linuxfreak/linux/
 PKG_MD5SUM:=9e432c50ba8216d7fab0983b11b7112a
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)/$(PKG_NAME)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)/mini_snmpd
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
