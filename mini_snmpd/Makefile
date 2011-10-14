@@ -47,7 +47,7 @@ MAKE_FLAGS+= \
 	INSTALL_ROOT="$(PKG_INSTALL_DIR)"
 
 define Build/Compile
-	$(call Build/Compile/Default,$(PKG_NAME))
+	$(call Build/Compile/Default,mini_snmpd)
 endef
 
 define Package/$(PKG_NAME)/install
