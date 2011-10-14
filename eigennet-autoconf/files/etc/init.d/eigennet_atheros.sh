@@ -130,25 +130,25 @@ scan_devices()
 
 configureNetwork()
 {
-  local accept_clients		; config_get accept_clients		network		accept_clients
-  local firewallEnabled		; config_get firewallEnabled		network		firewallEnabled
-  local mesh6Prefix		; config_get mesh6Prefix		network		mesh6Prefix
-  local ip6gw			; config_get ip6gw			network		ip6gw
-  local resolvers		; config_get resolvers			network		resolvers
+  local accept_clients		; config_get accept_clients		network		"accept_clients"
+  local firewallEnabled		; config_get firewallEnabled		network		"firewallEnabled"
+  local mesh6Prefix		; config_get mesh6Prefix		network		"mesh6Prefix"
+  local ip6gw			; config_get ip6gw			network		"ip6gw"
+  local resolvers		; config_get resolvers			network		"resolvers"
 
-  local ath9k_clients		; config_get ath9k_clients		wireless	ath9k_clients
-  local ath9k_mesh		; config_get ath9k_mesh			wireless	ath9k_mesh
-  local madwifi_clients		; config_get madwifi_clients		wireless	madwifi_clients
-  local madwifi_mesh		; config_get madwifi_mesh		wireless	madwifi_mesh
-  local mesh2channel		; config_get mesh2channel		wireless	mesh2channel
-  local mesh5channel		; config_get mesh5channel		wireless	mesh5channel
-  local meshSSID		; config_get meshSSID			wireless	meshSSID
-  local meshBSSID		; config_get meshBSSID			wireless	meshBSSID
-  local apSSID			; config_get apSSID			wireless	apSSID
-  local apKEY			; config_get apKEY			wireless	apKEY
+  local ath9k_clients		; config_get ath9k_clients		wireless	"ath9k_clients"
+  local ath9k_mesh		; config_get ath9k_mesh			wireless	"ath9k_mesh"
+  local madwifi_clients		; config_get madwifi_clients		wireless	"madwifi_clients"
+  local madwifi_mesh		; config_get madwifi_mesh		wireless	"madwifi_mesh"
+  local mesh2channel		; config_get mesh2channel		wireless	"mesh2channel"
+  local mesh5channel		; config_get mesh5channel		wireless	"mesh5channel"
+  local meshSSID		; config_get meshSSID			wireless	"meshSSID"
+  local meshBSSID		; config_get meshBSSID			wireless	"meshBSSID"
+  local apSSID			; config_get apSSID			wireless	"apSSID"
+  local apKEY			; config_get apKEY			wireless	"apKEY"
 
-  local eth_mesh		; config_get eth_mesh			wired		eth_mesh
-  local eth_clients		; config_get eth_clients		wired		eth_clients
+  local eth_mesh		; config_get eth_mesh			wired		"eth_mesh"
+  local eth_clients		; config_get eth_clients		wired		"eth_clients"
   
   [ $firewallEnabled -eq 0 ] &&
   {
@@ -169,13 +169,6 @@ net.ipv6.conf.all.autoconf=0
 
   echo "#Automatically generated for EigenNet
 config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
-
-  echo "#Automatically generated for EigenNet
-config 'mini_snmpd'
-  option enabled	'1'
-  option ipv6		'1'
-  option community	'public'
-" > $CONF_DIR/mini_snmpd
 
   rm -rf /etc/resolv.conf
   for dns in $resolvers
@@ -216,25 +209,24 @@ config 'mini_snmpd'
 
     case $devtype in
     "eth")
-      if [ $accept_clients -eq 1 ] && [ $eth_clients -eq 1 ]; then
-      {
-		uci add_list network.clients.ifname=$device
-      } &&
-	  [ $eth_mesh -eq 1 ] &&
+      if [ $accept_clients -eq 1 ] && [ $eth_clients -eq 1 ]
+	then
 	  {
-		uci add_list batman-adv.bat0.interfaces="clients"
+	    uci add_list network.clients.ifname=$device
+	  } && [ $eth_mesh -eq 1 ] &&
+	  {
+	    uci add_list batman-adv.bat0.interfaces="clients"
 	  }
-	  else
+	else
 	  {
-		uci set network.$device=interface
-		uci set network.$device.proto=static
-		uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-		uci set network.$device.ipaddr=192.168.1.21
-		uci set network.$device.netmask=255.255.255.0
-	  } &&
-	  [ $eth_mesh -eq 1 ] &&
+	    uci set network.$device=interface
+	    uci set network.$device.proto=static
+	    uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	    uci set network.$device.ipaddr=192.168.1.21
+	    uci set network.$device.netmask=255.255.255.0
+	  } && [ $eth_mesh -eq 1 ] &&
 	  {
-		uci add_list batman-adv.bat0.interfaces="$device"
+	    uci add_list batman-adv.bat0.interfaces="$device"
 	  }
       fi
     ;;
@@ -247,41 +239,41 @@ config 'mini_snmpd'
 
       [ $madwifi_mesh -eq 1 ] &&
       {
-		uci set wireless.mesh$device=wifi-iface
-		uci set wireless.mesh$device.device=$device
-		uci set wireless.mesh$device.network=nmesh$device
-		uci set wireless.mesh$device.sw_merge=1
-		uci set wireless.mesh$device.mode=adhoc
-		uci set wireless.mesh$device.bssid=$meshBSSID
-		uci set wireless.mesh$device.ssid=$meshSSID
-		uci set wireless.mesh$device.encryption=none
+	uci set wireless.mesh$device=wifi-iface
+	uci set wireless.mesh$device.device=$device
+	uci set wireless.mesh$device.network=nmesh$device
+	uci set wireless.mesh$device.sw_merge=1
+	uci set wireless.mesh$device.mode=adhoc
+	uci set wireless.mesh$device.bssid=$meshBSSID
+	uci set wireless.mesh$device.ssid=$meshSSID
+	uci set wireless.mesh$device.encryption=none
 
-		uci set network.nmesh$device=interface
-		uci set network.nmesh$device.proto=static
-		uci set network.nmesh$device.mtu=1524
-		uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-		uci set network.nmesh$device.ipaddr=192.168.1.21
-		uci set network.nmesh$device.netmask=255.255.255.0
+	uci set network.nmesh$device=interface
+	uci set network.nmesh$device.proto=static
+	uci set network.nmesh$device.mtu=1524
+	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.nmesh$device.ipaddr=192.168.1.21
+	uci set network.nmesh$device.netmask=255.255.255.0
 
-		uci add_list batman-adv.bat0.interfaces="nmesh$device"
+	uci add_list batman-adv.bat0.interfaces="nmesh$device"
       }
 
       [ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
       {
-		uci set wireless.ap$device=wifi-iface
-		uci set wireless.ap$device.device=$device
-		uci set wireless.ap$device.network=clients
-		uci set wireless.ap$device.sw_merge=1
-		uci set wireless.ap$device.mode=ap
-		uci set wireless.ap$device.ssid=$apSSID
-		[ $apKEY"null" == "null" ] &&
-		{
-		  uci set wireless.ap$device.encryption=none
-		} ||
-		{
-		  uci set wireless.ap$device.encryption=psk
-		  uci set wireless.ap$device.key=$apKEY
-		}
+	uci set wireless.ap$device=wifi-iface
+	uci set wireless.ap$device.device=$device
+	uci set wireless.ap$device.network=clients
+	uci set wireless.ap$device.sw_merge=1
+	uci set wireless.ap$device.mode=ap
+	uci set wireless.ap$device.ssid=$apSSID
+	[ $apKEY"null" == "null" ] &&
+	{
+	  uci set wireless.ap$device.encryption=none
+	} ||
+	{
+	  uci set wireless.ap$device.encryption=psk
+	  uci set wireless.ap$device.key=$apKEY
+	}
       }
     ;;
 
@@ -292,55 +284,97 @@ config 'mini_snmpd'
       uci set wireless.$device.channel=$mesh2channel
       uci set wireless.$device.disabled=0
 
-      mif=""
-
       [ $ath9k_mesh -eq 1 ] &&
       {
-		uci set wireless.mesh$device=wifi-iface
-		uci set wireless.mesh$device.device=$device
-		uci set wireless.mesh$device.network=nmesh$device
-		uci set wireless.mesh$device.sw_merge=1
-		uci set wireless.mesh$device.mode=adhoc
-		uci set wireless.mesh$device.bssid=$meshBSSID
-		uci set wireless.mesh$device.ssid=$meshSSID
-		uci set wireless.mesh$device.encryption=none
+	uci set wireless.mesh$device=wifi-iface
+	uci set wireless.mesh$device.device=$device
+	uci set wireless.mesh$device.network=nmesh$device
+	uci set wireless.mesh$device.sw_merge=1
+	uci set wireless.mesh$device.mode=adhoc
+	uci set wireless.mesh$device.bssid=$meshBSSID
+	uci set wireless.mesh$device.ssid=$meshSSID
+	uci set wireless.mesh$device.encryption=none
 
-		uci set network.nmesh$device=interface
-		uci set network.nmesh$device.proto=static
-		uci set network.nmesh$device.mtu=1524
-		uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-		uci set network.nmesh$device.ipaddr=192.168.1.21
-		uci set network.nmesh$device.netmask=255.255.255.0
+	uci set network.nmesh$device=interface
+	uci set network.nmesh$device.proto=static
+	uci set network.nmesh$device.mtu=1524
+	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+	uci set network.nmesh$device.ipaddr=192.168.1.21
+	uci set network.nmesh$device.netmask=255.255.255.0
 
-		uci add_list batman-adv.bat0.interfaces="nmesh$device"
+	uci add_list batman-adv.bat0.interfaces="nmesh$device"
       }
 
       [ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
-	  {
-		uci set wireless.ap$device=wifi-iface
-		uci set wireless.ap$device.device=$device
-		uci set wireless.ap$device.network=clients
-		uci set wireless.ap$device.sw_merge=1
-		uci set wireless.ap$device.mode=ap
-		uci set wireless.ap$device.ssid=$apSSID
-		[ $apKEY"null" == "null" ] &&
-		{
-		  uci set wireless.ap$device.encryption=none
-		} ||
-		{
-		  uci set wireless.ap$device.encryption=psk
-		  uci set wireless.ap$device.key=$apKEY
-		}
+      {
+	uci set wireless.ap$device=wifi-iface
+	uci set wireless.ap$device.device=$device
+	uci set wireless.ap$device.network=clients
+	uci set wireless.ap$device.sw_merge=1
+	uci set wireless.ap$device.mode=ap
+	uci set wireless.ap$device.ssid=$apSSID
+	[ $apKEY"null" == "null" ] &&
+	{
+	  uci set wireless.ap$device.encryption=none
+	} ||
+	{
+	  uci set wireless.ap$device.encryption=psk
+	  uci set wireless.ap$device.key=$apKEY
+	}
       }
     ;;
     esac
   done
-
-  uci set eigennet.general.bootmode=2
-
-  uci commit
 }
 
+configureSNMP()
+{
+  local enabled			; config_get enabled			snmp		"enabled"
+  local community		; config_get community			snmp		"community"
+  local accept_clients		; config_get accept_clients		network		"accept_clients"
+  local ath9k_clients		; config_get ath9k_clients		wireless	"ath9k_clients"
+  local ath9k_mesh		; config_get ath9k_mesh			wireless	"ath9k_mesh"
+  local madwifi_clients		; config_get madwifi_clients		wireless	"madwifi_clients"
+  local madwifi_mesh		; config_get madwifi_mesh		wireless	"madwifi_mesh"
+  local eth_mesh		; config_get eth_mesh			wired		"eth_mesh"
+  local eth_clients		; config_get eth_clients		wired		"eth_clients"
+
+  echo "#Automatically generated for eigenNet
+config 'mini_snmpd' 'snmp'
+    option enabled	0
+" > $CONF_DIR/mini_snmpd
+
+  [ $enabled -eq 1 ] &&
+  {
+    uci set mini_snmpd.snmp.enabled=1
+    uci set mini_snmpd.snmp.community="$community"
+    uci set mini_snmpd.snmp.ipv6=1
+
+    if [ $accept_clients -eq 1 ] 
+      then
+	uci set mini_snmpd.snmp.interfaces="clients"
+      else
+	uci set mini_snmpd.snmp.interfaces="bat0"
+    fi
+  
+    for device in $(scan_devices)
+    do
+      devtype=$(echo $device | sed -e 's/[0-9]*$//')
+      devindex=$(echo $device | sed -e 's/.*\([0-9]\)/\1/')
+
+      case $devtype in
+	"eth")
+	  [ $eth_mesh -eq 1 ] && [ $eth_clients -eq 0 ] && uci add_list mini_snmpd.snmp.interfaces="$device"
+	;;
+	"wifi")
+	  [ $madwifi_mesh -eq 1 ] && uci add_list mini_snmpd.snmp.interfaces="nmesh$device"
+	;;
+	"radio")
+	  [ $ath9k_mesh -eq 1 ] && uci add_list mini_snmpd.snmp.interfaces="nmesh$device"
+	;;
+      esac
+    done
+}
 
 start()
 {
@@ -348,47 +382,56 @@ start()
 
   [ $bootmode -eq 0 ] &&
   {
-	sleep 61s
+    sleep 61s
 
-	uci set eigennet.general.bootmode=1
-	uci commit eigennet
+    uci set eigennet.general.bootmode=1
+    uci commit eigennet
 
-	reboot
-	return 0
+    reboot
+
+    return 0
   }
 
   [ $bootmode -eq 1 ] &&
   {
-	sleep 10s
+    sleep 10s
 
-	local sshAuthorizedKeys	; config_get sshAuthorizedKeys		network		sshAuthorizedKeys
-	echo "$sshAuthorizedKeys" > "/etc/dropbear/authorized_keys" 
+    local sshAuthorizedKeys	; config_get sshAuthorizedKeys		network		sshAuthorizedKeys
+    echo "$sshAuthorizedKeys" > "/etc/dropbear/authorized_keys" 
 
-	configureNetwork
+    configureNetwork
+    configureSNMP
 
-	sleep 2s
-	reboot
+    uci set eigennet.general.bootmode=2
+
+    uci commit
+
+    sleep 2s
+    reboot
+
+    return 0
   }
 
   [ $bootmode -ge 2 ] &&
   {
-	sysctl -w net.ipv4.ip_forward=1
-	sysctl -w net.ipv6.conf.all.forwarding=1
-	sysctl -w net.ipv6.conf.all.autoconf=0
+    sysctl -w net.ipv4.ip_forward=1
+    sysctl -w net.ipv6.conf.all.forwarding=1
+    sysctl -w net.ipv6.conf.all.autoconf=0
 
-	if [ $accept_clients -eq 1 ]; then
+    if [ $accept_clients -eq 1 ]
+      then
 	{
 	  ip link set dev br-clients up
 	  ip link set mtu 1350 dev bat0
 	}
-	else
+      else
 	{
 	  ip link set dev bat0 up
 	  ip link set mtu 1350 dev bat0
 	}
-	fi
+    fi
 
-	return 0
+    return 0
   }
 }
 

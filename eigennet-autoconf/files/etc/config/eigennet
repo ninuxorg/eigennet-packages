@@ -2,6 +2,10 @@ config section general
 	option	'debugLevel'		'0'
 	option	'bootmode'		'0'		# 0 First boot, 1 Run Autoconfig, 2 Auto Configured, 3 or greater added custom configuration.
 
+config section snmp
+	option	'enabled'		'1'
+	option	'community'		'public'
+
 config section network
 	option	'accept_clients'	'1'
 	option	'ip6gw'			'2001:470:c8f7:ee:ee::1000'	# ipv6 gateway
