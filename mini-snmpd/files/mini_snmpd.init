@@ -39,7 +39,7 @@ mini_snmpd_config()
 	done
 
 	interfaces=$(echo $interfaces | sed 's/^[,\t]*//;s/[,\t]*$//')
-	append_string "$cfg" interfaces "-i"
+	append args "-i $interfaces"
 
 	config_get_bool ipv6 "$cfg" "ipv6" '0'
 	[ "$ipv6" -gt 0 ] && append args "-6"

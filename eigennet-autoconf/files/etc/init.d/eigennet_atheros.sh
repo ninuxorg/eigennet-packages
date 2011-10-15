@@ -26,8 +26,8 @@ CONF_DIR="/etc/config/"
 
 config_load eigennet
 
-config_get debugLevel	general	debugLevel
-config_get bootmode	general	bootmode
+config_get debugLevel	general		"debugLevel"
+config_get bootmode	general		"bootmode"
 
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
@@ -374,6 +374,7 @@ config 'mini_snmpd' 'snmp'
 	;;
       esac
     done
+  }
 }
 
 start()
