@@ -423,12 +423,12 @@ start()
       then
 	{
 	  ip link set dev br-clients up
-	  ip link set mtu 1350 dev bat0
+	  ip link set mtu 1378 dev bat0
 	}
       else
 	{
 	  ip link set dev bat0 up
-	  ip link set mtu 1350 dev bat0
+	  ip link set mtu 1378 dev bat0
 	}
     fi
 
