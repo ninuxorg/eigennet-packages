@@ -43,6 +43,14 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Build/Compile
+	@mkdir ./files/etc/eigennet &> /dev/null || true
+	@echo "EigenNet Info:"             >  ./files/etc/eigennet/version.tmp
+	@git branch                        >> ./files/etc/eigennet/version.tmp
+	@git log -n 1                      >> ./files/etc/eigennet/version.tmp
+	@echo                              >> ./files/etc/eigennet/version.tmp
+	@echo "On top of OpenWRT:"         >> ./files/etc/eigennet/version.tmp
+	@echo "`cd $(TOPDIR); svn info`"   >> ./files/etc/eigennet/version.tmp
+	@mv ./files/etc/eigennet/version.tmp ./files/etc/eigennet/version
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
