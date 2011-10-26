@@ -18,8 +18,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet-autoconf
-PKG_VERSION:=0.4.1
-PKG_RELEASE:=1
+PKG_VERSION:=0.4.2
+PKG_RELEASE:=2
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
@@ -43,16 +43,15 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Build/Compile
+	@echo "Version Info:"			>  ./version.tmp
+	@echo ""				>> ./version.tmp
+	@echo "OpenWrt"				>> ./version.tmp
+	@echo "`cd $(TOPDIR); svn info`"	>> ./version.tmp
+	@echo ""				>> ./version.tmp
+	@echo "Feeds"				>> ./version.tmp
+	@grep -v '^#' $(TOPDIR)/feeds.conf | grep src | while read line; do echo "" ; srcsvc="$(echo $line | awk '{print $1}' | awk -F- '{print $2}')"; srcdir="$(echo $line | awk '{print $2}')"; case "$srcsvc" in svn) echo "`cd $(TOPDIR)/feeds/$srcdir; svn info`" ; ;; git) echo "`cd $(TOPDIR)/feeds/$srcdir; git branch`" ; echo "`cd $(TOPDIR)/feeds/$srcdir; git log -n 1`" ; ;; esac; done >> ./version.tmp
 	@mkdir ./files/etc/eigennet &> /dev/null || true
-	@echo "EigenNet Info:"             >  ./files/etc/eigennet/version.tmp
-	@git branch                        >> ./files/etc/eigennet/version.tmp
-	@git log -n 1                      >> ./files/etc/eigennet/version.tmp
-	@echo                              >> ./files/etc/eigennet/version.tmp
-	@echo "On top of OpenWRT:"         >> ./files/etc/eigennet/version.tmp
-	@echo "`cd $(TOPDIR); svn info`"   >> ./files/etc/eigennet/version.tmp
-	@mv ./files/etc/eigennet/version.tmp ./files/etc/eigennet/version
+	@mv ./version.tmp ./files/etc/eigennet/version
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
-
-
