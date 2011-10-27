@@ -16,10 +16,12 @@ do
   srcdir="$(echo $line | awk '{print $2}')"
   case "$srcsvc" in
     svn)
+	echo $srcdir
 	echo "`cd $TOPDIR/feeds/$srcdir; svn info`"
     ;;
     git)
-	echo "`cd $TOPDIR/feeds/$srcdir; git branch`"
+	echo $srcdir
+	echo "URL: $(echo $line | awk '{print $3}')"
 	echo "`cd $TOPDIR/feeds/$srcdir; git log -n 1`"
     ;;
   esac
