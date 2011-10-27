@@ -47,7 +47,7 @@ define Build/Compile
 	@mkdir ./files/etc/init.d || true
 	@mv ./eigennet.tmp ./files/etc/init.d/eigennet
 	@chmod +x ./files/etc/init.d/eigennet
-	@./getversion.sh > ./version.tmp
+	@./getversion.sh $(TOPDIR)> ./version.tmp
 	@mkdir ./files/etc/eigennet || true
 	@mv ./version.tmp ./files/etc/eigennet/version
 endef
