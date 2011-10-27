@@ -43,14 +43,12 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Build/Compile
-	@echo "Version Info:"			>  ./version.tmp
-	@echo ""				>> ./version.tmp
-	@echo "OpenWrt"				>> ./version.tmp
-	@echo "`cd $(TOPDIR); svn info`"	>> ./version.tmp
-	@echo ""				>> ./version.tmp
-	@echo "Feeds"				>> ./version.tmp
-	@grep -v '^#' $(TOPDIR)/feeds.conf | grep src | while read line; do echo "" ; srcsvc="$(echo $line | awk '{print $1}' | awk -F- '{print $2}')"; srcdir="$(echo $line | awk '{print $2}')"; case "$srcsvc" in svn) echo "`cd $(TOPDIR)/feeds/$srcdir; svn info`" ; ;; git) echo "`cd $(TOPDIR)/feeds/$srcdir; git branch`" ; echo "`cd $(TOPDIR)/feeds/$srcdir; git log -n 1`" ; ;; esac; done >> ./version.tmp
-	@mkdir ./files/etc/eigennet &> /dev/null || true
+	@grep -v '^#\[Doc\]' src/eigennet.sh > eigennet.tmp
+	@mkdir ./files/etc/init.d || true
+	@mv ./eigennet.tmp ./files/etc/init.d/eigennet
+	@chmod +x ./files/etc/init.d/eigennet
+	@./getversion.sh > ./version.tmp
+	@mkdir ./files/etc/eigennet || true
 	@mv ./version.tmp ./files/etc/eigennet/version
 endef
 

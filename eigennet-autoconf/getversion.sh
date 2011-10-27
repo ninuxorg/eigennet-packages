@@ -1,0 +1,26 @@
+#!/bin/sh
+
+TOPDIR="$1"
+
+echo "Build Info:"
+echo
+echo "OpenWrt"
+echo "`cd $TOPDIR; svn info`"
+echo
+echo "Feeds"
+
+grep -v '^#' $TOPDIR/feeds.conf | grep src | while read line
+do
+  echo ""
+  srcsvc="$(echo $line | awk '{print $1}' | awk -F- '{print $2}')"
+  srcdir="$(echo $line | awk '{print $2}')"
+  case "$srcsvc" in
+    svn)
+	echo "`cd $TOPDIR/feeds/$srcdir; svn info`"
+    ;;
+    git)
+	echo "`cd $TOPDIR/feeds/$srcdir; git branch`"
+	echo "`cd $TOPDIR/feeds/$srcdir; git log -n 1`"
+    ;;
+  esac
+done
