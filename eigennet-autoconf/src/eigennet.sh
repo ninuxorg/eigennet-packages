@@ -38,10 +38,10 @@ config_get bootmode               general        "bootmode"
 #[Doc]
 eigenDebug()
 {
-  [ $1 -ge $debugLevel ] &&
-  {
-    echo "Debug: $@" >> /tmp/eigenlog
-  }
+	[ $1 -ge $debugLevel ] &&
+	{
+		echo "Debug: $@" >> /tmp/eigenlog
+	}
 }
 
 #[Doc]
@@ -55,7 +55,7 @@ eigenDebug()
 #[Doc]
 del_interface()
 {
-  uci del network.$1
+	uci del network.$1
 }
 
 #[Doc]
@@ -69,20 +69,21 @@ del_interface()
 #[Doc]
 get_mac()
 {
-      ifname=${1}
-      ifbase=$(echo $ifname | sed -e 's/[0-9]*$//')
+	ifname=${1}
+	ifbase=$(echo $ifname | sed -e 's/[0-9]*$//')
 
-      if [ $ifbase == "wifi" ]; then
-          mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}' | cut -c-17 | sed -e 's/-/:/g')
-      elif [ $ifbase == "radio" ]; then
-          mac=$(cat /sys/class/ieee80211/$(echo ${ifname} | sed 's/radio/phy/g')/addresses)
-      elif [ $ifbase == "phy" ]; then
-          mac=$(cat /sys/class/ieee80211/${ifname}/addresses)
-      else
-          mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}')
-      fi
+	if [ $ifbase == "wifi" ]
+		then
+			mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}' | cut -c-17 | sed -e 's/-/:/g')
+		elif [ $ifbase == "radio" ] ; then
+				mac=$(cat /sys/class/ieee80211/$(echo ${ifname} | sed 's/radio/phy/g')/addresses)
+		elif [ $ifbase == "phy" ] ; then
+				mac=$(cat /sys/class/ieee80211/${ifname}/addresses)
+		else
+			mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}')
+	fi
 
-      echo $mac | tr '[a-z]' ['A-Z']
+	echo $mac | tr '[a-z]' ['A-Z']
 }
 
 #[Doc]
@@ -96,7 +97,7 @@ get_mac()
 #[Doc]
 mac6ize()
 {
-    echo $1 | awk -F: '{print $1$2":"$3$4":"$5$6}' | tr '[a-z]' ['A-Z']
+	echo $1 | awk -F: '{print $1$2":"$3$4":"$5$6}' | tr '[a-z]' ['A-Z']
 }
 
 #[Doc]
@@ -107,25 +108,27 @@ mac6ize()
 #[Doc]
 scan_devices()
 {
-      eth=""
-      radio=""
-      wifi=""
+	eth=""
+	radio=""
+	wifi=""
 
-      # Getting wired interfaces
-      eth=$(cat /proc/net/dev | sed -n -e 's/:.*//' -e 's/[ /t]*//' -e '/^eth[0-9]$/p')
+	# Getting wired interfaces
+	eth=$(cat /proc/net/dev | sed -n -e 's/:.*//' -e 's/[ /t]*//' -e '/^eth[0-9]$/p')
 
-      # Getting ath9k interfaces
-      if [ -e /lib/wifi/mac80211.sh ] && [ -e /sys/class/ieee80211/ ]; then
-          radio=$(ls /sys/class/ieee80211/ | sed -n -e '/^phy[0-9]$/p' | sed -e 's/^phy/radio/')
-      fi
+	# Getting ath9k interfaces
+	if [ -e /lib/wifi/mac80211.sh ] && [ -e /sys/class/ieee80211/ ]
+		then
+			radio=$(ls /sys/class/ieee80211/ | sed -n -e '/^phy[0-9]$/p' | sed -e 's/^phy/radio/')
+	fi
 
-      # Getting madwifi interfaces
-      if [ -e /lib/wifi/madwifi.sh ]; then
-          cd /proc/sys/dev/
-          wifi=$(ls | grep wifi)
-      fi
+	# Getting madwifi interfaces
+	if [ -e /lib/wifi/madwifi.sh ]
+		then
+			cd /proc/sys/dev/
+			wifi=$(ls | grep wifi)
+	fi
 
-      echo "${eth} ${radio} ${wifi}" | sed 's/ /\n/g' | sed '/^$/d'
+	echo "${eth} ${radio} ${wifi}" | sed 's/ /\n/g' | sed '/^$/d'
 }
 
 configureNetwork()
@@ -189,18 +192,27 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
 	uci set batman-adv.bat0.fragmentation=0
 
-	[ $accept_clients -eq 1 ] &&
-	{
-		uci set network.clients=interface
-		uci set network.clients.proto=static
-		uci set network.clients.type=bridge
-		uci add_list network.clients.ifname="bat0"
-		#Assuming that we have eth0 onboard
-		uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
-		uci set network.clients.ip6gw=$ip6gw
-		uci set network.clients.ipaddr=192.168.1.21
-		uci set network.clients.netmask=255.255.255.0
-	}
+	if [ $accept_clients -eq 1 ]
+		then
+			uci set network.clients=interface
+			uci set network.clients.proto=static
+			uci set network.clients.type=bridge
+			uci add_list network.clients.ifname="bat0"
+			#Assuming that we have eth0 onboard
+			uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
+			uci set network.clients.ip6gw=$ip6gw
+			uci set network.clients.ipaddr=192.168.1.21
+			uci set network.clients.netmask=255.255.255.0
+		else
+			uci set network.bat0=interface
+			uci set network.bat0.proto=static
+			uci set network.bat0.ifname="bat0"
+			#Assuming that we have eth0 onboard
+			uci set network.bat0.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
+			uci set network.bat0.ip6gw=$ip6gw
+			uci set network.bat0.ipaddr=192.168.1.21
+			uci set network.bat0.netmask=255.255.255.0
+	fi
 
 	for device in $(scan_devices)
 	do
@@ -352,10 +364,10 @@ config 'mini_snmpd' 'snmp'
 		uci set mini_snmpd.snmp.ipv6=1
 
 		if [ $accept_clients -eq 1 ] 
-		then
-			uci set mini_snmpd.snmp.interfaces="clients"
-		else
-			uci set mini_snmpd.snmp.interfaces="bat0"
+			then
+				uci set mini_snmpd.snmp.interfaces="clients"
+			else
+				uci set mini_snmpd.snmp.interfaces="bat0"
 		fi
 
 		for device in $(scan_devices)
