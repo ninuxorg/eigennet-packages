@@ -26,8 +26,8 @@ CONF_DIR="/etc/config/"
 
 config_load eigennet
 
-config_get debugLevel        general        "debugLevel"
-config_get bootmode          general        "bootmode"
+config_get debugLevel             general        "debugLevel"
+config_get bootmode               general        "bootmode"
 
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
@@ -420,17 +420,13 @@ start()
 		sysctl -w net.ipv6.conf.all.forwarding=1
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-		if [ $accept_clients -eq 1 ]
-		then
-		{
-			ip link set dev br-clients up
-			ip link set mtu 1378 dev bat0
-		}
-		else
-		{
-			ip link set dev bat0 up
-			ip link set mtu 1350 dev bat0
-		}
+		if [ $(uci -q get eigennet.network.accept_clients) -eq 1 ]
+			then
+				ip link set dev br-clients up
+				ip link set mtu 1378 dev br-clients
+			else
+				ip link set dev bat0 up
+				ip link set mtu 1350 dev bat0
 		fi
 
 		return 0
