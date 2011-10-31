@@ -210,24 +210,24 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
     case $devtype in
     "eth")
       if [ $accept_clients -eq 1 ] && [ $eth_clients -eq 1 ]
-	then
-	  {
-	    uci add_list network.clients.ifname=$device
-	  } && [ $eth_mesh -eq 1 ] &&
-	  {
-	    uci add_list batman-adv.bat0.interfaces="clients"
-	  }
-	else
-	  {
-	    uci set network.$device=interface
-	    uci set network.$device.proto=static
-	    uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-	    uci set network.$device.ipaddr=192.168.1.21
-	    uci set network.$device.netmask=255.255.255.0
-	  } && [ $eth_mesh -eq 1 ] &&
-	  {
-	    uci add_list batman-adv.bat0.interfaces="$device"
-	  }
+		then
+		{
+			uci add_list network.clients.ifname=$device
+		} && [ $eth_mesh -eq 1 ] &&
+		{
+			uci add_list batman-adv.bat0.interfaces="clients"
+		}
+		else
+		{
+			uci set network.$device=interface
+			uci set network.$device.proto=static
+			uci set network.$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+			uci set network.$device.ipaddr=192.168.1.21
+			uci set network.$device.netmask=255.255.255.0
+		} && [ $eth_mesh -eq 1 ] &&
+		{
+			uci add_list batman-adv.bat0.interfaces="$device"
+		}
       fi
     ;;
 
@@ -239,41 +239,41 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
       [ $madwifi_mesh -eq 1 ] &&
       {
-	uci set wireless.mesh$device=wifi-iface
-	uci set wireless.mesh$device.device=$device
-	uci set wireless.mesh$device.network=nmesh$device
-	uci set wireless.mesh$device.sw_merge=1
-	uci set wireless.mesh$device.mode=adhoc
-	uci set wireless.mesh$device.bssid=$meshBSSID
-	uci set wireless.mesh$device.ssid=$meshSSID
-	uci set wireless.mesh$device.encryption=none
+		uci set wireless.mesh$device=wifi-iface
+		uci set wireless.mesh$device.device=$device
+		uci set wireless.mesh$device.network=nmesh$device
+		uci set wireless.mesh$device.sw_merge=1
+		uci set wireless.mesh$device.mode=adhoc
+		uci set wireless.mesh$device.bssid=$meshBSSID
+		uci set wireless.mesh$device.ssid=$meshSSID
+		uci set wireless.mesh$device.encryption=none
 
-	uci set network.nmesh$device=interface
-	uci set network.nmesh$device.proto=static
-	uci set network.nmesh$device.mtu=1524
-	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-	uci set network.nmesh$device.ipaddr=192.168.1.21
-	uci set network.nmesh$device.netmask=255.255.255.0
+		uci set network.nmesh$device=interface
+		uci set network.nmesh$device.proto=static
+		uci set network.nmesh$device.mtu=1524
+		uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+		uci set network.nmesh$device.ipaddr=192.168.1.21
+		uci set network.nmesh$device.netmask=255.255.255.0
 
-	uci add_list batman-adv.bat0.interfaces="nmesh$device"
+		uci add_list batman-adv.bat0.interfaces="nmesh$device"
       }
 
       [ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
       {
-	uci set wireless.ap$device=wifi-iface
-	uci set wireless.ap$device.device=$device
-	uci set wireless.ap$device.network=clients
-	uci set wireless.ap$device.sw_merge=1
-	uci set wireless.ap$device.mode=ap
-	uci set wireless.ap$device.ssid=$apSSID
-	[ $apKEY"null" == "null" ] &&
-	{
-	  uci set wireless.ap$device.encryption=none
-	} ||
-	{
-	  uci set wireless.ap$device.encryption=psk
-	  uci set wireless.ap$device.key=$apKEY
-	}
+		uci set wireless.ap$device=wifi-iface
+		uci set wireless.ap$device.device=$device
+		uci set wireless.ap$device.network=clients
+		uci set wireless.ap$device.sw_merge=1
+		uci set wireless.ap$device.mode=ap
+		uci set wireless.ap$device.ssid=$apSSID
+		[ $apKEY"null" == "null" ] &&
+		{
+		  uci set wireless.ap$device.encryption=none
+		} ||
+		{
+		  uci set wireless.ap$device.encryption=psk
+		  uci set wireless.ap$device.key=$apKEY
+		}
       }
     ;;
 
@@ -286,41 +286,41 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
       [ $ath9k_mesh -eq 1 ] &&
       {
-	uci set wireless.mesh$device=wifi-iface
-	uci set wireless.mesh$device.device=$device
-	uci set wireless.mesh$device.network=nmesh$device
-	uci set wireless.mesh$device.sw_merge=1
-	uci set wireless.mesh$device.mode=adhoc
-	uci set wireless.mesh$device.bssid=$meshBSSID
-	uci set wireless.mesh$device.ssid=$meshSSID
-	uci set wireless.mesh$device.encryption=none
+		uci set wireless.mesh$device=wifi-iface
+		uci set wireless.mesh$device.device=$device
+		uci set wireless.mesh$device.network=nmesh$device
+		uci set wireless.mesh$device.sw_merge=1
+		uci set wireless.mesh$device.mode=adhoc
+		uci set wireless.mesh$device.bssid=$meshBSSID
+		uci set wireless.mesh$device.ssid=$meshSSID
+		uci set wireless.mesh$device.encryption=none
 
-	uci set network.nmesh$device=interface
-	uci set network.nmesh$device.proto=static
-	uci set network.nmesh$device.mtu=1524
-	uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
-	uci set network.nmesh$device.ipaddr=192.168.1.21
-	uci set network.nmesh$device.netmask=255.255.255.0
+		uci set network.nmesh$device=interface
+		uci set network.nmesh$device.proto=static
+		uci set network.nmesh$device.mtu=1524
+		uci set network.nmesh$device.ip6addr=$mesh6Prefix$(mac6ize $(get_mac $device))/64
+		uci set network.nmesh$device.ipaddr=192.168.1.21
+		uci set network.nmesh$device.netmask=255.255.255.0
 
-	uci add_list batman-adv.bat0.interfaces="nmesh$device"
+		uci add_list batman-adv.bat0.interfaces="nmesh$device"
       }
 
       [ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
       {
-	uci set wireless.ap$device=wifi-iface
-	uci set wireless.ap$device.device=$device
-	uci set wireless.ap$device.network=clients
-	uci set wireless.ap$device.sw_merge=1
-	uci set wireless.ap$device.mode=ap
-	uci set wireless.ap$device.ssid=$apSSID
-	[ $apKEY"null" == "null" ] &&
-	{
-	  uci set wireless.ap$device.encryption=none
-	} ||
-	{
-	  uci set wireless.ap$device.encryption=psk
-	  uci set wireless.ap$device.key=$apKEY
-	}
+		uci set wireless.ap$device=wifi-iface
+		uci set wireless.ap$device.device=$device
+		uci set wireless.ap$device.network=clients
+		uci set wireless.ap$device.sw_merge=1
+		uci set wireless.ap$device.mode=ap
+		uci set wireless.ap$device.ssid=$apSSID
+		[ $apKEY"null" == "null" ] &&
+		{
+		  uci set wireless.ap$device.encryption=none
+		} ||
+		{
+		  uci set wireless.ap$device.encryption=psk
+		  uci set wireless.ap$device.key=$apKEY
+		}
       }
     ;;
     esac
