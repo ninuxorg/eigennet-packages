@@ -432,7 +432,10 @@ start()
 		sysctl -w net.ipv6.conf.all.forwarding=1
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-		if [ $(uci -q get eigennet.network.accept_clients) -eq 1 ]
+		local accept_clients        ; config_get accept_clients         network     "accept_clients"
+		local eth_mesh              ; config_get eth_mesh               wired       "eth_mesh"
+		local eth_clients           ; config_get eth_clients            wired       "eth_clients"
+		if [ $accept_clients -eq 1 ] && [ $eth_mesh -eq 1 ] && [ $eth_clients -eq 1 ]
 			then
 				ip link set dev br-clients up
 				ip link set mtu 1378 dev br-clients
