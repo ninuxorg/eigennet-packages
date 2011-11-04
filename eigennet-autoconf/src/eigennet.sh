@@ -264,7 +264,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
 					uci set network.nmesh$device.mtu=1524
-					uci set network.nmesh$device.ip6addr=eeab:$((10 + $devindex))::1/64
+					uci set network.nmesh$device.ip6addr=eeab:$((20 + $devindex))::1/64
 					uci set network.nmesh$device.ipaddr=192.168.$((20 + $devindex)).21
 					uci set network.nmesh$device.netmask=255.255.255.0
 
@@ -311,7 +311,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 				uci set network.nmesh$device=interface
 				uci set network.nmesh$device.proto=static
 				uci set network.nmesh$device.mtu=1524
-				uci set network.nmesh$device.ip6addr=eeab:$((10 + $devindex))::1/64
+				uci set network.nmesh$device.ip6addr=eeab:$((30 + $devindex))::1/64
 				uci set network.nmesh$device.ipaddr=192.168.$((30 + $devindex)).21
 				uci set network.nmesh$device.netmask=255.255.255.0
 
