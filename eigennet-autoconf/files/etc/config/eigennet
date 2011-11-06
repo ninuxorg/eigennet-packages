@@ -24,7 +24,7 @@ config section wireless
 	option	'meshSSID'		'www.ninux.org'
 	option	'meshBSSID'		'02:aa:bb:cc:dd:ee'
 	option	'apSSID'		'NebrodiNet'
-	option  'apKEY'                 'nebrodi'
+	option  'apKEY'                 'nebrodiwifi'
 
 config section wired
 	option	'eth_mesh'		'1'
