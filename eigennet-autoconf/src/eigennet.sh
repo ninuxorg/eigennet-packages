@@ -133,30 +133,37 @@ scan_devices()
 
 configureNetwork()
 {
-	local accept_clients        ; config_get accept_clients         network     "accept_clients"
-	local firewallEnabled       ; config_get firewallEnabled        network     "firewallEnabled"
+	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"
+	local firewallEnabled       ; config_get_bool firewallEnabled   network     "firewall"
 	local mesh6Prefix           ; config_get mesh6Prefix            network     "mesh6Prefix"
 	local ip6gw                 ; config_get ip6gw                  network     "ip6gw"
 	local resolvers             ; config_get resolvers              network     "resolvers"
 
-	local ath9k_clients         ; config_get ath9k_clients          wireless    "ath9k_clients"
-	local ath9k_mesh            ; config_get ath9k_mesh             wireless    "ath9k_mesh"
-	local madwifi_clients       ; config_get madwifi_clients        wireless    "madwifi_clients"
-	local madwifi_mesh          ; config_get madwifi_mesh           wireless    "madwifi_mesh"
+	local wifi_clients          ; config_get_bool wifi_clients      wireless    "wifi_clients"
+	local wifi_mesh             ; config_get_bool wifi_mesh         wireless    "wifi_mesh"
+	local ath9k_clients         ; config_get_bool ath9k_clients     wireless    "wifi_clients"
+	local ath9k_mesh            ; config_get_bool ath9k_mesh        wireless    "wifi_mesh"
+	local madwifi_clients       ; config_get_bool madwifi_clients   wireless    "wifi_clients"
+	local madwifi_mesh          ; config_get_bool madwifi_mesh      wireless    "wifi_mesh"
+	local countrycode           ; config_get countrycode            wireless    "countrycode"
 	local mesh2channel          ; config_get mesh2channel           wireless    "mesh2channel"
 	local mesh5channel          ; config_get mesh5channel           wireless    "mesh5channel"
 	local meshSSID              ; config_get meshSSID               wireless    "meshSSID"
 	local meshBSSID             ; config_get meshBSSID              wireless    "meshBSSID"
+	local meshMcastRate         ; config_get meshMcastRate          wireless    "meshMcastRate"
 	local apSSID                ; config_get apSSID                 wireless    "apSSID"
 	local apKEY                 ; config_get apKEY                  wireless    "apKEY"
+	local apMaxClients          ; config_get apMaxClients           wireless    "apMaxClients"
 
-	local eth_mesh              ; config_get eth_mesh               wired       "eth_mesh"
-	local eth_clients           ; config_get eth_clients            wired       "eth_clients"
+	local eth_mesh              ; config_get_bool eth_mesh          wired       "eth_mesh"
+	local eth_clients           ; config_get_bool eth_clients       wired       "eth_clients"
 
-	[ $firewallEnabled -eq 0 ] &&
-	{
-		/etc/init.d/firewall disable
-	}
+	if [ $firewallEnabled -eq 0 ]
+		then
+			/etc/init.d/firewall disable
+		else
+			/etc/init.d/firewall enable
+	fi
 
 	echo "
 #Automatically generated for EigenNet
@@ -249,6 +256,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 				uci set wireless.$device.type=atheros
 				uci set wireless.$device.channel=$mesh2channel
 				uci set wireless.$device.disabled=0
+				uci set wireless.$device.country=$countrycode
 
 				[ $madwifi_mesh -eq 1 ] &&
 				{
@@ -260,6 +268,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 					uci set wireless.mesh$device.bssid=$meshBSSID
 					uci set wireless.mesh$device.ssid=$meshSSID
 					uci set wireless.mesh$device.encryption=none
+					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
 
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
@@ -279,7 +288,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 					uci set wireless.ap$device.sw_merge=1
 					uci set wireless.ap$device.mode=ap
 					uci set wireless.ap$device.ssid=$apSSID
-					[ $apKEY"null" == "null" ] &&
+					[ ${#apKEY} -lt 8 ] &&
 					{
 						uci set wireless.ap$device.encryption=none
 					} ||
@@ -287,6 +296,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 						uci set wireless.ap$device.encryption=psk
 						uci set wireless.ap$device.key=$apKEY
 					}
+					uci set wireless.ap$device.maxassoc=$apMaxClients
 				}
 			;;
 
@@ -296,44 +306,47 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 				uci set wireless.$device.macaddr=$(get_mac $device)
 				uci set wireless.$device.channel=$mesh2channel
 				uci set wireless.$device.disabled=0
+				uci set wireless.$device.country=$countrycode
 
 				[ $ath9k_mesh -eq 1 ] &&
 				{
-				uci set wireless.mesh$device=wifi-iface
-				uci set wireless.mesh$device.device=$device
-				uci set wireless.mesh$device.network=nmesh$device
-				uci set wireless.mesh$device.sw_merge=1
-				uci set wireless.mesh$device.mode=adhoc
-				uci set wireless.mesh$device.bssid=$meshBSSID
-				uci set wireless.mesh$device.ssid=$meshSSID
-				uci set wireless.mesh$device.encryption=none
+					uci set wireless.mesh$device=wifi-iface
+					uci set wireless.mesh$device.device=$device
+					uci set wireless.mesh$device.network=nmesh$device
+					uci set wireless.mesh$device.sw_merge=1
+					uci set wireless.mesh$device.mode=adhoc
+					uci set wireless.mesh$device.bssid=$meshBSSID
+					uci set wireless.mesh$device.ssid=$meshSSID
+					uci set wireless.mesh$device.encryption=none
+					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
 
-				uci set network.nmesh$device=interface
-				uci set network.nmesh$device.proto=static
-				uci set network.nmesh$device.mtu=1528
-				uci set network.nmesh$device.ip6addr=eeab:$((30 + $devindex))::1/64
-				uci set network.nmesh$device.ipaddr=192.168.$((30 + $devindex)).21
-				uci set network.nmesh$device.netmask=255.255.255.0
+					uci set network.nmesh$device=interface
+					uci set network.nmesh$device.proto=static
+					uci set network.nmesh$device.mtu=1528
+					uci set network.nmesh$device.ip6addr=eeab:$((30 + $devindex))::1/64
+					uci set network.nmesh$device.ipaddr=192.168.$((30 + $devindex)).21
+					uci set network.nmesh$device.netmask=255.255.255.0
 
-				uci add_list batman-adv.bat0.interfaces="nmesh$device"
+					uci add_list batman-adv.bat0.interfaces="nmesh$device"
 				}
 
 				[ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
 				{
-				uci set wireless.ap$device=wifi-iface
-				uci set wireless.ap$device.device=$device
-				uci set wireless.ap$device.network=clients
-				uci set wireless.ap$device.sw_merge=1
-				uci set wireless.ap$device.mode=ap
-				uci set wireless.ap$device.ssid=$apSSID
-				[ $apKEY"null" == "null" ] &&
-				{
-					uci set wireless.ap$device.encryption=none
-				} ||
-				{
-					uci set wireless.ap$device.encryption=psk
-					uci set wireless.ap$device.key=$apKEY
-				}
+					uci set wireless.ap$device=wifi-iface
+					uci set wireless.ap$device.device=$device
+					uci set wireless.ap$device.network=clients
+					uci set wireless.ap$device.sw_merge=1
+					uci set wireless.ap$device.mode=ap
+					uci set wireless.ap$device.ssid=$apSSID
+					[ ${#apKEY} -lt 8 ] &&
+					{
+						uci set wireless.ap$device.encryption=none
+					} ||
+					{
+						uci set wireless.ap$device.encryption=psk
+						uci set wireless.ap$device.key=$apKEY
+					}
+					uci set wireless.ap$device.maxassoc=$apMaxClients
 				}
 			;;
 		esac
@@ -342,15 +355,15 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
 configureSNMP()
 {
-	local enabled               ; config_get enabled                snmp        "enabled"
-	local community             ; config_get community              snmp        "community"
-	local accept_clients        ; config_get accept_clients         network     "accept_clients"
-	local ath9k_clients         ; config_get ath9k_clients          wireless    "ath9k_clients"
-	local ath9k_mesh            ; config_get ath9k_mesh             wireless    "ath9k_mesh"
-	local madwifi_clients       ; config_get madwifi_clients        wireless    "madwifi_clients"
-	local madwifi_mesh          ; config_get madwifi_mesh           wireless    "madwifi_mesh"
-	local eth_mesh              ; config_get eth_mesh               wired       "eth_mesh"
-	local eth_clients           ; config_get eth_clients            wired       "eth_clients"
+	local enabled               ; config_get_bool enabled           snmp        "enabled"
+	local community             ; config_get      community         snmp        "community"
+	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"
+	local ath9k_clients         ; config_get_bool ath9k_clients     wireless    "wifi_clients"
+	local ath9k_mesh            ; config_get_bool ath9k_mesh        wireless    "wifi_mesh"
+	local madwifi_clients       ; config_get_bool madwifi_clients   wireless    "wifi_clients"
+	local madwifi_mesh          ; config_get_bool madwifi_mesh      wireless    "wifi_mesh"
+	local eth_mesh              ; config_get_bool eth_mesh          wired       "eth_mesh"
+	local eth_clients           ; config_get_bool eth_clients       wired       "eth_clients"
 
 	echo "#Automatically generated for eigenNet
 config 'mini_snmpd' 'snmp'
@@ -432,9 +445,9 @@ start()
 		sysctl -w net.ipv6.conf.all.forwarding=1
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-		local accept_clients        ; config_get accept_clients         network     "accept_clients"
-		local eth_mesh              ; config_get eth_mesh               wired       "eth_mesh"
-		local eth_clients           ; config_get eth_clients            wired       "eth_clients"
+		local accept_clients        ; config_get_bool accept_clients         network     "accept_clients"
+		local eth_mesh              ; config_get_bool eth_mesh               wired       "eth_mesh"
+		local eth_clients           ; config_get_bool eth_clients            wired       "eth_clients"
 		if [ $accept_clients -eq 1 ] && [ $eth_mesh -eq 1 ] && [ $eth_clients -eq 1 ]
 			then
 				ip link set dev br-clients up

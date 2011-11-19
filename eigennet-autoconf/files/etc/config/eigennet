@@ -1,31 +1,32 @@
 config section general
-	option	'debugLevel'		'0'
-	option	'bootmode'		'0'		# 0 First boot, 1 Run Autoconfig, 2 Auto Configured, 3 or greater added custom configuration.
+	option 'debugLevel' '0'
+	option 'bootmode'   '0'  # 0 First boot, 1 Run Autoconfig, 2 Auto Configured, 3 or greater added custom configuration.
 
 config section snmp
-	option	'enabled'		'1'
-	option	'community'		'public'
+	option 'enabled'   'yes'
+	option 'community' 'public'
 
 config section network
-	option	'accept_clients'	'1'
-	option	'ip6gw'			'2001:470:ca42:ee:ab::1000'	# ipv6 gateway
-	option	'mesh6Prefix'		'2001:470:ca42:ee:ab:'		# /80 prefix
-	option	'firewallEnabled'	'0'
-	list	'resolvers'		'2001:470:ca42:ee:ab::1000 8.8.8.8'
-	option	'sshAuthorizedKeys'	'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
+	option 'accept_clients'    'yes'
+	option 'ip6gw'             '2001:470:ca42:ee:ab::1000'           # ipv6 gateway
+	option 'mesh6Prefix'       '2001:470:ca42:ee:ab:'                # /80 prefix
+	option 'firewall'          'disabled'
+	list   'resolvers'         '2001:470:ca42:ee:ab::1000 8.8.8.8'
+	option 'sshAuthorizedKeys' 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
 
 config section wireless
-	option	'ath9k_clients'		'0'
-	option	'ath9k_mesh'		'1'
-	option	'madwifi_clients'	'0'
-	option	'madwifi_mesh'		'1'
-	option	'mesh2channel'		'8'
-	option	'mesh5channel'		'60'
-	option	'meshSSID'		'www.eigenlab.org-www.ninux.org'
-	option	'meshBSSID'		'02:aa:bb:cc:dd:ee'
-	option	'apSSID'		'eigenNet'
-	option  'apKEY'                 ''
+	option 'wifi_clients'    'yes'
+	option 'wifi_mesh'       'yes'
+	option 'countrycode'     '860'                              # Uzbekistan(860) seems the more permissive from a brief look at http://linuxwireless.org/en/developers/Regulatory
+	option 'mesh2channel'    '8'
+	option 'mesh5channel'    '60'                               # TODO: If possible implement 5Ghz adhoc autoconfiguration
+	option 'meshSSID'        'www.eigenlab.org-www.ninux.org'
+	option 'meshBSSID'       '02:aa:bb:cc:dd:ee'
+	option 'meshMcastRate'   '6000'                             # Fix mesh multicast rate to given kbit/s added to penalize links under defined rate but can have side effects on multicast data packets in higher performance links leave blank to disable
+	option 'apSSID'          'eigenNet'
+	option 'apKEY'           'none'                             # A string less the 8 character will be ignored
+	option 'apMaxClients'    '20'                               # Max number of accepted sta for ap interfaces
 
 config section wired
-	option	'eth_mesh'		'1'
-	option	'eth_clients'		'1'
+	option 'eth_mesh'    'yes'
+	option 'eth_clients' 'yes'
