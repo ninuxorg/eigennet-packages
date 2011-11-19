@@ -15,7 +15,7 @@ config section network
 	option 'sshAuthorizedKeys' 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
 
 config section wireless
-	option 'wifi_clients'    'true'
+	option 'wifi_clients'    'false'
 	option 'wifi_mesh'       'true'
 	option 'countrycode'     '860'                              # Uzbekistan(860) seems the more permissive from a brief look at http://linuxwireless.org/en/developers/Regulatory
 	option 'mesh2channel'    '8'
