@@ -26,8 +26,8 @@ CONF_DIR="/etc/config/"
 
 config_load eigennet
 
-config_get debugLevel             general        "debugLevel"
-config_get bootmode               general        "bootmode"
+config_get debugLevel             general        "debugLevel"        0
+config_get bootmode               general        "bootmode"          1
 
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
@@ -133,30 +133,30 @@ scan_devices()
 
 configureNetwork()
 {
-	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"
-	local firewallEnabled       ; config_get_bool firewallEnabled   network     "firewall"
-	local mesh6Prefix           ; config_get mesh6Prefix            network     "mesh6Prefix"
-	local ip6gw                 ; config_get ip6gw                  network     "ip6gw"
+	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"   1
+	local firewallEnabled       ; config_get_bool firewallEnabled   network     "firewall"         0
+	local mesh6Prefix           ; config_get mesh6Prefix            network     "mesh6Prefix"      "2001:470:ca42:ee:ab:"
+	local ip6gw                 ; config_get ip6gw                  network     "ip6gw"            "2001:470:ca42:ee:ab::1000"
 	local resolvers             ; config_get resolvers              network     "resolvers"
 
-	local wifi_clients          ; config_get_bool wifi_clients      wireless    "wifi_clients"
-	local wifi_mesh             ; config_get_bool wifi_mesh         wireless    "wifi_mesh"
-	local ath9k_clients         ; config_get_bool ath9k_clients     wireless    "wifi_clients"
-	local ath9k_mesh            ; config_get_bool ath9k_mesh        wireless    "wifi_mesh"
-	local madwifi_clients       ; config_get_bool madwifi_clients   wireless    "wifi_clients"
-	local madwifi_mesh          ; config_get_bool madwifi_mesh      wireless    "wifi_mesh"
+	local wifi_clients          ; config_get_bool wifi_clients      wireless    "wifi_clients"     0
+	local wifi_mesh             ; config_get_bool wifi_mesh         wireless    "wifi_mesh"        1
+	local ath9k_clients         ; config_get_bool ath9k_clients     wireless    "wifi_clients"     0
+	local ath9k_mesh            ; config_get_bool ath9k_mesh        wireless    "wifi_mesh"        1
+	local madwifi_clients       ; config_get_bool madwifi_clients   wireless    "wifi_clients"     0
+	local madwifi_mesh          ; config_get_bool madwifi_mesh      wireless    "wifi_mesh"        1
 	local countrycode           ; config_get countrycode            wireless    "countrycode"
 	local mesh2channel          ; config_get mesh2channel           wireless    "mesh2channel"
 	local mesh5channel          ; config_get mesh5channel           wireless    "mesh5channel"
-	local meshSSID              ; config_get meshSSID               wireless    "meshSSID"
-	local meshBSSID             ; config_get meshBSSID              wireless    "meshBSSID"
+	local meshSSID              ; config_get meshSSID               wireless    "meshSSID"         "www.ninux.org"
+	local meshBSSID             ; config_get meshBSSID              wireless    "meshBSSID"        "02:aa:bb:cc:dd:ee"
 	local meshMcastRate         ; config_get meshMcastRate          wireless    "meshMcastRate"
 	local apSSID                ; config_get apSSID                 wireless    "apSSID"
 	local apKEY                 ; config_get apKEY                  wireless    "apKEY"
 	local apMaxClients          ; config_get apMaxClients           wireless    "apMaxClients"
 
-	local eth_mesh              ; config_get_bool eth_mesh          wired       "eth_mesh"
-	local eth_clients           ; config_get_bool eth_clients       wired       "eth_clients"
+	local eth_mesh              ; config_get_bool eth_mesh          wired       "eth_mesh"         1
+	local eth_clients           ; config_get_bool eth_clients       wired       "eth_clients"      1
 
 	if [ $firewallEnabled -eq 0 ]
 		then
@@ -355,15 +355,15 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
 configureSNMP()
 {
-	local enabled               ; config_get_bool enabled           snmp        "enabled"
-	local community             ; config_get      community         snmp        "community"
-	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"
-	local ath9k_clients         ; config_get_bool ath9k_clients     wireless    "wifi_clients"
-	local ath9k_mesh            ; config_get_bool ath9k_mesh        wireless    "wifi_mesh"
-	local madwifi_clients       ; config_get_bool madwifi_clients   wireless    "wifi_clients"
-	local madwifi_mesh          ; config_get_bool madwifi_mesh      wireless    "wifi_mesh"
-	local eth_mesh              ; config_get_bool eth_mesh          wired       "eth_mesh"
-	local eth_clients           ; config_get_bool eth_clients       wired       "eth_clients"
+	local enabled               ; config_get_bool enabled           snmp        "enabled"           1
+	local community             ; config_get      community         snmp        "community"         "public"
+	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"    1
+	local ath9k_clients         ; config_get_bool ath9k_clients     wireless    "wifi_clients"      0
+	local ath9k_mesh            ; config_get_bool ath9k_mesh        wireless    "wifi_mesh"         1
+	local madwifi_clients       ; config_get_bool madwifi_clients   wireless    "wifi_clients"      0
+	local madwifi_mesh          ; config_get_bool madwifi_mesh      wireless    "wifi_mesh"         1
+	local eth_mesh              ; config_get_bool eth_mesh          wired       "eth_mesh"          1
+	local eth_clients           ; config_get_bool eth_clients       wired       "eth_clients"       1
 
 	echo "#Automatically generated for eigenNet
 config 'mini_snmpd' 'snmp'
@@ -445,9 +445,9 @@ start()
 		sysctl -w net.ipv6.conf.all.forwarding=1
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-		local accept_clients        ; config_get_bool accept_clients         network     "accept_clients"
-		local eth_mesh              ; config_get_bool eth_mesh               wired       "eth_mesh"
-		local eth_clients           ; config_get_bool eth_clients            wired       "eth_clients"
+		local accept_clients        ; config_get_bool accept_clients         network     "accept_clients"  1
+		local eth_mesh              ; config_get_bool eth_mesh               wired       "eth_mesh"        1
+		local eth_clients           ; config_get_bool eth_clients            wired       "eth_clients"     1
 		if [ $accept_clients -eq 1 ] && [ $eth_mesh -eq 1 ] && [ $eth_clients -eq 1 ]
 			then
 				ip link set dev br-clients up
