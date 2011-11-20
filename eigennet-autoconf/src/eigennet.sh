@@ -457,6 +457,9 @@ start()
 				ip link set mtu 1350 dev bat0
 		fi
 
+		local firewallEnabled ; config_get_bool firewallEnabled network "firewall" 0
+		[ $firewallEnabled -eq 0 ] && /etc/init.d/firewall stop
+
 		return 0
 	}
 }
