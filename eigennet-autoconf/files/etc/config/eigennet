@@ -8,10 +8,10 @@ config section snmp
 
 config section network
 	option 'accept_clients'    'true'
-	option 'ip6gw'             '2001:470:ca42:ee:ab::1000'           # ipv6 gateway
-	option 'mesh6Prefix'       '2001:470:ca42:ee:ab:'                # /80 prefix
+	option 'ip6gw'             '2001:470:ca42:ee:ee::1000'           # ipv6 gateway
+	option 'mesh6Prefix'       '2001:470:ca42:ee:ee:'                # /80 prefix
 	option 'firewall'          'disabled'
-	list   'resolvers'         '2001:470:ca42:ee:ab::1000 8.8.8.8'
+	list   'resolvers'         '2001:470:ca42:ee:ee::1000 8.8.8.8'
 	option 'sshAuthorizedKeys' 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
 
 config section wireless
@@ -20,11 +20,11 @@ config section wireless
 	option 'countrycode'     '860'                              # Uzbekistan(860) seems the more permissive from a brief look at http://linuxwireless.org/en/developers/Regulatory
 	option 'mesh2channel'    '8'
 	option 'mesh5channel'    '60'                               # TODO: If possible implement 5Ghz adhoc autoconfiguration
-	option 'meshSSID'        'www.eigenlab.org-www.ninux.org'
+	option 'meshSSID'        'www.ninux.org'
 	option 'meshBSSID'       '02:aa:bb:cc:dd:ee'
 	option 'meshMcastRate'   '6000'                             # Fix mesh multicast rate to given kbit/s added to penalize links under defined rate but can have side effects on multicast data packets in higher performance links leave blank to disable
-	option 'apSSID'          'eigenNet'
-	option 'apKEY'           'none'                             # A string less the 8 character will be ignored
+	option 'apSSID'          'NebrodiNet'
+	option 'apKEY'           'nebrodiwifi'                      # A string less the 8 character will be ignored
 	option 'apMaxClients'    '20'                               # Max number of accepted sta for ap interfaces
 
 config section wired
