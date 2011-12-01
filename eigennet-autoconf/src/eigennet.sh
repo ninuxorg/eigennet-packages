@@ -197,7 +197,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 	uci set network.loopback.netmask="255.0.0.0"
 	uci set network.loopback.ip6addr="0::1/128"
 
-	uci set batman-adv.bat0.fragmentation=0
+	uci set batman-adv.bat0.fragmentation=1
 
 	if [ $accept_clients -eq 1 ]
 		then
@@ -446,16 +446,8 @@ start()
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
 		local accept_clients        ; config_get_bool accept_clients         network     "accept_clients"  1
-		local eth_mesh              ; config_get_bool eth_mesh               wired       "eth_mesh"        1
-		local eth_clients           ; config_get_bool eth_clients            wired       "eth_clients"     1
-		if [ $accept_clients -eq 1 ] && [ $eth_mesh -eq 1 ] && [ $eth_clients -eq 1 ]
-			then
-				ip link set dev br-clients up
-				ip link set mtu 1378 dev br-clients
-			else
-				ip link set dev bat0 up
-				ip link set mtu 1350 dev bat0
-		fi
+		[ $accept_clients -eq 1 ] && ip link set dev br-clients up
+		ip link set dev bat0 up
 
 		local firewallEnabled ; config_get_bool firewallEnabled network "firewall" 0
 		[ $firewallEnabled -eq 0 ] && /etc/init.d/firewall stop
