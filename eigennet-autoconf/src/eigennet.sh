@@ -256,7 +256,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 				uci set wireless.$device.type=atheros
 				uci set wireless.$device.channel=$mesh2channel
 				uci set wireless.$device.disabled=0
-				uci set wireless.$device.country=$countrycode
+#				uci set wireless.$device.country=$countrycode
 
 				[ $madwifi_mesh -eq 1 ] &&
 				{
@@ -306,7 +306,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 				uci set wireless.$device.macaddr=$(get_mac $device)
 				uci set wireless.$device.channel=$mesh2channel
 				uci set wireless.$device.disabled=0
-				uci set wireless.$device.country=$countrycode
+#				uci set wireless.$device.country=$countrycode
 
 				[ $ath9k_mesh -eq 1 ] &&
 				{
