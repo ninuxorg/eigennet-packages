@@ -18,8 +18,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet-autoconf
-PKG_VERSION:=0.4.1
-PKG_RELEASE:=1
+PKG_VERSION:=0.4.2
+PKG_RELEASE:=2
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
@@ -53,5 +53,3 @@ define Build/Compile
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
-
-
