@@ -1,3 +1,21 @@
 This package provide lite eigennet firmware.
 This is fully compatible with the mesh but the client access only with ipv4 to limit size of package and node stress due to radvd and dibbler-server.
 In this way we can remove dibbler-server and radvd from dependency.
+
+You can find updated tools to prepare custom crda here 
+git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
+
+regulatory db.txt follow this sintax
+cfg80211: Calling CRDA for country: US
+cfg80211: Regulatory domain changed to country: US
+cfg80211:     (start_freq - end_freq @ bandwidth), (max_antenna_gain, max_eirp)
+cfg80211:     (2402000 KHz - 2500000 KHz @ 40000 KHz), (3000 mBi, 3000 mBm)
+cfg80211:     (5170000 KHz - 5250000 KHz @ 40000 KHz), (300 mBi, 1700 mBm)
+cfg80211:     (5250000 KHz - 5330000 KHz @ 40000 KHz), (300 mBi, 2000 mBm)
+cfg80211:     (5490000 KHz - 5600000 KHz @ 40000 KHz), (300 mBi, 2000 mBm)
+cfg80211:     (5650000 KHz - 5710000 KHz @ 40000 KHz), (300 mBi, 2000 mBm)
+cfg80211:     (5735000 KHz - 5835000 KHz @ 40000 KHz), (300 mBi, 3000 mBm)
+
+After modifing db.txt run
+
+./db2bin.py regulatory.bin db.txt

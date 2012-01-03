@@ -59,6 +59,20 @@ del_interface()
 }
 
 #[Doc]
+#[Doc] Del given uci wifi-iface interface from wireless file 
+#[Doc]
+#[Doc] usage:
+#[Doc] del_wifi-iface uci_wifi-iface
+#[Doc]
+#[Doc] example:
+#[Doc] del_wifi-iface wifiap0
+#[Doc]
+del_wifi-iface()
+{
+	uci del wireless.$1
+}
+
+#[Doc]
 #[Doc] Return MAC of given interface
 #[Doc]
 #[Doc] usage:
@@ -175,7 +189,7 @@ net.ipv6.conf.all.forwarding=1
 net.ipv6.conf.all.autoconf=0
 " > /etc/sysctl.conf
 
-	echo "#Automatically generated for EigenNet" > $CONF_DIR/wireless
+#	echo "#Automatically generated for EigenNet" > $CONF_DIR/wireless
 
 	echo "#Automatically generated for EigenNet
 config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
@@ -187,8 +201,13 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 	done
 	/etc/init.d/dnsmasq disable
 
+	config_load wireless
+	config_foreach wifi-iface del_wifi-iface
+
 	config_load network
 	config_foreach del_interface interface
+
+	cp /etc/eigennet/regulatory.bin /usr/lib/crda/regulatory.bin
 
 	uci set network.loopback=interface
 	uci set network.loopback.ifname=lo
@@ -252,10 +271,9 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 			;;
 
 			"wifi")
-				uci set wireless.$device=wifi-device
-				uci set wireless.$device.type=atheros
 				uci set wireless.$device.channel=$mesh2channel
 				uci set wireless.$device.disabled=0
+				uci set wireless.$device.txpower=30
 #				uci set wireless.$device.country=$countrycode
 
 				[ $madwifi_mesh -eq 1 ] &&
@@ -301,12 +319,10 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 			;;
 
 			"radio")
-				uci set wireless.$device=wifi-device
-				uci set wireless.$device.type=mac80211
-				uci set wireless.$device.macaddr=$(get_mac $device)
 				uci set wireless.$device.channel=$mesh2channel
 				uci set wireless.$device.disabled=0
-#				uci set wireless.$device.country=$countrycode
+				uci set wireless.$device.txpower=30
+#				uci set wireless.$device.country=$countrycode ## Seems newer hardware doest permit change country
 
 				[ $ath9k_mesh -eq 1 ] &&
 				{

@@ -17,7 +17,7 @@ config section network
 config section wireless
 	option 'wifi_clients'    'false'
 	option 'wifi_mesh'       'true'
-	option 'countrycode'     '860'                              # Uzbekistan(860) seems the more permissive from a brief look at http://linuxwireless.org/en/developers/Regulatory
+	option 'countrycode'     'US'                               # Now ignored
 	option 'mesh2channel'    '8'
 	option 'mesh5channel'    '60'                               # TODO: If possible implement 5Ghz adhoc autoconfiguration
 	option 'meshSSID'        'www.ninux.org'
