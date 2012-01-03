@@ -207,6 +207,8 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 	config_load network
 	config_foreach del_interface interface
 
+	cp /etc/eigennet/regulatory.bin /usr/lib/crda/regulatory.bin
+
 	uci set network.loopback=interface
 	uci set network.loopback.ifname=lo
 	uci set network.loopback.proto=static

@@ -50,6 +50,7 @@ define Build/Compile
 	@./getversion.sh $(TOPDIR)> ./version.tmp
 	@mkdir ./files/etc/eigennet || true
 	@mv ./version.tmp ./files/etc/eigennet/version
+	@cp ./src/crda/regulatory.bin ./files/etc/eigennet/regulatory.bin
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
