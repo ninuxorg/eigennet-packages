@@ -62,12 +62,12 @@ del_interface()
 #[Doc] Del given uci wifi-iface interface from wireless file 
 #[Doc]
 #[Doc] usage:
-#[Doc] del_wifi-iface uci_wifi-iface
+#[Doc] del_wifi_iface uci_wifi-iface
 #[Doc]
 #[Doc] example:
-#[Doc] del_wifi-iface wifiap0
+#[Doc] del_wifi_iface wifiap0
 #[Doc]
-del_wifi-iface()
+del_wifi_iface()
 {
 	uci del wireless.$1
 }
@@ -202,7 +202,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 	/etc/init.d/dnsmasq disable
 
 	config_load wireless
-	config_foreach wifi-iface del_wifi-iface
+	config_foreach del_wifi_iface wifi-iface
 
 	config_load network
 	config_foreach del_interface interface
