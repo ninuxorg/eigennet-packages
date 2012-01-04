@@ -22,7 +22,7 @@ config section wireless
 	option 'mesh5channel'    '60'                               # TODO: If possible implement 5Ghz adhoc autoconfiguration
 	option 'meshSSID'        'www.ninux.org'
 	option 'meshBSSID'       '02:aa:bb:cc:dd:ee'
-	option 'meshMcastRate'   '10000'                            # Fix mesh multicast rate to given kbit/s added to penalize links under defined rate but can have side effects on multicast data packets in higher performance links leave blank to disable
+	option 'meshMcastRate'   '11000'                            # Fix mesh multicast rate to given kbit/s added to penalize links under defined rate but can have side effects on multicast data packets in higher performance links leave blank to disable
 	option 'apSSID'          'NebrodiNet'
 	option 'apKEY'           'nebrodiwifi'                      # A string less the 8 character will be ignored
 	option 'apMaxClients'    '20'                               # Max number of accepted sta for ap interfaces
