@@ -217,6 +217,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 	uci set network.loopback.ip6addr="0::1/128"
 
 	uci set batman-adv.bat0.fragmentation=1
+	uci set batman-adv.bat0.gw_mode="client"
 
 	if [ $accept_clients -eq 1 ]
 		then
