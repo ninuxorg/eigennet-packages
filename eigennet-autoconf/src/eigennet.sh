@@ -469,6 +469,7 @@ start()
 		local firewallEnabled ; config_get_bool firewallEnabled network "firewall" 0
 		[ $firewallEnabled -eq 0 ] && /etc/init.d/firewall stop
 
+		batman-adv restart #added as workaround of batman-adv eth hotplug bug
 		return 0
 	}
 }
