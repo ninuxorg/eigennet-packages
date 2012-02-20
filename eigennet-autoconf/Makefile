@@ -18,7 +18,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet-autoconf
-PKG_VERSION:=0.4.1
+PKG_VERSION:=0.4.2
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
