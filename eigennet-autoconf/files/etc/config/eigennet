@@ -30,3 +30,11 @@ config section wireless
 config section wired
 	option 'eth_mesh'    'true'
 	option 'eth_clients' 'true'
+
+config section gateway4
+	option 'enabled'         'false'
+	option 'strictCheck'     'false'
+	option 'checkInterval'   '10s'
+	option 'bandwidth'       '2000/512'
+	list   'checkHosts'      '8.8.8.8'
+	list   'checkHosts'      '8.8.4.4'

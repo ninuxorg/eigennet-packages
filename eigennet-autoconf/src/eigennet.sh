@@ -462,14 +462,21 @@ start()
 		sysctl -w net.ipv6.conf.all.forwarding=1
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-		local accept_clients        ; config_get_bool accept_clients         network     "accept_clients"  1
+		local accept_clients
+		config_get_bool accept_clients network "accept_clients"  1
 		[ $accept_clients -eq 1 ] && ip link set dev br-clients up
+
 		ip link set dev bat0 up
 
-		local firewallEnabled ; config_get_bool firewallEnabled network "firewall" 0
+		local firewallEnabled
+		config_get_bool firewallEnabled network "firewall" 0
 		[ $firewallEnabled -eq 0 ] && /etc/init.d/firewall stop
 
 		batman-adv restart #added as workaround of batman-adv eth hotplug bug
+
+		local gw4Enabled ; config_get_bool gw4Enabled gateway4 "enabled" 0
+		[ $gw4Enabled -eq 0 ] || gw4check &
+
 		return 0
 	}
 }
