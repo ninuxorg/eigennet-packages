@@ -19,7 +19,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet-autoconf
 PKG_VERSION:=0.4.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
@@ -44,11 +44,11 @@ endef
 
 define Build/Compile
 	@grep -v '^#\[Doc\]' src/eigennet.sh > eigennet.tmp
-	@mkdir ./files/etc/init.d || true
+	@mkdir -p ./files/etc/init.d || true
 	@mv ./eigennet.tmp ./files/etc/init.d/eigennet
 	@chmod +x ./files/etc/init.d/eigennet
 	@grep -v '^#\[Doc\]' src/gw4check.sh > gw4check.tmp
-	@mkdir ./files/usr/bin || true
+	@mkdir -p ./files/usr/bin || true
 	@mv ./gw4check.tmp ./files/usr/bin/gw4check
 	@chmod +x ./files/usr/bin/gw4check
 	@./getversion.sh $(TOPDIR)> ./version.tmp
