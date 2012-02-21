@@ -477,6 +477,8 @@ start()
 		local gw4Enabled ; config_get_bool gw4Enabled gateway4 "enabled" 0
 		[ $gw4Enabled -eq 0 ] || gw4check &
 
+		/etc/init.d/sysntpd stop #Devices could not reach ntp server so it runs forever, so better to stop it till openwrt ntp server will be reacheable from ipv6
+
 		return 0
 	}
 }
