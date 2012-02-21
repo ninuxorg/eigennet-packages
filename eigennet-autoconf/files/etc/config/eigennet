@@ -12,7 +12,7 @@ config section network
 	option 'mesh6Prefix'       '2001:470:c8f7:ee:ee:'                # /80 prefix
 	option 'firewall'          'disabled'
 	list   'resolvers'         '2001:470:c8f7:ee:ee::1000 8.8.8.8'
-	option 'sshAuthorizedKeys' 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
+	option 'sshAuthorizedKeys' 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDthXlY8FF1/p1BbTWmlp+xQHRtXppnqp4aylUEg3pZfCTiG9oF+b0KWIXRgmfa9DI/6b830EUCfhjewWhSc+eJbdqu3QyPYetB5HklW93w89dDX2nbi/Y6wYZ/n7zzR4DVqn4z5OGAROc7uHTylhpkVmR7Ri4SHvMqEzaisH9t0HFCST0Egn4ZQ5E+fynn2y95LlsBes7AKITUaJMgsQPPt1uSXzrmae67g+Z/3VdiqtrB3s12Sw1hYH7vz0p1oaTZnNjN8XHThuQMJoqCAtr/cQOHxlJUfvGFteY7CDZ7u/26hdNx191xQWfGLIPay8pGH6pBnS3+GPFuwCwGBQcsV9y2z3yjssNhpDMWxERxJrtE8ODD5IJwUDyilemSj5K1/PtbXu8kFE6HTAeLZ7Kh5vvrXf8oBDPlMtOS/zf6xzAxeGZjdzFvXbS4x320Tgdex0nUIbiytj+Qgw5jDTzx8NONWzi78ZCFDu5aeKkduP223DLCuF8cCxlxbOCa470fyxue9ZrX7XCpbS/UevdKes9JesYwb+PA3ECd7Ay5in3Ss+r1P1vE2QbEQgGGKUFFv70oUi2hCGL1j62ubpScRxs1B+Pv25ye5xS3CAEP13IEQCLX+ikXnSzVaogqLpjSitfZn0W5o26YqDCgpOsLJb/p7w2V6aoxJbOwzDpIEw== gioacchino@G10h4ckLab'
 
 config section wireless
 	option 'wifi_clients'    'false'
