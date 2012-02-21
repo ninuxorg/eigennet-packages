@@ -2,7 +2,7 @@
 
 TOPDIR="$1"
 
-echo "Build Info:"
+echo Built $(date) by $(whoami) at $(hostname)
 echo
 echo "OpenWrt"
 echo "`cd $TOPDIR; svn info`"

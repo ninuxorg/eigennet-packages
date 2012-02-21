@@ -44,9 +44,13 @@ endef
 
 define Build/Compile
 	@grep -v '^#\[Doc\]' src/eigennet.sh > eigennet.tmp
-	@mkdir ./files/etc/init.d || true
+	@mkdir -p ./files/etc/init.d || true
 	@mv ./eigennet.tmp ./files/etc/init.d/eigennet
 	@chmod +x ./files/etc/init.d/eigennet
+	@grep -v '^#\[Doc\]' src/gw4check.sh > gw4check.tmp
+	@mkdir -p ./files/usr/bin || true
+	@mv ./gw4check.tmp ./files/usr/bin/gw4check
+	@chmod +x ./files/usr/bin/gw4check
 	@./getversion.sh $(TOPDIR)> ./version.tmp
 	@mkdir ./files/etc/eigennet || true
 	@mv ./version.tmp ./files/etc/eigennet/version
