@@ -446,6 +446,9 @@ start()
 		configureNetwork
 		configureSNMP
 
+		uci set dropbear.@dropbear[0].PasswordAuth=off
+		uci set dropbear.@dropbear[0].RootPasswordAuth=off
+
 		uci set eigennet.general.bootmode=2
 
 		uci commit
