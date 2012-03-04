@@ -1,6 +1,4 @@
 This package provide lite eigennet firmware.
-This is fully compatible with the mesh but the client access only with ipv4 to limit size of package and node stress due to radvd and dibbler-server.
-In this way we can remove dibbler-server and radvd from dependency.
 
 You can find updated tools to prepare custom crda here 
 git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
