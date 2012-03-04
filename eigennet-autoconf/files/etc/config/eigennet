@@ -7,7 +7,7 @@ config section snmp
 	option 'community' 'public'
 
 config section network
-	option 'accept_clients'    'true'
+	option 'accept_clients'    'false'
 	option 'ip6gw'             '2001:470:c8f7:ee:ee::1000'           # ipv6 gateway
 	option 'mesh6Prefix'       '2001:470:c8f7:ee:ee:'                # /80 prefix
 	option 'firewall'          'disabled'
