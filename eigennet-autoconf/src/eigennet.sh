@@ -370,56 +370,6 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 	done
 }
 
-configureSNMP()
-{
-	local enabled               ; config_get_bool enabled           snmp        "enabled"           1
-	local community             ; config_get      community         snmp        "community"         "public"
-	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"    1
-	local ath9k_clients         ; config_get_bool ath9k_clients     wireless    "wifi_clients"      0
-	local ath9k_mesh            ; config_get_bool ath9k_mesh        wireless    "wifi_mesh"         1
-	local madwifi_clients       ; config_get_bool madwifi_clients   wireless    "wifi_clients"      0
-	local madwifi_mesh          ; config_get_bool madwifi_mesh      wireless    "wifi_mesh"         1
-	local eth_mesh              ; config_get_bool eth_mesh          wired       "eth_mesh"          1
-	local eth_clients           ; config_get_bool eth_clients       wired       "eth_clients"       1
-
-	echo "#Automatically generated for eigenNet
-config 'mini_snmpd' 'snmp'
-	option enabled	0
-" > $CONF_DIR/mini_snmpd
-
-	[ $enabled -eq 1 ] &&
-	{
-		uci set mini_snmpd.snmp.enabled=1
-		uci set mini_snmpd.snmp.community="$community"
-		uci set mini_snmpd.snmp.ipv6=1
-
-		if [ $accept_clients -eq 1 ] 
-			then
-				uci set mini_snmpd.snmp.interfaces="clients"
-			else
-				uci set mini_snmpd.snmp.interfaces="bat0"
-		fi
-
-		for device in $(scan_devices)
-		do
-			devtype=$(echo $device | sed -e 's/[0-9]*$//')
-			devindex=$(echo $device | sed -e 's/.*\([0-9]\)/\1/')
-
-			case $devtype in
-				"eth")
-					[ $eth_mesh -eq 1 ] && [ $eth_clients -eq 0 ] && uci add_list mini_snmpd.snmp.interfaces="$device"
-				;;
-				"wifi")
-					[ $madwifi_mesh -eq 1 ] && uci add_list mini_snmpd.snmp.interfaces="nmesh$device"
-				;;
-				"radio")
-					[ $ath9k_mesh -eq 1 ] && uci add_list mini_snmpd.snmp.interfaces="nmesh$device"
-				;;
-			esac
-		done
-	}
-}
-
 start()
 {
 	eigenDebug 0 "Starting"
@@ -444,7 +394,6 @@ start()
 		echo "$sshAuthorizedKeys" > "/etc/dropbear/authorized_keys" 
 
 		configureNetwork
-		configureSNMP
 
 		uci set dropbear.@dropbear[0].PasswordAuth=off
 		uci set dropbear.@dropbear[0].RootPasswordAuth=off
@@ -479,8 +428,6 @@ start()
 
 		local gw4Enabled ; config_get_bool gw4Enabled gateway4 "enabled" 0
 		[ $gw4Enabled -eq 0 ] || gw4check &
-
-		/etc/init.d/sysntpd stop #Devices could not reach ntp server so it runs forever, so better to stop it till openwrt ntp server will be reacheable from ipv6
 
 		return 0
 	}
