@@ -261,7 +261,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 					uci set network.$device=interface
 					uci set network.$device.ifname=$device
 					uci set network.$device.proto=static
-					uci set network.$device.ip6addr=eeab:$((10 + $devindex))::1/64
+					uci set network.$device.ip6addr=eeab:$(mac6ize $(get_mac $device))::1/64
 					uci set network.$device.ipaddr=192.168.$((10 + $devindex)).21
 					uci set network.$device.netmask=255.255.255.0
 				} && [ $eth_mesh -eq 1 ] &&
@@ -292,7 +292,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
 					uci set network.nmesh$device.mtu=1528
-					uci set network.nmesh$device.ip6addr=eeab:$((20 + $devindex))::1/64
+					uci set network.nmesh$device.ip6addr=eeab:$(mac6ize $(get_mac $device))::1/64
 					uci set network.nmesh$device.ipaddr=192.168.$((20 + $devindex)).21
 					uci set network.nmesh$device.netmask=255.255.255.0
 
@@ -340,7 +340,7 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
 					uci set network.nmesh$device.mtu=1528
-					uci set network.nmesh$device.ip6addr=eeab:$((30 + $devindex))::1/64
+					uci set network.nmesh$device.ip6addr=eeab:$(mac6ize $(get_mac $device))::1/64
 					uci set network.nmesh$device.ipaddr=192.168.$((30 + $devindex)).21
 					uci set network.nmesh$device.netmask=255.255.255.0
 
