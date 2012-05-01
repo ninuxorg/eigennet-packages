@@ -21,6 +21,8 @@ PKG_NAME:=eigennet
 PKG_VERSION:=0.5
 PKG_RELEASE:=1
 
+PKG_INSTALL:=1
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)/template
@@ -28,30 +30,29 @@ define Package/$(PKG_NAME)/template
 	CATEGORY:=Administration
 	MAINTAINER:=Gioacchino Mazzurco <gmazzurco89@gmail.com>
 	TITLE:=eigenNet Auto Config Package
+	SUBMENU:=$(PKG_NAME)
 endef
 
-define Package/$(PKG_NAME)
+define Package/$(PKG_NAME)-autoconf
 	$(call Package/$(PKG_NAME)/template)
-	MENU:=1
 	DEPENDS:=+ip +kmod-batman-adv +kmod-ipv6
 endef
 
 define Package/$(PKG_NAME)-crda
 	$(call Package/$(PKG_NAME)/template)
-	DEPENDS:=$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)-gw4check
 	$(call Package/$(PKG_NAME)/template)
-	DEPENDS:=$(PKG_NAME)
+	DEPENDS:=+kmod-batman-adv
 endef
 
 define Package/$(PKG_NAME)-pointing
 	$(call Package/$(PKG_NAME)/template)
-	DEPENDS:=$(PKG_NAME)
+#	DEPENDS:=$(PKG_NAME)
 endef
 
-define Package/$(PKG_NAME)/install
+define Package/$(PKG_NAME)-autoconf/install
 	$(CP) -a ./files/* $(1)/
 	@mkdir -p $(1)/etc/init.d || true
 	@mv build/eigennet $(1)/etc/init.d/eigennet
@@ -80,6 +81,9 @@ define Build/Compile
 	@./src/crda/db2bin.py ../../build/regulatory.bin db.txt
 endef
 
-$(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
+$(eval $(call BuildPackage,$(PKG_NAME)-crda))
+$(eval $(call BuildPackage,$(PKG_NAME)-gw4check))
+$(eval $(call BuildPackage,$(PKG_NAME)-pointing))
 
 
