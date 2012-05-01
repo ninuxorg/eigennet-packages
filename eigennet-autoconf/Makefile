@@ -17,44 +17,67 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=eigennet-autoconf
-PKG_VERSION:=0.4.3
-PKG_RELEASE:=4
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
+PKG_NAME:=eigennet
+PKG_VERSION:=0.5
+PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
+define Package/$(PKG_NAME)/template
+	SECTION:=admin
+	CATEGORY:=Administration
+	MAINTAINER:=Gioacchino Mazzurco <gmazzurco89@gmail.com>
+	TITLE:=eigenNet Auto Config Package
+endef
+
 define Package/$(PKG_NAME)
-  SECTION:=admin
-  CATEGORY:=Administration
-  MAINTAINER:=Gioacchino Mazzurco <gmazzurco89@gmail.com>
-  DEPENDS:=+ip +kmod-batman-adv +kmod-ipv6
-  TITLE:=eigenNet Auto Config Package
+	$(call Package/$(PKG_NAME)/template)
+	MENU:=1
+	DEPENDS:=+ip +kmod-batman-adv +kmod-ipv6
+endef
+
+define Package/$(PKG_NAME)-crda
+	$(call Package/$(PKG_NAME)/template)
+	DEPENDS:=$(PKG_NAME)
+endef
+
+define Package/$(PKG_NAME)-gw4check
+	$(call Package/$(PKG_NAME)/template)
+	DEPENDS:=$(PKG_NAME)
+endef
+
+define Package/$(PKG_NAME)-pointing
+	$(call Package/$(PKG_NAME)/template)
+	DEPENDS:=$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)/install
 	$(CP) -a ./files/* $(1)/
+	@mkdir -p $(1)/etc/init.d || true
+	@mv build/eigennet $(1)/etc/init.d/eigennet
+	@chmod +x $(1)/etc/init.d/eigennet
+	@mkdir -p $(1)/etc/eigennet || true
+	@mv build/version $(1)/etc/eigennet/version
 endef
 
-define Package/$(PKG_NAME)/description
-  Prepare Node for EigenNet 
+define Package/$(PKG_NAME)-crda/install
+	@mv build/regulatory.bin $(1)/usr/lib/crda/regulatory.bin
+endef
+
+define Package/$(PKG_NAME)-gw4check/install
+	@echo TODO
+endef
+
+define Package/$(PKG_NAME)-pointing/install
+	@echo TODO
 endef
 
 define Build/Compile
-	@grep -v '^#\[Doc\]' src/eigennet.sh > eigennet.tmp
-	@mkdir -p ./files/etc/init.d || true
-	@mv ./eigennet.tmp ./files/etc/init.d/eigennet
-	@chmod +x ./files/etc/init.d/eigennet
-	@grep -v '^#\[Doc\]' src/gw4check.sh > gw4check.tmp
-	@mkdir -p ./files/usr/bin || true
-	@mv ./gw4check.tmp ./files/usr/bin/gw4check
-	@chmod +x ./files/usr/bin/gw4check
-	@./getversion.sh $(TOPDIR)> ./version.tmp
-	@mkdir ./files/etc/eigennet || true
-	@mv ./version.tmp ./files/etc/eigennet/version
-	@cp ./src/crda/regulatory.bin ./files/etc/eigennet/regulatory.bin
+	@mkdir -p ./build
+	@grep -v '^#\[Doc\]' src/eigennet.sh > build/eigennet
+	@grep -v '^#\[Doc\]' src/gw4check.sh > build/gw4check
+	@./getversion.sh $(TOPDIR)> build/version
+	@./src/crda/db2bin.py ../../build/regulatory.bin db.txt
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
