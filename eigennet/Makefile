@@ -78,7 +78,7 @@ define Build/Compile
 	@grep -v '^#\[Doc\]' src/eigennet.sh > build/eigennet
 	@grep -v '^#\[Doc\]' src/gw4check.sh > build/gw4check
 	@./getversion.sh $(TOPDIR)> build/version
-	@./src/crda/db2bin.py ../../build/regulatory.bin db.txt
+	@./src/crda/db2bin.py build/regulatory.bin src/crda/db.txt
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
