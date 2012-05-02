@@ -86,7 +86,7 @@ endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
 $(eval $(call BuildPackage,$(PKG_NAME)-crda))
-#$(eval $(call BuildPackage,$(PKG_NAME)-gw4check))
+$(eval $(call BuildPackage,$(PKG_NAME)-gw4check))
 #$(eval $(call BuildPackage,$(PKG_NAME)-pointing))
 
 
