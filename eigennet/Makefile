@@ -28,28 +28,31 @@ define Package/$(PKG_NAME)/template
 	SECTION:=admin
 	CATEGORY:=Administration
 	MAINTAINER:=Gioacchino Mazzurco <gmazzurco89@gmail.com>
-	TITLE:=eigenNet Auto Config Package
 	SUBMENU:=$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)-autoconf
 	$(call Package/$(PKG_NAME)/template)
+	TITLE:=eigenNet Auto Config Package
 	DEPENDS:=+ip +kmod-batman-adv +kmod-ipv6
 endef
 
 define Package/$(PKG_NAME)-crda
 	$(call Package/$(PKG_NAME)/template)
+	TITLE:=eigenNet Customized CRDA
 	DEPENDS:=crda
 endef
 
 define Package/$(PKG_NAME)-gw4check
 	$(call Package/$(PKG_NAME)/template)
+	TITLE:=eigenNet IPv4 Gateway Checker
 	DEPENDS:=+ip +kmod-batman-adv
 endef
 
 #define Package/$(PKG_NAME)-pointing
 #	$(call Package/$(PKG_NAME)/template)
-#	DEPENDS:=$(PKG_NAME)
+#	TITLE:=eigenNet antenna pointing tools
+#	DEPENDS:=
 #endef
 
 define Package/$(PKG_NAME)-autoconf/install
