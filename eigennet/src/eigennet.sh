@@ -19,15 +19,14 @@ along with this file.  If not, see <http://www.gnu.org/licenses/>.
 
 COPYRIGHT
 
-START=99
+START=95
 STOP=10
 
 CONF_DIR="/etc/config/"
 
 config_load eigennet
 
-config_get debugLevel             general        "debugLevel"        0
-config_get bootmode               general        "bootmode"          1
+config_get debugLevel general "debugLevel" 0
 
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
@@ -372,6 +371,8 @@ start()
 {
 	eigenDebug 0 "Starting"
 
+	config_get bootmode general "bootmode" 1
+
 	[ $bootmode -eq 0 ] &&
 	{
 		sleep 61s
@@ -408,8 +409,6 @@ start()
 
 	[ $bootmode -ge 2 ] &&
 	{
-		sysctl -w net.ipv4.ip_forward=1
-		sysctl -w net.ipv6.conf.all.forwarding=1
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
 		local accept_clients
@@ -423,9 +422,6 @@ start()
 		[ $firewallEnabled -eq 0 ] && /etc/init.d/firewall stop
 
 		batman-adv restart #added as workaround of batman-adv eth hotplug bug
-
-		local gw4Enabled ; config_get_bool gw4Enabled gateway4 "enabled" 0
-		[ $gw4Enabled -eq 0 ] || gw4check &
 
 		return 0
 	}

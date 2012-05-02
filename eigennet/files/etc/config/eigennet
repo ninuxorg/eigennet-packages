@@ -1,6 +1,6 @@
 config section general
 	option 'debugLevel' '0'
-	option 'bootmode'   '0'  # 0 First boot, 1 Run Autoconfig, 2 Auto Configured, 3 or greater added custom configuration.
+	option 'bootmode'   '0'  # 0 First boot, 1 Run Autoconfig (you should set 1 each time you edit this file), 2 Auto Configured, 3 or greater added custom configuration.
 
 config section network
 	option 'accept_clients'    'true'
@@ -16,7 +16,7 @@ config section wireless
 	option 'countrycode'     'US'                               # Now ignored
 	option 'mesh2channel'    '8'
 	option 'mesh5channel'    '60'                               # TODO: If possible implement 5Ghz adhoc autoconfiguration
-	option 'meshSSID'        'www.eigenlab.org-www.ninux.org'
+	option 'meshSSID'        'www.ninux.org'
 	option 'meshBSSID'       '02:aa:bb:cc:dd:ee'
 	option 'meshMcastRate'   '6000'                             # Fix mesh multicast rate to given kbit/s added to penalize links under defined rate but can have side effects on multicast data packets in higher performance links leave blank to disable
 	option 'apSSID'          'eigenNet'
@@ -27,10 +27,13 @@ config section wired
 	option 'eth_mesh'    'true'
 	option 'eth_clients' 'true'
 
-config section gateway4
+config section gw4check
 	option 'enabled'         'false'
-	option 'strictCheck'     'false'
+	option 'interface'       'clients'                          # UCI interface on which gateway is attached
+	option 'ipaddr'          '192.168.1.2/24'                   # Ip to give to the interface do do tests
+	option 'gateway'         '192.168.1.1'                      # Gateway ip
+	option 'strictCheck'     'false'                            # When true if just one test fail the gateway will not be announced
 	option 'checkInterval'   '10s'
-	option 'bandwidth'       '2000/512'
-	list   'checkHosts'      '8.8.8.8'
+	option 'bandwidth'       '2000/512'                         # Announced bandwidth Down/Up Kbps/Kbps
+	list   'checkHosts'      '8.8.8.8'                          # List of host to use for gateway test
 	list   'checkHosts'      '8.8.4.4'

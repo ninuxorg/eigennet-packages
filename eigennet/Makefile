@@ -39,12 +39,13 @@ endef
 
 define Package/$(PKG_NAME)-crda
 	$(call Package/$(PKG_NAME)/template)
+	DEPENDS:=crda
 endef
 
-#define Package/$(PKG_NAME)-gw4check
-#	$(call Package/$(PKG_NAME)/template)
-#	DEPENDS:=+kmod-batman-adv
-#endef
+define Package/$(PKG_NAME)-gw4check
+	$(call Package/$(PKG_NAME)/template)
+	DEPENDS:=+ip +kmod-batman-adv
+endef
 
 #define Package/$(PKG_NAME)-pointing
 #	$(call Package/$(PKG_NAME)/template)

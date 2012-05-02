@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh /etc/rc.common
 
 <<COPYRIGHT
 
@@ -19,32 +19,80 @@ along with this file.  If not, see <http://www.gnu.org/licenses/>.
 
 COPYRIGHT
 
+START=96
+STOP=9
+
 CONF_DIR="/etc/config/"
 
-. /lib/functions.sh
+pidFile="/var/run/gw4check.pid"
 
-config_load eigennet
+plainIfName()
+{
+	interface=$1
+	[ "$(uci -q -P/var/state get network.${interface})" == "interface" ] && [ "$(uci -q -P/var/state get network.${interface}.type)" == "bridge" ] && echo br-${interface} && return 0
+	[ "$(uci -q -P/var/state get network.${interface})" == "interface" ] && echo $(uci -q -P/var/state get network.${interface}.ifname) && return 0
+	[ -e "/sys/class/net/${interface}" ] && echo ${interface} && return 0
+	echo lo
+	return 1
+}
 
-config_get_bool  gw4Enabled      gateway4 "enabled"        0
-config_get_bool  strictCheck     gateway4 "strictCheck"    0
-config_get       checkInterval   gateway4 "checkInterval"  "10s"
-config_get       checkHosts      gateway4 "checkHosts"     "8.8.8.8 8.8.4.4"
-config_get       bandwidth       gateway4 "bandwidth"      "5000/512"
+start()
+{
+	[ -f ${pidFile} ] ||
+	{
+		config_load eigennet
+		config_get_bool  gw4Enabled      gw4check "enabled"  0
+		config_get       bootmode        general  "bootmode" 1
 
-while [ $gw4Enabled -eq 1 ]
-do
-	sleep $checkInterval
-	i=0
-	failure=0
-	for host in $checkHosts
-	do
-		ping -4 -c 5 -q $host &> /dev/null
-		failure=$((failure+$?))
-		i=$((i+1))
-	done
-	
-	[ $failure -gt 0  ] &&  [ $strictCheck -eq 1 ] && batctl gw_mode client && continue
-	[ $failure -ge $i ] &&                            batctl gw_mode client && continue
+		[ $gw4Enabled -eq 1 ] && [ $bootmode -ge 2 ] &&
+		{
+			config_get       interface       gw4check "interface"      "clients"
+			config_get       ipaddr          gw4check "ipaddr"         "192.168.1.2/24"
+			config_get       gateway         gw4check "gateway"        "192.168.1.1"
+			config_get_bool  strictCheck     gw4check "strictCheck"    0
+			config_get       checkInterval   gw4check "checkInterval"  "10s"
+			config_get       checkHosts      gw4check "checkHosts"     "8.8.8.8 8.8.4.4"
+			config_get       bandwidth       gw4check "bandwidth"      "5000/512"
 
-	batctl gw_mode server $bandwidth
-done
+			ifname=$(plainIfName ${interface})
+			ip address add ${ipaddr} dev ${ifname} || true
+			ip route add default via ${gateway}    || true
+
+			while sleep $checkInterval
+			do
+				i=0
+				failure=0
+				for host in $checkHosts
+				do
+					ping -4 -c 5 -q $host &> /dev/null
+					failure=$((failure+$?))
+					i=$((i+1))
+				done
+				
+				[ $strictCheck -eq 1 ] && [ $failure -gt 0  ] && batctl gw_mode client && continue
+				[ $failure -ge $i ]    &&                        batctl gw_mode client && continue
+
+				batctl gw_mode server $bandwidth
+			done &
+
+			echo $! > ${pidFile}
+		}
+	}
+}
+
+stop()
+{
+	[ -f ${pidFile} ] && 
+	{
+		kill $(cat ${pidFile})
+		rm ${pidFile}
+		batctl gw_mode client
+		config_load eigennet
+		config_get       interface       gw4check "interface"      "clients"
+		config_get       ipaddr          gw4check "ipaddr"         "192.168.1.2/24"
+		config_get       gateway         gw4check "gateway"        "192.168.1.1"
+		ifname=$(plainIfName ${interface})
+		ip route del default via ${gateway}    || true
+		ip address del ${ipaddr} dev ${ifname} || true
+	}
+}
