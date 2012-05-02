@@ -66,9 +66,11 @@ define Package/$(PKG_NAME)-crda/install
 	$(CP) build/regulatory.bin $(1)/usr/lib/crda/regulatory.bin
 endef
 
-#define Package/$(PKG_NAME)-gw4check/install
-#	@echo TODO
-#endef
+define Package/$(PKG_NAME)-gw4check/install
+	@mkdir -p $(1)/etc/init.d || true
+	$(CP) build/gw4check $(1)/etc/init.d/gw4check
+	@chmod +x $(1)/etc/init.d/gw4check
+endef
 
 #define Package/$(PKG_NAME)-pointing/install
 #	@echo TODO

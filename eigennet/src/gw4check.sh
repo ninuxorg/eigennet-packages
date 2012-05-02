@@ -26,6 +26,14 @@ CONF_DIR="/etc/config/"
 
 pidFile="/var/run/gw4check.pid"
 
+#[Doc]
+#[Doc] Print linux interface name and return 0 if $1 is an UCI interface
+#[Doc] or a linux interface, return 1 and print lo otherwise
+#[Doc]
+#[Doc] usage: plainIfName interfaceName
+#[Doc]
+#[Doc] example: plainIfName eth0
+#[Doc]
 plainIfName()
 {
 	interface=$1
@@ -95,4 +103,11 @@ stop()
 		ip route del default via ${gateway}    || true
 		ip address del ${ipaddr} dev ${ifname} || true
 	}
+}
+
+restart()
+{
+	stop
+	sleep 2s
+	start
 }
