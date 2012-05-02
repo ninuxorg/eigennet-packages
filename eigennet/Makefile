@@ -74,7 +74,7 @@ endef
 #endef
 
 define Build/Compile
-	@mkdir -p ./build
+	@mkdir -p ./build || true
 	@grep -v '^#\[Doc\]' src/eigennet.sh > build/eigennet
 	@grep -v '^#\[Doc\]' src/gw4check.sh > build/gw4check
 	@./getversion.sh $(TOPDIR)> build/version
@@ -83,7 +83,7 @@ endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
 $(eval $(call BuildPackage,$(PKG_NAME)-crda))
-$(eval $(call BuildPackage,$(PKG_NAME)-gw4check))
-$(eval $(call BuildPackage,$(PKG_NAME)-pointing))
+#$(eval $(call BuildPackage,$(PKG_NAME)-gw4check))
+#$(eval $(call BuildPackage,$(PKG_NAME)-pointing))
 
 
