@@ -54,14 +54,14 @@ endef
 define Package/$(PKG_NAME)-autoconf/install
 	$(CP) -a ./files/* $(1)/
 	@mkdir -p $(1)/etc/init.d || true
-	@mv build/eigennet $(1)/etc/init.d/eigennet
+	$(CP) build/eigennet $(1)/etc/init.d/eigennet
 	@chmod +x $(1)/etc/init.d/eigennet
 	@mkdir -p $(1)/etc/eigennet || true
-	@mv build/version $(1)/etc/eigennet/version
+	$(CP) build/version $(1)/etc/eigennet/version
 endef
 
 define Package/$(PKG_NAME)-crda/install
-	@mv build/regulatory.bin $(1)/usr/lib/crda/regulatory.bin
+	$(CP) build/regulatory.bin $(1)/usr/lib/crda/regulatory.bin
 endef
 
 #define Package/$(PKG_NAME)-gw4check/install
