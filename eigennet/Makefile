@@ -42,15 +42,15 @@ define Package/$(PKG_NAME)-crda
 	$(call Package/$(PKG_NAME)/template)
 endef
 
-define Package/$(PKG_NAME)-gw4check
-	$(call Package/$(PKG_NAME)/template)
-	DEPENDS:=+kmod-batman-adv
-endef
+#define Package/$(PKG_NAME)-gw4check
+#	$(call Package/$(PKG_NAME)/template)
+#	DEPENDS:=+kmod-batman-adv
+#endef
 
-define Package/$(PKG_NAME)-pointing
-	$(call Package/$(PKG_NAME)/template)
+#define Package/$(PKG_NAME)-pointing
+#	$(call Package/$(PKG_NAME)/template)
 #	DEPENDS:=$(PKG_NAME)
-endef
+#endef
 
 define Package/$(PKG_NAME)-autoconf/install
 	$(CP) -a ./files/* $(1)/
@@ -65,13 +65,13 @@ define Package/$(PKG_NAME)-crda/install
 	@mv build/regulatory.bin $(1)/usr/lib/crda/regulatory.bin
 endef
 
-define Package/$(PKG_NAME)-gw4check/install
-	@echo TODO
-endef
+#define Package/$(PKG_NAME)-gw4check/install
+#	@echo TODO
+#endef
 
-define Package/$(PKG_NAME)-pointing/install
-	@echo TODO
-endef
+#define Package/$(PKG_NAME)-pointing/install
+#	@echo TODO
+#endef
 
 define Build/Compile
 	@mkdir -p ./build
