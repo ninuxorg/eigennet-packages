@@ -107,12 +107,11 @@ define Package/$(PKG_NAME)-pointing/install
 endef
 
 define Package/$(PKG_NAME)-pointing-webui/install
-	@mkdir -p $(1)/www || true
+	@mkdir -p $(1)/www/cgi-bin || true
 	$(CP) src/index.html $(1)/www/index.html
 	$(CP) src/welcome.html $(1)/www/welcome.html
-	@mkdir -p $(1)/cgi-bin || true
-	$(CP) src/pointing.cgi $(1)/cgi-bin/pointing.cgi
-	@chmod +x $(1)/cgi-bin/pointing.cgi
+	$(CP) src/pointing.cgi $(1)/www/cgi-bin/pointing.cgi
+	@chmod +x $(1)/www/cgi-bin/pointing.cgi
 endef
 
 define Build/Compile
