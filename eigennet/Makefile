@@ -33,43 +33,43 @@ endef
 
 define Package/$(PKG_NAME)-autoconf
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=eigenNet Auto Config Package
+	TITLE:=Auto Config Package
 	DEPENDS:=+ip +kmod-batman-adv +kmod-ipv6
 endef
 
 define Package/$(PKG_NAME)-bwtest
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=eigenNet Bandwidth Measurement Tool (need busybox nc -l)
+	TITLE:=Bandwidth Measurement Tool (need busybox nc -l)
 	DEPENDS:=+pv
 endef
 
 define Package/$(PKG_NAME)-bwtest-webui
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=eigenNet Bandwidth Measurement Tool (need busybox nc -l)
+	TITLE:=Bandwidth Measurement Tool (need busybox nc -l)
 	DEPENDS:=+$(PKG_NAME)-bwtest +uhttpd
 endef
 
 define Package/$(PKG_NAME)-crda
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=eigenNet Customized CRDA
+	TITLE:=Customized CRDA
 	DEPENDS:=crda
 endef
 
 define Package/$(PKG_NAME)-gw4check
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=eigenNet IPv4 Gateway Checker
+	TITLE:=IPv4 Gateway Checker
 	DEPENDS:=+ip +kmod-batman-adv
 endef
 
 define Package/$(PKG_NAME)-pointing
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=eigenNet antenna pointing tools
+	TITLE:=Antenna Pointing Tools
 endef
 
 define Package/$(PKG_NAME)-pointing-webui
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=eigenNet antenna pointing tools
-	DEPENDS:=$(PKG_NAME)-pointing +uhttpd
+	DEPENDS:=+$(PKG_NAME)-pointing +uhttpd
 endef
 
 define Package/$(PKG_NAME)-autoconf/install
@@ -101,9 +101,9 @@ define Package/$(PKG_NAME)-gw4check/install
 endef
 
 define Package/$(PKG_NAME)-pointing/install
-	@mkdir -p $(1)/var/lib/eigennet || true
-	$(CP) build/links.sh $(1)/var/lib/eigennet/links.sh
-	@chmod +x $(1)/var/lib/eigennet/links.sh
+	@mkdir -p $(1)/usr/lib/eigennet || true
+	$(CP) build/links.sh $(1)/usr/lib/eigennet/links.sh
+	@chmod +x $(1)/usr/lib/eigennet/links.sh
 endef
 
 define Package/$(PKG_NAME)-pointing-webui/install
