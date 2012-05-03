@@ -37,6 +37,12 @@ define Package/$(PKG_NAME)-autoconf
 	DEPENDS:=+ip +kmod-batman-adv +kmod-ipv6
 endef
 
+define Package/$(PKG_NAME)-bwtest
+	$(call Package/$(PKG_NAME)/template)
+	TITLE:=eigenNet Bandwidth Measurement Tool
+	DEPENDS:=+pv +netcat
+endef
+
 define Package/$(PKG_NAME)-crda
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=eigenNet Customized CRDA
@@ -64,6 +70,10 @@ define Package/$(PKG_NAME)-autoconf/install
 	$(CP) build/version $(1)/etc/eigennet/version
 endef
 
+define Package/$(PKG_NAME)-bwtest/install
+	@echo TODO
+endef
+
 define Package/$(PKG_NAME)-crda/install
 	@mkdir -p $(1)/usr/lib/crda || true
 	$(CP) build/regulatory.bin $(1)/usr/lib/crda/regulatory.bin
@@ -88,6 +98,7 @@ define Build/Compile
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
+$(eval $(call BuildPackage,$(PKG_NAME)-bwtest))
 $(eval $(call BuildPackage,$(PKG_NAME)-crda))
 $(eval $(call BuildPackage,$(PKG_NAME)-gw4check))
 #$(eval $(call BuildPackage,$(PKG_NAME)-pointing))
