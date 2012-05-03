@@ -1,0 +1,21 @@
+<html>
+	<head>
+		<title>eigenNet Minimal WebGui</title>
+		<script type="text/javascript">
+			function loadPointing()
+			{
+				top.document.getElementById('workerF').setAttribute("src","pointing.cgi");
+			}
+		</script>
+	</head>
+	<body>
+		<center>
+			<table>
+				<tr>
+					<td><a href="JavaScript:loadPointing()">Pointing</a></td>
+				</tr>
+			</table>
+			<iframe id="workerF" name="workerF" height="80%" width="80%" src="welcome.html"></iframe>
+		</center>
+	</body>
+</html>

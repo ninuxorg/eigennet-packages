@@ -39,8 +39,14 @@ endef
 
 define Package/$(PKG_NAME)-bwtest
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=eigenNet Bandwidth Measurement Tool
-	DEPENDS:=+pv +netcat
+	TITLE:=eigenNet Bandwidth Measurement Tool (need busybox nc -l)
+	DEPENDS:=+pv
+endef
+
+define Package/$(PKG_NAME)-bwtest-webui
+	$(call Package/$(PKG_NAME)/template)
+	TITLE:=eigenNet Bandwidth Measurement Tool (need busybox nc -l)
+	DEPENDS:=+$(PKG_NAME)-bwtest +uhttpd
 endef
 
 define Package/$(PKG_NAME)-crda
@@ -55,11 +61,16 @@ define Package/$(PKG_NAME)-gw4check
 	DEPENDS:=+ip +kmod-batman-adv
 endef
 
-#define Package/$(PKG_NAME)-pointing
-#	$(call Package/$(PKG_NAME)/template)
-#	TITLE:=eigenNet antenna pointing tools
-#	DEPENDS:=
-#endef
+define Package/$(PKG_NAME)-pointing
+	$(call Package/$(PKG_NAME)/template)
+	TITLE:=eigenNet antenna pointing tools
+endef
+
+define Package/$(PKG_NAME)-pointing-webui
+	$(call Package/$(PKG_NAME)/template)
+	TITLE:=eigenNet antenna pointing tools
+	DEPENDS:=$(PKG_NAME)-pointing +uhttpd
+endef
 
 define Package/$(PKG_NAME)-autoconf/install
 	$(CP) -a ./files/* $(1)/
@@ -74,6 +85,10 @@ define Package/$(PKG_NAME)-bwtest/install
 	@echo TODO
 endef
 
+define Package/$(PKG_NAME)-bwtest-webui/install
+	@echo TODO
+endef
+
 define Package/$(PKG_NAME)-crda/install
 	@mkdir -p $(1)/usr/lib/crda || true
 	$(CP) build/regulatory.bin $(1)/usr/lib/crda/regulatory.bin
@@ -85,22 +100,33 @@ define Package/$(PKG_NAME)-gw4check/install
 	@chmod +x $(1)/etc/init.d/gw4check
 endef
 
-#define Package/$(PKG_NAME)-pointing/install
-#	@echo TODO
-#endef
+define Package/$(PKG_NAME)-pointing/install
+	@mkdir -p $(1)/var/lib/eigennet || true
+	$(CP) build/links.sh $(1)/var/lib/eigennet/links.sh
+	@chmod +x $(1)/var/lib/eigennet/links.sh
+endef
+
+define Package/$(PKG_NAME)-pointing-webui/install
+	@mkdir -p $(1)/www || true
+	$(CP) src/index.html $(1)/www/index.html
+	$(CP) src/welcome.html $(1)/www/welcome.html
+	$(CP) src/pointing.cgi $(1)/cgi-bin/pointing.cgi
+	@chmod +x $(1)/cgi-bin/pointing.cgi
+endef
 
 define Build/Compile
 	@mkdir -p ./build || true
 	@grep -v '^#\[Doc\]' src/eigennet.sh > build/eigennet
 	@grep -v '^#\[Doc\]' src/gw4check.sh > build/gw4check
+	@grep -v '^#\[Doc\]' src/links.sh > build/links.sh
 	@./getversion.sh $(TOPDIR)> build/version
 	@./src/crda/db2bin.py build/regulatory.bin src/crda/db.txt
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
 $(eval $(call BuildPackage,$(PKG_NAME)-bwtest))
+#$(eval $(call BuildPackage,$(PKG_NAME)-bwtest-webui))
 $(eval $(call BuildPackage,$(PKG_NAME)-crda))
 $(eval $(call BuildPackage,$(PKG_NAME)-gw4check))
-#$(eval $(call BuildPackage,$(PKG_NAME)-pointing))
-
-
+$(eval $(call BuildPackage,$(PKG_NAME)-pointing))
+$(eval $(call BuildPackage,$(PKG_NAME)-pointing-webui))
