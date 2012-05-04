@@ -2,20 +2,54 @@
 	<head>
 		<title>eigenNet Minimal WebGui</title>
 		<script type="text/javascript">
+		<!--
+			var pointingPaniterCicle;
+
+			function clearWorking()
+			{
+				clearInterval(pointingPaniterCicle);
+				document.getElementById('worker').innerHTML="";
+			}
+
+			function loadHome()
+			{
+				clearWorking();
+				document.getElementById('worker').innerHTML="<p>Welcome!</p>";
+			}
+
 			function loadPointing()
 			{
-				top.document.getElementById('workerF').setAttribute("src","cgi-bin/pointing.cgi");
+				clearWorking();
+				document.getElementById('worker').innerHTML='<table id="pointingTable" cellspacing="0" cellpadding="2" border="1"></table>';
+				refreshPointing();
+				pointingPaniterCicle=setInterval("refreshPointing();",800);
 			}
+			function pointingPaint(){}
+			function refreshPointing()
+			{
+				pointingCGI=document.createElement('script');
+				pointingCGI.setAttribute("type","text/javascript");
+				pointingCGI.setAttribute("src", "cgi-bin/pointing.cgi");
+				document.getElementsByTagName("head")[0].appendChild(pointingCGI);
+				pointingPaint();
+			}
+		//-->
 		</script>
 	</head>
 	<body>
 		<center>
-			<table>
-				<tr>
-					<td><a href="JavaScript:loadPointing()">Pointing</a></td>
-				</tr>
-			</table>
-			<iframe id="workerF" name="workerF" height="80%" width="80%" src="welcome.html"></iframe>
+			<div>
+				<table>
+					<tr>
+						<td><a href="JavaScript:loadHome()">Home</a></td>
+						<td><a href="JavaScript:loadPointing()">Pointing</a></td>
+						<td><a href="JavaScript:clearWorking()">Clear</a></td>
+					</tr>
+				</table>
+			</div>
+			<div id="worker">
+					<p>Welcome!</p>
+			</div>
 		</center>
 	</body>
 </html>
