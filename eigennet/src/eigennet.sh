@@ -405,7 +405,7 @@ configurePointing()
 	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"         0
 
 	[ pointingEnabled -eq 1 ] && chmod 777 /www/cgi-bin/pointing.cgi
-	[ pointingEnabled -eq 0 ] && chmod 000 /www/cgi-bin/pointing.cgi
+	[ pointingEnabled -eq 0 ] && chmod 750 /www/cgi-bin/pointing.cgi
 }
 
 start()

@@ -40,10 +40,10 @@ config section gw4server
 	list   'checkHosts'      '8.8.4.4'
 
 config section pointing
-	option 'enabled'         'false'                                # If true enable pointing web interface
+	option 'enabled'         'false'                                # If true enable pointing web interface SUGGESTION: Disable this as soon as you don't need it
 
 config section bwtestclient
-	option 'enabled'         'false'                                # If true enable bandwidth testing web client
+	option 'enabled'         'false'                                # If true enable bandwidth testing web client SUGGESTION: Disable this as soon as you don't need it
 
 config section bwtestserver
-	option 'enabled'         'false'                                # If true enable bandwidth testing server
+	option 'enabled'         'false'                                # If true enable bandwidth testing server SUGGESTION: Disable this as soon as you don't need it
