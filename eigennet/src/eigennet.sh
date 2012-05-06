@@ -148,8 +148,15 @@ configureNetwork()
 {
 	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"   1
 	local firewallEnabled       ; config_get_bool firewallEnabled   network     "firewall"         0
-	local mesh6Prefix           ; config_get mesh6Prefix            network     "mesh6Prefix"      "2001:470:ca42:ee:ab:"
-	local ip6gw                 ; config_get ip6gw                  network     "ip6gw"            "2001:470:ca42:ee:ab::1000"
+
+	local mesh6Prefix           ; config_get mesh6Prefix            network     "ip6prefix"        "2001:470:ca42:ee:ab:"
+	local ip6addr               ; config_get ip6addr                network     "ip6addr"          ""
+	local ip6gw                 ; config_get ip6gw                  network     "ip6gw"            ""
+
+	local ipaddr                ; config_get ipaddr                 network     "ipaddr"           "192.168.1.21"
+	local netmask               ; config_get netmask                network     "netmask"          "255.255.255.0"
+	local gateway               ; gonfig_get gateway                network     "gateway"          ""
+
 	local resolvers             ; config_get resolvers              network     "resolvers"
 
 	local wifi_clients          ; config_get_bool wifi_clients      wireless    "wifi_clients"     0
@@ -159,8 +166,7 @@ configureNetwork()
 	local madwifi_clients       ; config_get_bool madwifi_clients   wireless    "wifi_clients"     0
 	local madwifi_mesh          ; config_get_bool madwifi_mesh      wireless    "wifi_mesh"        1
 	local countrycode           ; config_get countrycode            wireless    "countrycode"
-	local mesh2channel          ; config_get mesh2channel           wireless    "mesh2channel"
-	local mesh5channel          ; config_get mesh5channel           wireless    "mesh5channel"
+	local mesh2channel          ; config_get mesh2channel           wireless    "wifi_channel"
 	local meshSSID              ; config_get meshSSID               wireless    "meshSSID"         "www.ninux.org"
 	local meshBSSID             ; config_get meshBSSID              wireless    "meshBSSID"        "02:aa:bb:cc:dd:ee"
 	local meshMcastRate         ; config_get meshMcastRate          wireless    "meshMcastRate"
@@ -222,20 +228,32 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 			uci set network.clients.proto=static
 			uci set network.clients.type=bridge
 			uci add_list network.clients.ifname="bat0"
-			#Assuming that we have eth0 onboard
-			uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
+			if [ "void$ip6addr" == "void" ]
+				then
+					#Assuming that we have eth0 onboard
+					uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
+				else
+					uci set network.clients.ip6addr=$ip6addr
+			fi
 			uci set network.clients.ip6gw=$ip6gw
-			uci set network.clients.ipaddr=192.168.1.21
-			uci set network.clients.netmask=255.255.255.0
+			uci set network.clients.ipaddr=$ipaddr
+			uci set network.clients.netmask=$netmask
+			uci set network.clients.gateway=$gateway
 		else
 			uci set network.bat0=interface
 			uci set network.bat0.proto=static
 			uci set network.bat0.ifname="bat0"
-			#Assuming that we have eth0 onboard
-			uci set network.bat0.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
+			if [ "void$ip6addr" == "void" ]
+				then
+					#Assuming that we have eth0 onboard
+					uci set network.bat0.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
+				else
+					uci set network.bat0.ip6addr=$ip6addr
+			fi
 			uci set network.bat0.ip6gw=$ip6gw
-			uci set network.bat0.ipaddr=192.168.1.21
-			uci set network.bat0.netmask=255.255.255.0
+			uci set network.bat0.ipaddr=$ipaddr
+			uci set network.bat0.netmask=$netmask
+			uci set network.bat0.gateway=$gateway
 	fi
 
 	for device in $(scan_devices)
@@ -365,6 +383,29 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 			;;
 		esac
 	done
+}
+
+configureUhttpd()
+{
+	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"         0
+	local bwtestclientEnabled       ; config_get_bool bwtestclientEnabled   bwtestclient     "enabled"         0
+	
+	if [ pointingEnabled -eq 0 ] && [ bwtestclientEnabled -eq 0 ]
+		then
+			/etc/init.d/uhttpd disable
+		else
+			/etc/init.d/uhttpd enable
+			uci set      uhttpd.main.listen_http="0.0.0.0:80"
+			uci add_list uhttpd.main.listen_http="[::]:80"
+	fi
+}
+
+configurePointing()
+{
+	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"         0
+
+	[ pointingEnabled -eq 1 ] && chmod 777 /www/cgi-bin/pointing.cgi
+	[ pointingEnabled -eq 0 ] && chmod 000 /www/cgi-bin/pointing.cgi
 }
 
 start()
