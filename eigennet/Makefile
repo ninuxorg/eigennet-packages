@@ -55,7 +55,7 @@ define Package/$(PKG_NAME)-crda
 	DEPENDS:=crda
 endef
 
-define Package/$(PKG_NAME)-gw4check
+define Package/$(PKG_NAME)-gw4server
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=IPv4 Gateway Checker
 	DEPENDS:=+ip +kmod-batman-adv
@@ -94,10 +94,10 @@ define Package/$(PKG_NAME)-crda/install
 	$(CP) build/regulatory.bin $(1)/usr/lib/crda/regulatory.bin
 endef
 
-define Package/$(PKG_NAME)-gw4check/install
+define Package/$(PKG_NAME)-gw4server/install
 	@mkdir -p $(1)/etc/init.d || true
-	$(CP) build/gw4check $(1)/etc/init.d/gw4check
-	@chmod +x $(1)/etc/init.d/gw4check
+	$(CP) build/gw4server $(1)/etc/init.d/gw4server
+	@chmod +x $(1)/etc/init.d/gw4server
 endef
 
 define Package/$(PKG_NAME)-pointing/install
@@ -117,7 +117,7 @@ endef
 define Build/Compile
 	@mkdir -p ./build || true
 	@grep -v '^#\[Doc\]' src/eigennet.sh > build/eigennet
-	@grep -v '^#\[Doc\]' src/gw4check.sh > build/gw4check
+	@grep -v '^#\[Doc\]' src/gw4server.sh > build/gw4server
 	@grep -v '^#\[Doc\]' src/links.sh > build/links.sh
 	@./getversion.sh $(TOPDIR)> build/version
 	@./src/crda/db2bin.py build/regulatory.bin src/crda/db.txt
@@ -127,6 +127,6 @@ $(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
 $(eval $(call BuildPackage,$(PKG_NAME)-bwtest))
 #$(eval $(call BuildPackage,$(PKG_NAME)-bwtest-webui))
 $(eval $(call BuildPackage,$(PKG_NAME)-crda))
-$(eval $(call BuildPackage,$(PKG_NAME)-gw4check))
+$(eval $(call BuildPackage,$(PKG_NAME)-gw4server))
 $(eval $(call BuildPackage,$(PKG_NAME)-pointing))
 $(eval $(call BuildPackage,$(PKG_NAME)-pointing-webui))
