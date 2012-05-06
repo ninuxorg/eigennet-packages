@@ -150,12 +150,12 @@ configureNetwork()
 	local firewallEnabled       ; config_get_bool firewallEnabled   network     "firewall"         0
 
 	local mesh6Prefix           ; config_get mesh6Prefix            network     "ip6prefix"        "2001:470:ca42:ee:ab:"
-	local ip6addr               ; config_get ip6addr                network     "ip6addr"          ""
-	local ip6gw                 ; config_get ip6gw                  network     "ip6gw"            ""
+	local ip6addr               ; config_get ip6addr                network     "ip6addr"
+	local ip6gw                 ; config_get ip6gw                  network     "ip6gw"
 
 	local ipaddr                ; config_get ipaddr                 network     "ipaddr"           "192.168.1.21"
 	local netmask               ; config_get netmask                network     "netmask"          "255.255.255.0"
-	local gateway               ; gonfig_get gateway                network     "gateway"          ""
+	local gateway               ; gonfig_get gateway                network     "gateway"
 
 	local resolvers             ; config_get resolvers              network     "resolvers"
 
@@ -387,8 +387,8 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
 configureUhttpd()
 {
-	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"         0
-	local bwtestclientEnabled       ; config_get_bool bwtestclientEnabled   bwtestclient     "enabled"         0
+	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
+	local bwtestclientEnabled       ; config_get_bool bwtestclientEnabled   bwtestclient     "enabled"                0
 	
 	if [ pointingEnabled -eq 0 ] && [ bwtestclientEnabled -eq 0 ]
 		then
@@ -402,10 +402,27 @@ configureUhttpd()
 
 configurePointing()
 {
-	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"         0
+	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
 
 	[ pointingEnabled -eq 1 ] && chmod 777 /www/cgi-bin/pointing.cgi
 	[ pointingEnabled -eq 0 ] && chmod 750 /www/cgi-bin/pointing.cgi
+}
+
+configureDropbear()
+{
+	local sshEnabled                ; config_get_bool sshEnabled            sshserver         "enabled"               1
+	local passwdAuth                ; config_get_bool passwdAuth            sshserver         "passwdAuth"            0
+	local sshAuthorizedKeys         ; config_get      sshAuthorizedKeys     sshserver         "sshAuthorizedKeys"
+
+	if [ $sshEnabled -eq 1 ]
+		then
+			/etc/init.d/dropbear enable
+			echo "$sshAuthorizedKeys" > "/etc/dropbear/authorized_keys" 
+			uci set dropbear.@dropbear[0].PasswordAuth=$passwdAuth
+			uci set dropbear.@dropbear[0].RootPasswordAuth=$passwdAuth
+		else
+			/etc/init.d/dropbear disable
+	fi
 }
 
 start()
@@ -430,13 +447,9 @@ start()
 	{
 		sleep 10s
 
-		local sshAuthorizedKeys	; config_get sshAuthorizedKeys		network		sshAuthorizedKeys
-		echo "$sshAuthorizedKeys" > "/etc/dropbear/authorized_keys" 
-
+		configurePointing
+		configureDropbear
 		configureNetwork
-
-		uci set dropbear.@dropbear[0].PasswordAuth=off
-		uci set dropbear.@dropbear[0].RootPasswordAuth=off
 
 		uci set eigennet.general.bootmode=2
 
