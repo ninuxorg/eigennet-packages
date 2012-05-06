@@ -455,6 +455,8 @@ start()
 	{
 		sleep 10s
 
+		configureBWTestClient
+		configureUhttpd
 		configurePointing
 		configureDropbear
 		configureNetwork
