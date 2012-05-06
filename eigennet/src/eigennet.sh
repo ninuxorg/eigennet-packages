@@ -408,6 +408,14 @@ configurePointing()
 	[ pointingEnabled -eq 0 ] && chmod 750 /www/cgi-bin/pointing.cgi
 }
 
+configureBWTestClient()
+{
+	local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
+
+	[ bwClientEnabled -eq 1 ] && chmod 777 /www/cgi-bin/bwtclient.cgi
+	[ bwClientEnabled -eq 0 ] && chmod 750 /www/cgi-bin/bwtclient.cgi
+}
+
 configureDropbear()
 {
 	local sshEnabled                ; config_get_bool sshEnabled            sshserver         "enabled"               1

@@ -82,11 +82,15 @@ define Package/$(PKG_NAME)-autoconf/install
 endef
 
 define Package/$(PKG_NAME)-bwtest/install
-	@echo TODO
+	@mkdir -p $(1)/etc/init.d || true
+	$(CP) build/bwtserver $(1)/etc/init.d/bwtserver
 endef
 
 define Package/$(PKG_NAME)-bwtest-webui/install
-	@echo TODO
+	@mkdir -p $(1)/www/cgi-bin || true
+	$(CP) src/index.html $(1)/www/index.html
+	$(CP) src/bwtclient.cgi $(1)/www/cgi-bin/bwtclient.cgi
+	@chmod +x $(1)/www/cgi-bin/pointing.cgi
 endef
 
 define Package/$(PKG_NAME)-crda/install
@@ -109,7 +113,6 @@ endef
 define Package/$(PKG_NAME)-pointing-webui/install
 	@mkdir -p $(1)/www/cgi-bin || true
 	$(CP) src/index.html $(1)/www/index.html
-	$(CP) src/welcome.html $(1)/www/welcome.html
 	$(CP) src/pointing.cgi $(1)/www/cgi-bin/pointing.cgi
 	@chmod +x $(1)/www/cgi-bin/pointing.cgi
 endef
@@ -119,13 +122,14 @@ define Build/Compile
 	@grep -v '^#\[Doc\]' src/eigennet.sh > build/eigennet
 	@grep -v '^#\[Doc\]' src/gw4server.sh > build/gw4server
 	@grep -v '^#\[Doc\]' src/links.sh > build/links.sh
+	@grep -v '^#\[Doc\]' src/bwtserver.sh > build/bwtserver
 	@./getversion.sh $(TOPDIR)> build/version
 	@./src/crda/db2bin.py build/regulatory.bin src/crda/db.txt
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
 $(eval $(call BuildPackage,$(PKG_NAME)-bwtest))
-#$(eval $(call BuildPackage,$(PKG_NAME)-bwtest-webui))
+$(eval $(call BuildPackage,$(PKG_NAME)-bwtest-webui))
 $(eval $(call BuildPackage,$(PKG_NAME)-crda))
 $(eval $(call BuildPackage,$(PKG_NAME)-gw4server))
 $(eval $(call BuildPackage,$(PKG_NAME)-pointing))
