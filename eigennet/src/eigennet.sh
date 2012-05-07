@@ -157,6 +157,7 @@ configureNetwork()
 	local netmask               ; config_get netmask                network     "netmask"          "255.255.255.0"
 	local gateway               ; config_get gateway                network     "gateway"
 
+	local hostName              ; config_get hostName               network     "hostname"         "OpenWrt"
 	local resolvers             ; config_get resolvers              network     "resolvers"
 
 	local wifi_clients          ; config_get_bool wifi_clients      wireless    "wifi_clients"     0
@@ -177,6 +178,8 @@ configureNetwork()
 	local eth_mesh              ; config_get_bool eth_mesh          wired       "eth_mesh"         1
 	local eth_clients           ; config_get_bool eth_clients       wired       "eth_clients"      1
 
+	uci set system.@system[0].hostname=$hostName
+
 	if [ $firewallEnabled -eq 0 ]
 		then
 			/etc/init.d/firewall disable
@@ -184,20 +187,9 @@ configureNetwork()
 			/etc/init.d/firewall enable
 	fi
 
-	echo "
-#Automatically generated for EigenNet
+	echo -e "$(cat /etc/sysctl.conf | grep -v net.ipv6.conf.all.autoconf) \n net.ipv6.conf.all.autoconf=0" > /etc/sysctl.conf
 
-$(cat /etc/sysctl.conf | grep -v net.ipv4.ip_forward | grep -v net.ipv6.conf.all.forwarding | grep -v net.ipv6.conf.all.autoconf)
-
-net.ipv4.ip_forward=1
-net.ipv6.conf.all.forwarding=1
-net.ipv6.conf.all.autoconf=0
-" > /etc/sysctl.conf
-
-#	echo "#Automatically generated for EigenNet" > $CONF_DIR/wireless
-
-	echo "#Automatically generated for EigenNet
-config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
+	echo "config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
 	rm -rf /etc/resolv.conf
 	for dns in $resolvers
@@ -480,10 +472,6 @@ start()
 		[ $accept_clients -eq 1 ] && ip link set dev br-clients up
 
 		ip link set dev bat0 up
-
-		local firewallEnabled
-		config_get_bool firewallEnabled network "firewall" 0
-		[ $firewallEnabled -eq 0 ] && /etc/init.d/firewall stop
 
 		batman-adv restart #added as workaround of batman-adv eth hotplug bug
 
