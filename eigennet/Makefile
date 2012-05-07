@@ -90,7 +90,7 @@ define Package/$(PKG_NAME)-bwtest-webui/install
 	@mkdir -p $(1)/www/cgi-bin || true
 	$(CP) src/index.html $(1)/www/index.html
 	$(CP) src/bwtclient.cgi $(1)/www/cgi-bin/bwtclient.cgi
-	@chmod +x $(1)/www/cgi-bin/pointing.cgi
+	@chmod +x $(1)/www/cgi-bin/bwtclient.cgi
 endef
 
 define Package/$(PKG_NAME)-crda/install
