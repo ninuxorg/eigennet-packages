@@ -155,7 +155,7 @@ configureNetwork()
 
 	local ipaddr                ; config_get ipaddr                 network     "ipaddr"           "192.168.1.21"
 	local netmask               ; config_get netmask                network     "netmask"          "255.255.255.0"
-	local gateway               ; gonfig_get gateway                network     "gateway"
+	local gateway               ; config_get gateway                network     "gateway"
 
 	local resolvers             ; config_get resolvers              network     "resolvers"
 
@@ -388,9 +388,9 @@ config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 configureUhttpd()
 {
 	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
-	local bwtestclientEnabled       ; config_get_bool bwtestclientEnabled   bwtestclient     "enabled"                0
+	local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
 	
-	if [ pointingEnabled -eq 0 ] && [ bwtestclientEnabled -eq 0 ]
+	if [ $pointingEnabled -eq 0 ] && [ $bwClientEnabled -eq 0 ]
 		then
 			/etc/init.d/uhttpd disable
 		else
@@ -404,16 +404,16 @@ configurePointing()
 {
 	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
 
-	[ pointingEnabled -eq 1 ] && chmod 777 /www/cgi-bin/pointing.cgi
-	[ pointingEnabled -eq 0 ] && chmod 750 /www/cgi-bin/pointing.cgi
+	[ $pointingEnabled -eq 1 ] && chmod 777 /www/cgi-bin/pointing.cgi
+	[ $pointingEnabled -eq 0 ] && chmod 750 /www/cgi-bin/pointing.cgi
 }
 
 configureBWTestClient()
 {
 	local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
 
-	[ bwClientEnabled -eq 1 ] && chmod 777 /www/cgi-bin/bwtclient.cgi
-	[ bwClientEnabled -eq 0 ] && chmod 750 /www/cgi-bin/bwtclient.cgi
+	[ $bwClientEnabled -eq 1 ] && chmod 777 /www/cgi-bin/bwtclient.cgi
+	[ $bwClientEnabled -eq 0 ] && chmod 750 /www/cgi-bin/bwtclient.cgi
 }
 
 configureDropbear()
