@@ -84,6 +84,7 @@ endef
 define Package/$(PKG_NAME)-bwtest/install
 	@mkdir -p $(1)/etc/init.d || true
 	$(CP) build/bwtserver $(1)/etc/init.d/bwtserver
+	@chmod +x $(1)/etc/init.d/bwtserver
 endef
 
 define Package/$(PKG_NAME)-bwtest-webui/install
