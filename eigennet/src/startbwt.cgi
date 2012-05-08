@@ -7,7 +7,7 @@ Content-type: text/javascript
 
 EOF
 
-lockFile="/var/run/bwtclient.lock"
+lockFile="/var/lock/bwtclient.lock"
 
 duration="15" # Per test duration in seconds
 server="localhost"
