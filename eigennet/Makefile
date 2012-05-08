@@ -92,6 +92,8 @@ define Package/$(PKG_NAME)-bwtest-webui/install
 	$(CP) src/index.html $(1)/www/index.html
 	$(CP) src/bwtclient.cgi $(1)/www/cgi-bin/bwtclient.cgi
 	@chmod +x $(1)/www/cgi-bin/bwtclient.cgi
+	$(CP) src/startbwt.cgi $(1)/www/cgi-bin/startbwt.cgi
+	@chmod +x $(1)/www/cgi-bin/startbwt.cgi
 endef
 
 define Package/$(PKG_NAME)-crda/install

@@ -22,9 +22,9 @@ start()
 			while true
 			do
 				# Simmetric test: Server<->Client
-				yes supercalifragrisfireuehabscgeuiusdgenweydhcbasgdhckeudhsgdbcgshruashgdhsajsajcbs | nc -l -p 5000 &> /dev/null
+				yes $(seq -s , 1 260) | nc -l -p 5000 &> /dev/null
 				# Asimmetric test: Server->Client
-				yes supercalifragrisfireuehabscgeuiusdgenweydhcbasgdhckeudhsgdbcgshruashgdhsajsajcbs | nc -l -p 5001 &> /dev/null
+				yes $(seq -s , 1 260) | nc -l -p 5001 &> /dev/null
 				# Asimmetric test: Server<-Client
 				nc -l -p 5002 &> /dev/null
 			done &
