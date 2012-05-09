@@ -9,31 +9,45 @@ EOF
 
 lockFile="/var/lock/bwtclient.lock"
 
-duration="15" # Per test duration in seconds
-server="localhost"
-
-[ -f ${lockFile} ] ||
+start()
 {
-	echo "running" > $lockFile
+	[ -f ${lockFile} ] ||
+	{
+		echo "running" > $lockFile
 
-	param="$(echo $QUERY_STRING | tr '&' '\n' | grep -m 1 '^server=')"
+		duration="15" # Per test duration in seconds
+		server="localhost"
+		#"-c -f -a"
+		pvOutOption="-f -a"
 
-	temp="$(echo ${param:7} | grep -q '^[a-zA-Z0-9.:]\+$')"
-	[ ${#temp} -gt 0 ] && server=${temp}
 
-	rm /tmp/bwtsimc /tmp/bwtsims /tmp/bwtsims /tmp/bwtasimc &> /dev/null || true
+		param="$(echo $QUERY_STRING | tr '&' '\n' | grep -m 1 '^server=')"
 
-	port=5000
-	sleep $((($duration*0)+0)) && yes $(seq -s , 1 260) | pv -c -f -a 2> /tmp/bwtsimc | nc ${server} ${port} | pv -c -f -a 2> /tmp/bwtsims 1>/dev/null &
-	sleep $((($duration*1)+0)) && kill $(pgrep -f "nc ${server} ${port}") &
+		temp="$(echo ${param:7} | grep -q '^[a-zA-Z0-9.:]\+$')"
+		[ ${#temp} -gt 0 ] && server=${temp}
 
-	port=5001
-	sleep $((($duration*1)+4)) && nc ${server} ${port} | pv -c -f -a 2> /tmp/bwtasims 1>/dev/null &
-	sleep $((($duration*2)+4)) && kill $(pgrep -f "nc ${server} ${port}") &
+		rm /tmp/bwtsimc /tmp/bwtsims /tmp/bwtasims /tmp/bwtasimc &> /dev/null || true
 
-	port=5002
-	sleep $((($duration*2)+8)) && yes $(seq -s , 1 260) | pv -c -f -a 2> /tmp/bwtasimc | nc ${server} ${port} &
-	sleep $((($duration*3)+8)) && kill $(pgrep -f "nc ${server} ${port}") &
+		port=5000
+		((yes $(seq -s , 1 260) | pv $pvOutOption 2> /tmp/bwtsimc | nc ${server} ${port} | pv $pvOutOption 2> /tmp/bwtsims 1>/dev/null)&)
+		sleep $duration
+		kill $(pgrep -f "nc ${server} ${port}")
+		sleep 2
 
-	sleep $((($duration*3)+9)) && rm -rf $lockFile &
+		port=5001
+		((yes $(seq -s , 1 260) | pv -q -L 10 | nc ${server} ${port} | pv $pvOutOption 2> /tmp/bwtasims 1>/dev/null)&)
+		sleep $duration
+		kill $(pgrep -f "nc ${server} ${port}")
+		sleep 2
+
+		port=5002
+		((yes $(seq -s , 1 260) | pv $pvOutOption 2> /tmp/bwtasimc | nc ${server} ${port} 1>/dev/null)&)
+		sleep $duration
+		kill $(pgrep -f "nc ${server} ${port}")
+		sleep 2
+
+		rm -rf $lockFile
+	}
 }
+
+((start)&)

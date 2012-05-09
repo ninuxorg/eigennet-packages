@@ -26,7 +26,7 @@ start()
 				# Asimmetric test: Server->Client
 				yes $(seq -s , 1 260) | nc -l -p 5001 &> /dev/null
 				# Asimmetric test: Server<-Client
-				nc -l -p 5002 &> /dev/null
+				yes $(seq -s , 1 260) | pv -q -L 10 | nc -l -p 5002 &> /dev/null
 			done &
 
 			echo $! > ${pidFile}
