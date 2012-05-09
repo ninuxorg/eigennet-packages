@@ -17,16 +17,17 @@ start()
 
 		duration="15" # Per test duration in seconds
 		server="localhost"
-		#"-c -f -a"
 		pvOutOption="-f -a"
-
 
 		param="$(echo $QUERY_STRING | tr '&' '\n' | grep -m 1 '^server=')"
 
-		temp="$(echo ${param:7} | grep -q '^[a-zA-Z0-9.:]\+$')"
+		temp="$(echo ${param:7} | grep '^[a-zA-Z0-9.:]\+$')"
 		[ ${#temp} -gt 0 ] && server=${temp}
 
-		rm /tmp/bwtsimc /tmp/bwtsims /tmp/bwtasims /tmp/bwtasimc &> /dev/null || true
+		echo "" > /tmp/bwtsimc
+		echo "" > /tmp/bwtsims
+		echo "" > /tmp/bwtasims
+		echo "" > /tmp/bwtasimc
 
 		port=5000
 		((yes $(seq -s , 1 260) | pv $pvOutOption 2> /tmp/bwtsimc | nc ${server} ${port} | pv $pvOutOption 2> /tmp/bwtsims 1>/dev/null)&)
