@@ -1,1 +1,3 @@
-add ebtables filtering
+add ebtables filtering something like that block external dhcp server
+ebtables -A FORWARD --in-if eth0 --protocol IPv4 --ip-protocol udp --ip-source-port 68 -j DROP
+ebtables -A FORWARD --out-if eth0 --protocol IPv4 --ip-protocol udp --ip-source-port 67 -j DROP
