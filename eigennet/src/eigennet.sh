@@ -387,7 +387,7 @@ configureFirewall()
 			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
 			cd "${disabledModDir}"
 			ls ${ebtablesModuesExp} && mv ${ebtablesModuesExp} "${enabledModDir}"
-	}
+	fi
 }
 
 configureUhttpd()
