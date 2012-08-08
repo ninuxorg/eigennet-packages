@@ -492,11 +492,16 @@ start()
 
 		batman-adv restart #added as workaround of batman-adv eth hotplug bug
 
-		local firewallEnabled ; config_get_bool firewallEnabled   firewall     "enabled"         0
-		local isolateDHCP     ; config_get_bool isolateDHCP       firewall     "isolateDHCP"     0
+		local isolateDHCP     ; config_get_bool isolateDHCP       firewall     "isolateDHCP"      0
+		local firewallEnabled ; config_get_bool firewallEnabled   firewall     "enabled"          0
+		local accept_clients  ; config_get_bool accept_clients    network      "accept_clients"   1
+		local eth_clients     ; config_get_bool eth_clients       wired        "eth_clients"      1
+		local wifi_clients    ; config_get_bool wifi_clients      wireless     "wifi_clients"     0
 		[ ${isolateDHCP} -eq 1 ] && [ ${firewallEnabled} -eq 1 ] &&
+		[ ${accept_clients} ] && $( [ ${eth_clients} -eq 1 ] || [ ${wifi_clients} -eq 1 ] ) &&
 		{
-# TODO: Adapt 2001:1418:1a9:eeab:0:15:6d7b:9708 ebtables rule for bat0 and insert here
+			ebtables -A FORWARD --out-if bat0 --protocol IPv4 --ip-protocol udp --ip-source-port 68 -j DROP
+			ebtables -A FORWARD --in-if  bat0 --protocol IPv4 --ip-protocol udp --ip-source-port 67 -j DROP
 		}
 
 		return 0
