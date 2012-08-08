@@ -58,7 +58,7 @@ endef
 define Package/$(PKG_NAME)-firewall
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=EigenNet Firewall
-#	DEPENDS:=
+	DEPENDS:=+ebtables
 endef
 
 define Package/$(PKG_NAME)-gw4server
@@ -107,10 +107,8 @@ define Package/$(PKG_NAME)-crda/install
 	$(CP) build/regulatory.bin $(1)/usr/lib/crda/regulatory.bin
 endef
 
-define Package/$(PKG_NAME)-gw4server/install
-#	@mkdir -p $(1)/etc/init.d || true
-#	$(CP) build/gw4server $(1)/etc/init.d/gw4server
-#	@chmod +x $(1)/etc/init.d/gw4server
+define Package/$(PKG_NAME)-firewall/install
+	@mkdir -p $(1)/etc/eigennet/firewall-disabled-modules.d/ || true
 endef
 
 define Package/$(PKG_NAME)-gw4server/install
