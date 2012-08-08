@@ -376,17 +376,17 @@ configureFirewall()
 	local firewallEnabled       ; config_get_bool firewallEnabled   firewall     "enabled"         0
 	local disabledModDir="/etc/eigennet/firewall-disabled-modules.d/"
 	local enabledModDir="/etc/modules.d/"
-	local ebtablesModuesExp="*ebtables*"
+	local ebtablesModulesExp="*ebtables*"
 
-	if [ firewallEnabled -eq 0 ] 
+	if [ ${firewallEnabled} -eq 0 ] 
 		then
 			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
 			cd "${enabledModDir}"
-			ls ${ebtablesModuesExp} && mv ${ebtablesModuesExp} "${disabledModDir}"
+			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${disabledModDir}"
 		else
 			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
 			cd "${disabledModDir}"
-			ls ${ebtablesModuesExp} && mv ${ebtablesModuesExp} "${enabledModDir}"
+			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${enabledModDir}"
 	fi
 }
 
