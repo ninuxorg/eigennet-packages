@@ -55,6 +55,12 @@ define Package/$(PKG_NAME)-crda
 	DEPENDS:=crda
 endef
 
+define Package/$(PKG_NAME)-firewall
+	$(call Package/$(PKG_NAME)/template)
+	TITLE:=EigenNet Firewall
+#	DEPENDS:=
+endef
+
 define Package/$(PKG_NAME)-gw4server
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=IPv4 Gateway Checker
@@ -102,6 +108,12 @@ define Package/$(PKG_NAME)-crda/install
 endef
 
 define Package/$(PKG_NAME)-gw4server/install
+#	@mkdir -p $(1)/etc/init.d || true
+#	$(CP) build/gw4server $(1)/etc/init.d/gw4server
+#	@chmod +x $(1)/etc/init.d/gw4server
+endef
+
+define Package/$(PKG_NAME)-gw4server/install
 	@mkdir -p $(1)/etc/init.d || true
 	$(CP) build/gw4server $(1)/etc/init.d/gw4server
 	@chmod +x $(1)/etc/init.d/gw4server
@@ -134,6 +146,7 @@ $(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
 $(eval $(call BuildPackage,$(PKG_NAME)-bwtest))
 $(eval $(call BuildPackage,$(PKG_NAME)-bwtest-webui))
 $(eval $(call BuildPackage,$(PKG_NAME)-crda))
+$(eval $(call BuildPackage,$(PKG_NAME)-firewall))
 $(eval $(call BuildPackage,$(PKG_NAME)-gw4server))
 $(eval $(call BuildPackage,$(PKG_NAME)-pointing))
 $(eval $(call BuildPackage,$(PKG_NAME)-pointing-webui))

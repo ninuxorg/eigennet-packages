@@ -147,7 +147,6 @@ scan_devices()
 configureNetwork()
 {
 	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"   1
-	local firewallEnabled       ; config_get_bool firewallEnabled   network     "firewall"         0
 
 	local mesh6Prefix           ; config_get mesh6Prefix            network     "ip6prefix"        "2001:470:ca42:ee:ab:"
 	local ip6addr               ; config_get ip6addr                network     "ip6addr"
@@ -180,12 +179,7 @@ configureNetwork()
 
 	uci set system.@system[0].hostname=$hostName
 
-	if [ $firewallEnabled -eq 0 ]
-		then
-			/etc/init.d/firewall disable
-		else
-			/etc/init.d/firewall enable
-	fi
+	/etc/init.d/firewall disable
 
 	echo -e "$(cat /etc/sysctl.conf | grep -v net.ipv6.conf.all.autoconf) \n net.ipv6.conf.all.autoconf=0" > /etc/sysctl.conf
 
@@ -377,6 +371,28 @@ configureNetwork()
 	done
 }
 
+configureFirewall()
+{
+	local firewallEnabled       ; config_get_bool firewallEnabled   firewall     "enabled"         0
+	local disabledModDir="/etc/eigennet/firewall-disabled-modules.d/"
+	local enabledModDir="/etc/modules.d/"
+# TODO: implement ebtablesModuesMatcher
+	local ebtablesModuesMatcher="*ebtables*"
+
+	if [ firewallEnabled -eq 0 ] 
+		then
+			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
+			cd "${enabledModDir}"
+			# TODO: check if modules are found before call mv
+			#mv $(${ebtablesModuesMatcher}) "${disabledModDir}"
+		else
+			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
+			cd "${disabledModDir}"
+			# TODO: check if modules are found before call mv
+			#mv $(${ebtablesModuesMatcher}) "${enabledModDir}"
+	}
+}
+
 configureUhttpd()
 {
 	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
@@ -474,6 +490,13 @@ start()
 		ip link set dev bat0 up
 
 		batman-adv restart #added as workaround of batman-adv eth hotplug bug
+
+		local firewallEnabled ; config_get_bool firewallEnabled   firewall     "enabled"         0
+		local isolateDHCP     ; config_get_bool isolateDHCP       firewall     "isolateDHCP"     0
+		[ ${isolateDHCP} -eq 1 ] && [ ${firewallEnabled} -eq 1 ] &&
+		{
+# TODO: Adapt 2001:1418:1a9:eeab:0:15:6d7b:9708 ebtables rule for bat0 and insert here
+		}
 
 		return 0
 	}

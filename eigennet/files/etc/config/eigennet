@@ -9,8 +9,7 @@ config section network
 	option 'ip6gw'             '2001:1418:1a9:eeab::1000'             # ipv6 gateway
 	option 'ipaddr'            '192.168.1.21'                         # bat0/br-clients IPv4 address
 	option 'netmask'           '255.255.255.0'                        # bat0/br-clients IPv4 netmask
-	option 'gateway'           '192.168.1.1'                          # bat0/br-clients Ipv4 gateway
-	option 'firewall'          'disabled'
+	option 'gateway'           '192.168.1.1'                          # bat0/br-clients Ipv4 gateway 
 	list   'resolvers'         '2001:1418:1a9:eeab::100 8.8.8.8'
 	option 'hostname'          'OpenWrt'
 
@@ -51,3 +50,7 @@ config section sshserver
 	option 'enabled'           'true'
 	option 'passwdAuth'        'false'
 	option 'sshAuthorizedKeys' 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
+
+config section firewall
+	option 'enabled'           'false'                                # Enable ebtables firewalling SUGGESTION: Disable this as soon as you don't need it for better performance
+	option 'isolateDHCP'       'false'                                # Prevent local dhcp client from taking ip from mesh dhcp servers useful when you have a local dhcp server but you don't want to share it so gw4server is disabled
