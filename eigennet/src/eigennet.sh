@@ -468,6 +468,7 @@ start()
 		configurePointing
 		configureDropbear
 		configureNetwork
+		configureFirewall
 
 		uci set eigennet.general.bootmode=2
 
