@@ -58,7 +58,7 @@ endef
 define Package/$(PKG_NAME)-firewall
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=EigenNet Firewall
-	DEPENDS:=+ebtables
+	DEPENDS:=+ebtables +kmod-ebtables-ipv4 +kmod-ebtables-ipv6
 endef
 
 define Package/$(PKG_NAME)-gw4server
