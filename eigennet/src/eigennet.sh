@@ -394,14 +394,28 @@ configureUhttpd()
 {
 	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
 	local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
-	
-	if [ $pointingEnabled -eq 0 ] && [ $bwClientEnabled -eq 0 ]
+	local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                1
+
+	if [ $pointingEnabled -eq 0 ] && [ $bwClientEnabled -eq 0 ] && [ $httpInfoEnabled -eq 0 ]
 		then
 			/etc/init.d/uhttpd disable
 		else
 			/etc/init.d/uhttpd enable
 			uci set      uhttpd.main.listen_http="0.0.0.0:80"
 			uci add_list uhttpd.main.listen_http="[::]:80"
+	fi
+}
+
+configureHttpInfo()
+{
+	local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                1
+	if [ $httpInfoEnabled eq 1 ]
+		then
+			chmod 777 /www/cgi-bin/getdBm.cgi
+			chmod 777 /www/cgi-bin/ifstat.cgi
+		else
+			chmod 750 /www/cgi-bin/getdBm.cgi
+			chmod 750 /www/cgi-bin/ifstat.cgi
 	fi
 }
 

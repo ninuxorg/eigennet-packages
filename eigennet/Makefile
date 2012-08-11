@@ -67,6 +67,12 @@ define Package/$(PKG_NAME)-gw4server
 	DEPENDS:=+ip +kmod-batman-adv
 endef
 
+define Package/$(PKG_NAME)-httpinfo
+	$(call Package/$(PKG_NAME)/template)
+	TITLE:=Export info via HTTP protocol
+	DEPENDS:=+uhttpd
+endef
+
 define Package/$(PKG_NAME)-pointing
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=Antenna Pointing Tools
@@ -117,6 +123,14 @@ define Package/$(PKG_NAME)-gw4server/install
 	@chmod +x $(1)/etc/init.d/gw4server
 endef
 
+define Package/$(PKG_NAME)-httpinfo/install
+	@mkdir -p $(1)/www/cgi-bin || true
+	$(CP) src/getdBm.cgi $(1)/www/cgi-bin/getdBm.cgi
+	@chmod +x $(1)/www/cgi-bin/getdBm.cgi
+	$(CP) src/ifstat.cgi $(1)/www/cgi-bin/ifstat.cgi
+	@chmod +x $(1)/www/cgi-bin/ifstat.cgi
+endef
+
 define Package/$(PKG_NAME)-pointing/install
 	@mkdir -p $(1)/usr/lib/eigennet || true
 	$(CP) build/links.sh $(1)/usr/lib/eigennet/links.sh
@@ -146,5 +160,6 @@ $(eval $(call BuildPackage,$(PKG_NAME)-bwtest-webui))
 $(eval $(call BuildPackage,$(PKG_NAME)-crda))
 $(eval $(call BuildPackage,$(PKG_NAME)-firewall))
 $(eval $(call BuildPackage,$(PKG_NAME)-gw4server))
+$(eval $(call BuildPackage,$(PKG_NAME)-httpinfo))
 $(eval $(call BuildPackage,$(PKG_NAME)-pointing))
 $(eval $(call BuildPackage,$(PKG_NAME)-pointing-webui))
