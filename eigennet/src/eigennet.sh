@@ -394,7 +394,7 @@ configureUhttpd()
 {
 	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
 	local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
-	local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                1
+	local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                0
 
 	if [ $pointingEnabled -eq 0 ] && [ $bwClientEnabled -eq 0 ] && [ $httpInfoEnabled -eq 0 ]
 		then
@@ -408,7 +408,7 @@ configureUhttpd()
 
 configureHttpInfo()
 {
-	local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                1
+	local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                0
 	if [ $httpInfoEnabled eq 1 ]
 		then
 			chmod 777 /www/cgi-bin/getdBm.cgi

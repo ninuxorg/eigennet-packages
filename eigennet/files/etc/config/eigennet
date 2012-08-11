@@ -56,4 +56,4 @@ config section firewall
 	option isolateDHCP       'false'                                # Prevent local dhcp client from taking ip from mesh dhcp servers useful when you have a local dhcp server but you don't want to share it so gw4server is disabled
 
 config section httpinfo
-	option enabled           'true'                                 # Enable exporting info via http
+	option enabled           'false'                                 # Enable exporting info via http

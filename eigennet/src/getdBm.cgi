@@ -5,8 +5,6 @@
 cat <<EOF
 Content-type: text/plain
 
-
-
 EOF
 get_links
 

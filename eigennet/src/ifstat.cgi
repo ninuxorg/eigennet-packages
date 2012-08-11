@@ -3,8 +3,6 @@
 cat <<EOF
 Content-type: text/plain
 
-
-
 EOF
 echo "Interface rx_bytes tx_bytes rx_packets tx_packets"
 for ifName in $(ls /sys/class/net)
