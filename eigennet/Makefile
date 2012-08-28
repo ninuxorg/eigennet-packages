@@ -19,7 +19,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet
 PKG_VERSION:=0.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -51,7 +51,7 @@ endef
 
 define Package/$(PKG_NAME)-crda
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=Customized CRDA
+	TITLE:=Customized CRDA ( need CONFIG_ATH_USER_REGD=y )
 	DEPENDS:=+crda
 endef
 
