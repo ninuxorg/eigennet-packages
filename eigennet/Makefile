@@ -19,7 +19,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet
 PKG_VERSION:=0.5.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -150,6 +150,7 @@ define Package/$(PKG_NAME)-pointing-webui/install
 endef
 
 define Package/$(PKG_NAME)-reghack/install
+	@mkdir -p $(1)/usr/bin
 	$(CP) build/reghack $(1)/usr/bin/reghack
 	@chmod +x $(1)/usr/bin/reghack
 	$(CP) src/reghack.sh $(1)/etc/uci-defaults/eigennet-reghack.sh
