@@ -153,6 +153,7 @@ define Package/$(PKG_NAME)-reghack/install
 	@mkdir -p $(1)/usr/bin
 	$(CP) build/reghack $(1)/usr/bin/reghack
 	@chmod +x $(1)/usr/bin/reghack
+	@mkdir -p $(1)/etc/uci-defaults
 	$(CP) src/reghack.sh $(1)/etc/uci-defaults/eigennet-reghack.sh
 	@chmod +x $(1)/etc/uci-defaults/eigennet-reghack.sh
 endef
