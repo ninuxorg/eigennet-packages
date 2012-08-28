@@ -18,8 +18,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet
-PKG_VERSION:=0.5
-PKG_RELEASE:=2
+PKG_VERSION:=0.5.1
+PKG_RELEASE:=1
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -51,8 +51,8 @@ endef
 
 define Package/$(PKG_NAME)-crda
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=Customized CRDA ( need CONFIG_ATH_USER_REGD=y )
-	DEPENDS:=+crda
+	TITLE:=Customized CRDA ( DEPRECATED )
+	DEPENDS:=crda
 endef
 
 define Package/$(PKG_NAME)-firewall
@@ -82,6 +82,11 @@ define Package/$(PKG_NAME)-pointing-webui
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=eigenNet antenna pointing tools
 	DEPENDS:=+$(PKG_NAME)-pointing +uhttpd
+endef
+
+define Package/$(PKG_NAME)-reghack
+	$(call Package/$(PKG_NAME)/template)
+	TITLE:=eigenNet regulatory domain unlocker
 endef
 
 define Package/$(PKG_NAME)-autoconf/install
@@ -144,6 +149,13 @@ define Package/$(PKG_NAME)-pointing-webui/install
 	@chmod +x $(1)/www/cgi-bin/pointing.cgi
 endef
 
+define Package/$(PKG_NAME)-reghack/install
+	$(CP) build/reghack $(1)/usr/bin/reghack
+	@chmod +x $(1)/usr/bin/reghack
+	$(CP) src/reghack.sh $(1)/etc/uci-defaults/eigennet-reghack.sh
+	@chmod +x $(1)/etc/uci-defaults/eigennet-reghack.sh
+endef
+
 define Build/Compile
 	@mkdir -p ./build || true
 	@grep -v '^#\[Doc\]' src/eigennet.sh > build/eigennet
@@ -152,6 +164,7 @@ define Build/Compile
 	@grep -v '^#\[Doc\]' src/bwtserver.sh > build/bwtserver
 	@./getversion.sh $(TOPDIR)> build/version
 	@./src/crda/db2bin.py build/regulatory.bin src/crda/db.txt
+	$(TARGET_CC) src/reghack.c -o build/reghack
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)-autoconf))
@@ -163,3 +176,4 @@ $(eval $(call BuildPackage,$(PKG_NAME)-gw4server))
 $(eval $(call BuildPackage,$(PKG_NAME)-httpinfo))
 $(eval $(call BuildPackage,$(PKG_NAME)-pointing))
 $(eval $(call BuildPackage,$(PKG_NAME)-pointing-webui))
+$(eval $(call BuildPackage,$(PKG_NAME)-reghack))
