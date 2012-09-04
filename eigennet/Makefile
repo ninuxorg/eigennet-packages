@@ -34,7 +34,7 @@ endef
 define Package/$(PKG_NAME)-autoconf
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=Auto Config Package
-	DEPENDS:=+ip +kmod-batman-adv +kmod-ipv6
+	DEPENDS:=+ip +kmod-ipv6 +iw +iptables +iputils-arping +iputils-ping +iputils-ping6 +iputils-traceroute6 +iwinfo +olsrd-stable-git +olsrd-stable-git-mod-httpinfo +olsrd-stable-git-mod-mdns +olsrd-stable-git-mod-nameservice +olsrd-stable-git-mod-txtinfo +radvd +tcpdump-mini +wpa-supplicant-mini +wpad-mini +hostapd-mini 
 endef
 
 define Package/$(PKG_NAME)-bwtest
@@ -64,7 +64,7 @@ endef
 define Package/$(PKG_NAME)-gw4server
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=IPv4 Gateway Checker
-	DEPENDS:=+ip +kmod-batman-adv
+	DEPENDS:=+ip
 endef
 
 define Package/$(PKG_NAME)-httpinfo
