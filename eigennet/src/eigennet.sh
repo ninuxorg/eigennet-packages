@@ -81,6 +81,7 @@ lan6prefix=$lan6prefix		; config_get		lan6prefix	olsrd "lan6prefix"		"64"
 
 hna6=$hna6			; config_get		hna6		olsrd "hna6"			"2001:4c00:893b:abcd::"
 hna4=$hna4			; config_get		hna4		olsrd "hna4"			"192.168.1.0"
+supernode=$supernode            ; config_get_bool       supernode       olsrd "supernode"               0
 
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
@@ -436,6 +437,14 @@ uci commit network
 
 iface_mesh=$(ip -6 a s | grep -B 2 $ip6addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
 iface_hs=$(ip -6 a s | grep -B 2 $ip4addr_hs | sed -n 2p | awk '{print $2}' | sed 's/://')
+iface_olsrd=""
+
+if [ $supernode -eq 1 ]
+	then
+		iface_olsrd=echo "${iface_mesh}" "br-lan"
+	else
+		iface_olsrd=echo "${iface_mesh}"
+fi
 }
 
 configureOlsrd4()
@@ -504,7 +513,7 @@ InterfaceDefaults {
    HnaValidityTime 125.0
 }
 
-Interface "${iface_mesh}"
+Interface ${iface_olsrd}
 {
     Mode "mesh"
 }
@@ -566,7 +575,7 @@ InterfaceDefaults {
    HnaValidityTime 125.0
 }
 
-Interface "${iface_mesh}"
+Interface ${iface_olsrd}
 {
     Mode "mesh"
     IPv6Multicast FF02::6D
