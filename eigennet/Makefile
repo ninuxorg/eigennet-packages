@@ -34,7 +34,7 @@ endef
 define Package/$(PKG_NAME)-autoconf
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=Auto Config Package
-	DEPENDS:=+ip +kmod-ipv6 +iw +iptables +iputils-arping +iputils-ping +iputils-ping6 +iputils-traceroute6 +iwinfo +olsrd-stable-git +olsrd-stable-git-mod-httpinfo +olsrd-stable-git-mod-mdns +olsrd-stable-git-mod-nameservice +olsrd-stable-git-mod-txtinfo +radvd +tcpdump-mini +wpa-supplicant-mini +wpad-mini +hostapd-mini 
+	DEPENDS:=+ip +kmod-ipv6 +iw +iptables +iputils-arping +iputils-ping +iputils-ping6 +iputils-traceroute6 +iwinfo +olsrd-stable-git +olsrd-stable-git-mod-httpinfo +olsrd-stable-git-mod-mdns +olsrd-stable-git-mod-nameservice +olsrd-stable-git-mod-txtinfo +radvd +tcpdump-mini +wpa-supplicant-mini +wpad-mini +hostapd-mini +nodogsplashninux +iptables-mod-ipopt +libpthread
 endef
 
 define Package/$(PKG_NAME)-bwtest

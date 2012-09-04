@@ -37,11 +37,17 @@ config section 'wireless'
 	option meshSSID 'mesh.ninux.org'			# Default mesh SSID "mesh.ninux.org"
 	option meshBSSID '02:aa:bb:cc:dd:00'			# Default mesh BSSID "02:aa:bb:cc:dd:00"
 	option meshMcastRate '6000'				# Default mesh MCS rate "6000"
-	option apSSID 'www.ninux.org'				# Default AP SSID
+	option apSSID 'ninux.org'				# Default AP SSID
 	option apKEY 'none'					# Default not setting
 	option apMaxClients '25'				# Default clients AP number "25" (max lan client n+20)
 	option tx_power '10'					# Default tx power "10" (10-30)
 
+config section 'hotspot'
+	option hs_enable '0'
+	option hsMaxClients '50'
+	option hsSSID 'www.ninux.org'
+	option ip4addr_hs '192.168.10.1'
+	option netmask_lan '255.255.255.0'
 
 config section 'gw4server'					# TODO
 	option enabled 'false'

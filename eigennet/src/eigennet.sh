@@ -45,6 +45,12 @@ ip6addr_lan=$ip6addr_lan	; config_get		ip6addr_lan	network	"ip6addr_lan"		"2001:
 ip4addr_lan=$ip4addr_lan	; config_get		ip4addr_lan	network	"ip4addr_lan"		"192.168.1.21"
 netmask_lan=$netmask_lan	; config_get		netmask_lan	network	"netmask_lan"		"255.255.255.0"
 
+hs_enable=$hs_enable		; config_get_bool	hs_enable	hotspot "hs_enable"		0
+ip4addr_hs=$ip4addr_hs		; config_get            ip4addr_hs      hotspot "ip4addr_hs"            "192.168.10.1"
+netmask_hs=$netmask_hs  	; config_get            netmask_hs      hotspot "netmask_hs"            "255.255.255.0"
+hsSSID=$hsSSID			; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
+hsMaxClients=$hsMaxClients	; config_get		hsMaxClients	hotspot "hsMaxClients"		"50"
+
 wan_set=$wan_set		; config_get		wan_set		network	"wan_set"		0
 ip4_wan=$ip4_wan		; config_get		ip4_wan		network	"ip4_wan"		"0.0.0.0"
 wan_mask=$wan_mask		; config_get		wan_mask	network	"wan_mask"		"0.0.0.0"
@@ -65,7 +71,7 @@ mesh2channel=$wifi_channel	; config_get		mesh2channel	wireless "wifi_channel"
 meshSSID=$meshSSID		; config_get		meshSSID	wireless "meshSSID"		"mesh.ninux.org"
 meshBSSID=$meshBSSID		; config_get		meshBSSID	wireless "meshBSSID"		"02:ca:fe:ca:fe:00"
 meshMcastRate=$meshMcastRate	; config_get		meshMcastRate	wireless "meshMcastRate"
-apSSID=$apSSID			; config_get		apSSID		wireless "apSSID"		"www.ninux.org"
+apSSID=$apSSID			; config_get		apSSID		wireless "apSSID"		"ninux.org"
 apKEY=$apKEY			; config_get		apKEY		wireless "apKEY"
 apMaxClients=$apMaxClients	; config_get		apMaxClients	wireless "apMaxClients"
 
@@ -353,6 +359,17 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 					}
 					uci set wireless.ap$device.maxassoc=$apMaxClients
 				}
+
+                                [ $accept_clients -eq 1 ] && [ $hs_enable -eq 1 ] &&
+                                {
+                                        uci set wireless.hs$device=wifi-iface
+                                        uci set wireless.hs$device.device=$device
+                                        uci set wireless.hs$device.network=hotspot
+                                        uci set wireless.hs$device.mode=ap
+                                        uci set wireless.hs$device.ssid=$hsSSID
+                                        uci set wireless.hs$device.encryption=none
+                                        uci set wireless.hs$device.maxassoc=$hsMaxClients
+                                }
 			;;
 
 			"radio")
@@ -398,6 +415,17 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 					}
 					uci set wireless.ap$device.maxassoc=$apMaxClients
 				}
+
+				[ $accept_clients -eq 1 ] && [ $hs_enable -eq 1 ] &&
+                                {
+                                        uci set wireless.hs$device=wifi-iface
+                                        uci set wireless.hs$device.device=$device
+                                        uci set wireless.hs$device.network=hotspot
+                                        uci set wireless.hs$device.mode=ap
+                                        uci set wireless.hs$device.ssid=$hsSSID
+                                        uci set wireless.hs$device.encryption=none
+                                        uci set wireless.hs$device.maxassoc=$hsMaxClients
+                                }
 			;;
 		esac
 	done
@@ -407,6 +435,7 @@ uci commit network
 /etc/init.d/network restart
 
 iface_mesh=$(ip -6 a s | grep -B 2 $ip6addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
+iface_hs=$(ip -6 a s | grep -B 2 $ip4addr_hs | sed -n 2p | awk '{print $2}' | sed 's/://')
 }
 
 configureOlsrd4()
@@ -664,6 +693,41 @@ EOF
 
 chmod a+x $SNMP
 /etc/init.d/mini_snmpd enable
+}
+
+configureSplash()
+{
+#local splah_enable	; config_get_bool	splah_enable	hotspot	"enabled"	0
+local SPLASH=/etc/nodogsplash/nodogsplash.conf
+if [ $hs_enable -eq 1 ]
+	then
+		/etc/init.d/nodogsplash enable
+		cat > $SPLASH << EOF
+#Automatically generated for Eigennet
+GatewayInterface ${iface_hs}
+FirewallRuleSet authenticated-users {
+    FirewallRule allow all
+}
+FirewallRuleSet preauthenticated-users {
+    FirewallRule allow tcp port 53	
+    FirewallRule allow udp port 53
+    FirewallRule allow udp port 67
+}
+FirewallRuleSet users-to-router {
+    FirewallRule allow udp port 53	
+    FirewallRule allow tcp port 53	
+    FirewallRule allow udp port 67
+    FirewallRule allow tcp port 22
+    FirewallRule allow tcp port 23
+    FirewallRule allow tcp port 80
+    FirewallRule allow tcp port 443
+}
+
+EOF
+chmod a+x $SPLASH
+	else
+		/etc/init.d/nodogsplash disable
+fi
 }
 
 configureUhttpd()
