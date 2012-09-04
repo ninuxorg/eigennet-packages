@@ -30,6 +30,7 @@ config section 'snmp'
 	option Location 'ninux'					# Insert your Node Name 
 
 config section 'wireless'
+	option supernode 'false'				# Default false, is true when you have more device on your (super)node
 	option wifi_clients 'true'				# Default true, setting false for disable Access Point
 	option wifi_mesh 'true'					# Default true, setting false for disable Mesh Network
 	option countrycode 'US'
