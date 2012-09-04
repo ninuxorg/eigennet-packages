@@ -1,59 +1,71 @@
-config section general
-	option debugLevel        '0'
-	option bootmode          '0'                                    # 0 First boot, 1 Run Autoconfig (you should set 1 each time you edit this file), 2 Auto Configured, 3 or greater added custom configuration.
 
-config section network
-	option accept_clients    'true'
-	option ip6prefix         '2001:1418:1a9:eeab::'                 # /80 prefix bat0/br-clients IPv6 will be $ip6Prefix$macaddress_eth0/64
-	option ip6addr           ''                                     # ipv6/cidr if defined set device ipv6 to that instead of ip6prefix+macaddress_eth0
-	option ip6gw             '2001:1418:1a9:eeab::1000'             # ipv6 gateway
-	option ipaddr            '192.168.1.21'                         # bat0/br-clients IPv4 address
-	option netmask           '255.255.255.0'                        # bat0/br-clients IPv4 netmask
-	option gateway           '192.168.1.1'                          # bat0/br-clients Ipv4 gateway 
-	list   resolvers         '2001:1418:1a9:eeab::100 8.8.8.8'
-	option hostname          'OpenWrt'
+config section 'general'
+	option debugLevel '0'
+	option bootmode '0'	# 0 First boot, 1 Run Autoconfig (you should set 1 each time you edit this file), 2 Auto Configured, 3 or greater added custom configuration.
 
-config section wireless
-	option wifi_clients      'false'
-	option wifi_mesh         'true'
-	option countrycode       'US'                                   # Now ignored
-	option wifi_channel      '8'
-	option meshSSID          'www.ninux.org'
-	option meshBSSID         '02:aa:bb:cc:dd:ee'
-	option meshMcastRate     '6000'                                 # Fix mesh multicast rate to given kbit/s added to penalize links under defined rate but can have side effects on multicast data packets in higher performance links leave blank to disable
-	option apSSID            'eigenNet'
-	option apKEY             'none'                                 # A string less the 8 character will be ignored
-	option apMaxClients      '20'                                   # Max number of accepted sta for ap interfaces
+config section 'network'
+	option accept_clients 'true'				# Default true, setting false for disable AP and MeshNetwork
+	option ip6addr_mesh '2001:4c00:893b:1:cab::1/128'	# Insert your IPv6 wireless address conforms with radio subnet at "http://wiki.ninux.org/GestioneIndirizzi"
+	option ip6addr_lan '2001:4c00:893b:cab::1/64'		# Insert your IPv6 lan address previously declared at "http://wiki.ninux.org/GestioneIndirizzi"
+	option radvd_prefix '2001:4c00:893b:cab::/64'		# Insert your IPv6 subnet for radvd configuration conforms at 2001:4c00:893b:SUBNET::/64
+	option ip4addr_mesh '172.16.0.1'			# Insert your IPv4 wireless address conforms with radio IP at "http://wiki.ninux.org/GestioneIndirizzi" ex: 172.16.CAP.XYZ
+	option netmask_mesh '255.255.0.0'			# Insert your IPv4 wireless subnet conforms with radio subnet IP at "http://wiki.ninux.org/GestioneIndirizzi"
+	option ip4addr_lan '192.168.1.21'			# Insert your IPv4 lan address conforms with ninux rule at "http://wiki.ninux.org/GestioneIndirizzi" ex: 10.CAP.XYZ.ABC
+	option netmask_lan '255.255.255.0'			# Insert your IPv4 lan subnet previously declared at "http://wiki.ninux.org/GestioneIndirizzi" ex: declared "10.171.5.0/24" insert 255.255.255.0
+	list resolvers '160.80.221.11 8.8.8.8'			# Change (if you want) nameserver for your custom or prefered dns
+	option hostName 'nome_device'				# Insert device name in format "aB09" without special characters
+	option wan_set 'false'					# Setting 'true' if your device is a TP-LINK (or another with a wan port) and you want customize your wan ip
+	option ip4_wan '0.0.0.0'				# Insert your custom wan ip
+	option wan_mask '0.0.0.0'				# Insert the subnet of your custom wan ip
 
-config section wired
-	option eth_mesh          'true'
-	option eth_clients       'true'
+config section 'olsrd'
+	option hna6 '2001:4c00:893b:cab::'			# Insert your IPv6 subnet for olsrd configuration (like to radvd) without prefix
+	option lan6prefix '64'					# Insert your IPv6 prefix for olsrd configuration
+	option hna4 '192.168.1.0'				# Insert your IPv4 subnet for olsrd configuration ex: 192.168.1.21/24 insert 192.168.1.0
+	option gw_enable 'false'				# Default false, setting true for gateway announce
 
-config section gw4server
-	option enabled           'false'
-	option strictCheck       'false'                                # When true if just one test fail the gateway will not be announced
-	option checkInterval     '10s'
-	option bandwidth         '2000/512'                             # Announced bandwidth Down/Up Kbps/Kbps
-	list   checkHosts        '8.8.8.8'                              # List of host to use for gateway test
-	list   checkHosts        '8.8.4.4'
+config section 'snmp'
+	option Enable 'true'					# Default true, setting false for disable this service
+	option Contact 'contatti@ninux.org'			# Insert (if you want) your custom email
+	option Location 'ninux'					# Insert your Node Name 
 
-config section pointing
-	option enabled           'false'                                # If true enable pointing web interface SUGGESTION: Disable this as soon as you don't need it
+config section 'wireless'
+	option wifi_clients 'true'				# Default true, setting false for disable Access Point
+	option wifi_mesh 'true'					# Default true, setting false for disable Mesh Network
+	option countrycode 'US'
+	option wifi_channel '13'				# 1-14
+	option meshSSID 'mesh.ninux.org'			# Default mesh SSID "mesh.ninux.org"
+	option meshBSSID '02:aa:bb:cc:dd:00'			# Default mesh BSSID "02:aa:bb:cc:dd:00"
+	option meshMcastRate '6000'				# Default mesh MCS rate "6000"
+	option apSSID 'www.ninux.org'				# Default AP SSID
+	option apKEY 'none'					# Default not setting
+	option apMaxClients '25'				# Default clients AP number "25" (max lan client n+20)
+	option tx_power '10'					# Default tx power "10" (10-30)
 
-config section bwtestclient
-	option enabled           'false'                                # If true enable bandwidth testing web client SUGGESTION: Disable this as soon as you don't need it
 
-config section bwtestserver
-	option enabled           'false'                                # If true enable bandwidth testing server SUGGESTION: Disable this as soon as you don't need it
+config section 'gw4server'					# TODO
+	option enabled 'false'
+	option strictCheck 'false'
+	option checkInterval '10s'
+	option bandwidth '2000/512'
+	list checkHosts '8.8.8.8'
+	list checkHosts '8.8.4.4'
 
-config section sshserver
-	option enabled           'true'
-	option passwdAuth        'false'
-	option sshAuthorizedKeys 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
+config section 'pointing'
+	option enabled 'true'
 
-config section firewall
-	option enabled           'false'                                # Enable ebtables firewalling SUGGESTION: Disable this as soon as you don't need it for better performance
-	option isolateDHCP       'false'                                # Prevent local dhcp client from taking ip from mesh dhcp servers useful when you have a local dhcp server but you don't want to share it so gw4server is disabled
+config section 'bwtestclient'
+	option enabled 'true'
 
-config section httpinfo
-	option enabled           'false'                                # Enable exporting info via http
+config section 'bwtestserver'
+	option enabled 'true'
+
+config section 'sshserver'					# Setting your ssh pubblic key
+	option enabled 'true'
+	option passwdAuth 'true'
+	option sshAuthorizedKeys 'ssh-dss AAAAB3NzaC1kc3MAAACBAKEVl8+b9U4Wl+90JVAZHYkaxWWT/4xuK6coLgF4qu551TtAfO6bqhjxyA5D+paLOz5q0KtA2qQ3tjGeiyFfbq9kVIriqXzbCoUbjCqZSwg8nN+XP2u1dsY3WrKPtTBH5VZqq4i5nLl0fIxf2XphvPIicNIy6yXggpxNaDjXVgWJAAAAFQC8DfP5Lb7CaTFnHWod5zSHsJ+trwAAAIAp4BvlvAsah+9IzPaDPdxzrvGpfdozrZoE7IcesIleQxJXS7R3m1FhtAFItrSxIqmbgAQByFSfzJ+6YUbcYpW9HbnsvCd57SegyxN1NsGXUunbb0sO46xissKQVeltLjuHYThNJpN3uNtWfe6rTCEl3q0QH+tTspm9M8fVmowdawAAAIAPXQtSRig3Qub3sjcX5u/uVQZd6ruQ0J7zHOLg+7XirGMHdlmgqaGh0LTmSNgt56OU9jftPS5WrL7MzkDwlhjhocVostb1QzNZm9zELYUdaRqhAePdUdsjX9RsQa2r88U4EHgxQcEQJIR7Rf4y3EmAjknHQkZ4o6s3iRp/4WPlkQ== arka@ubuntu'
+
+config section 'httpinfo'
+	option enabled 'true'
+
+

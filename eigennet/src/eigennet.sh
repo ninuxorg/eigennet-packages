@@ -29,12 +29,61 @@ config_load eigennet
 config_get debugLevel general "debugLevel" 0
 
 #[Doc]
+#[Doc] Statement of common variables
+#[Doc]
+#[Doc] for to work on config file usage:
+#[Doc]
+#[Doc] var=$var ; config_* var module "var"
+#[Doc]
+
+accept_clients=$accept_clients	; config_get_bool	accept_clients	network	"accept_clients"	1
+ip6addr_mesh=$ip6addr_mesh	; config_get		ip6addr_mesh	network	"ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
+ip4addr_mesh=$ip4addr_mesh	; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
+netmask_mesh=$netmask_mesh	; config_get		netmask_mesh	network	"netmask_mesh"		"255.255.0.0"
+
+ip6addr_lan=$ip6addr_lan	; config_get		ip6addr_lan	network	"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
+ip4addr_lan=$ip4addr_lan	; config_get		ip4addr_lan	network	"ip4addr_lan"		"192.168.1.21"
+netmask_lan=$netmask_lan	; config_get		netmask_lan	network	"netmask_lan"		"255.255.255.0"
+
+wan_set=$wan_set		; config_get		wan_set		network	"wan_set"		0
+ip4_wan=$ip4_wan		; config_get		ip4_wan		network	"ip4_wan"		"0.0.0.0"
+wan_mask=$wan_mask		; config_get		wan_mask	network	"wan_mask"		"0.0.0.0"
+
+hostName=$hostName		; config_get		hostName	network	"hostName"		"node_device"
+resolvers=$resolvers		; config_get		resolvers	network	"resolvers"		"160.80.221.11 8.8.8.8"
+
+wifi_clients=$wifi_clients	; config_get_bool	wifi_clients	wireless "wifi_clients"		1
+wifi_mesh=$wifi_mesh		; config_get_bool	wifi_mesh	wireless "wifi_mesh"		1
+ath9k_clients=$wifi_clients	; config_get_bool	ath9k_clients	wireless "wifi_clients"		1
+ath9k_mesh=$wifi_mesh		; config_get_bool	ath9k_mesh	wireless "wifi_mesh"		1
+madwifi_clients=$wifi_clients	; config_get_bool	madwifi_clients	wireless "wifi_clients"		1
+madwifi_mesh=$wifi_mesh		; config_get_bool	madwifi_mesh	wireless "wifi_mesh"		1
+
+tx_power=$tx_power		; config_get		tx_power	wireless "tx_power"
+countrycode=$countrycode	; config_get		countrycode	wireless "countrycode"
+mesh2channel=$wifi_channel	; config_get		mesh2channel	wireless "wifi_channel"
+meshSSID=$meshSSID		; config_get		meshSSID	wireless "meshSSID"		"mesh.ninux.org"
+meshBSSID=$meshBSSID		; config_get		meshBSSID	wireless "meshBSSID"		"02:ca:fe:ca:fe:00"
+meshMcastRate=$meshMcastRate	; config_get		meshMcastRate	wireless "meshMcastRate"
+apSSID=$apSSID			; config_get		apSSID		wireless "apSSID"		"www.ninux.org"
+apKEY=$apKEY			; config_get		apKEY		wireless "apKEY"
+apMaxClients=$apMaxClients	; config_get		apMaxClients	wireless "apMaxClients"
+
+gw_announce=$gw_announce	; config_get_bool	gw_announce	olsrd "gw_announce"		0
+
+lan6prefix=$lan6prefix		; config_get		lan6prefix	olsrd "lan6prefix"		"64"
+
+hna6=$hna6			; config_get		hna6		olsrd "hna6"			"2001:4c00:893b:abcd::"
+hna4=$hna4			; config_get		hna4		olsrd "hna4"			"192.168.1.0"
+
+#[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
 #[Doc]
 #[Doc] usage: eigenDebug mydebuglevel mystring 
 #[Doc]
 #[Doc] example: eigenDebug 2 "setting autorized keys"
 #[Doc]
+
 eigenDebug()
 {
 	[ $1 -ge $debugLevel ] &&
@@ -52,6 +101,7 @@ eigenDebug()
 #[Doc] example:
 #[Doc] del_interface lan0
 #[Doc]
+
 del_interface()
 {
 	uci del network.$1
@@ -66,6 +116,7 @@ del_interface()
 #[Doc] example:
 #[Doc] del_wifi_iface wifiap0
 #[Doc]
+
 del_wifi_iface()
 {
 	uci del wireless.$1
@@ -80,23 +131,24 @@ del_wifi_iface()
 #[Doc] example:
 #[Doc] get_mac eth0
 #[Doc]
+
 get_mac()
 {
-	ifname=${1}
-	ifbase=$(echo $ifname | sed -e 's/[0-9]*$//')
+        ifname=${1}
+        ifbase=$(echo $ifname | sed -e 's/[0-9]*$//')
 
-	if [ $ifbase == "wifi" ]
-		then
-			mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}' | cut -c-17 | sed -e 's/-/:/g')
-		elif [ $ifbase == "radio" ] ; then
-				mac=$(cat /sys/class/ieee80211/$(echo ${ifname} | sed 's/radio/phy/g')/addresses)
-		elif [ $ifbase == "phy" ] ; then
-				mac=$(cat /sys/class/ieee80211/${ifname}/addresses)
-		else
-			mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}')
-	fi
+        if [ $ifbase == "wifi" ]
+                then
+                        mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}' | cut -c-17 | sed -e 's/-/:/g')
+                elif [ $ifbase == "radio" ] ; then
+                                mac=$(cat /sys/class/ieee80211/$(echo ${ifname} | sed 's/radio/phy/g')/addresses)
+                elif [ $ifbase == "phy" ] ; then
+                                mac=$(cat /sys/class/ieee80211/${ifname}/addresses)
+                else
+                        mac=$(ifconfig $ifname | sed -n 1p | awk '{print $5}')
+        fi
 
-	echo $mac | tr '[a-z]' ['A-Z']
+        echo $mac | tr '[a-z]' ['A-Z']
 }
 
 #[Doc]
@@ -108,9 +160,10 @@ get_mac()
 #[Doc] example:
 #[Doc] mac6ize ff:ff:ff:ff:ff:ff
 #[Doc]
+
 mac6ize()
 {
-	echo $1 | awk -F: '{print $1$2":"$3$4":"$5$6}' | tr '[a-z]' ['A-Z']
+        echo $1 | awk -F: '{print $1$2":"$3$4":"$5$6}' | tr '[a-z]' ['A-Z']
 }
 
 #[Doc]
@@ -119,12 +172,17 @@ mac6ize()
 #[Doc] usage:
 #[Doc] scan_devices
 #[Doc]
+
 scan_devices()
 {
+	model=""
 	eth=""
 	radio=""
 	wifi=""
-
+	
+	# Getting router model
+	model=$(cat /proc/cpuinfo |grep machine|awk '{print $4}')
+	
 	# Getting wired interfaces
 	eth=$(cat /proc/net/dev | sed -n -e 's/:.*//' -e 's/[ /t]*//' -e '/^eth[0-9]$/p')
 
@@ -139,58 +197,35 @@ scan_devices()
 		then
 			cd /proc/sys/dev/
 			wifi=$(ls | grep wifi)
+	else
+		wifi=$(ls /sys/class/net/ | sed -n -e '/^wlan[0-9]/p')
 	fi
 
 	echo "${eth} ${radio} ${wifi}" | sed 's/ /\n/g' | sed '/^$/d'
 }
-
+  
 configureNetwork()
 {
-	local accept_clients        ; config_get_bool accept_clients    network     "accept_clients"   1
-
-	local mesh6Prefix           ; config_get mesh6Prefix            network     "ip6prefix"        "2001:470:ca42:ee:ab:"
-	local ip6addr               ; config_get ip6addr                network     "ip6addr"
-	local ip6gw                 ; config_get ip6gw                  network     "ip6gw"
-
-	local ipaddr                ; config_get ipaddr                 network     "ipaddr"           "192.168.1.21"
-	local netmask               ; config_get netmask                network     "netmask"          "255.255.255.0"
-	local gateway               ; config_get gateway                network     "gateway"
-
-	local hostName              ; config_get hostName               network     "hostname"         "OpenWrt"
-	local resolvers             ; config_get resolvers              network     "resolvers"
-
-	local wifi_clients          ; config_get_bool wifi_clients      wireless    "wifi_clients"     0
-	local wifi_mesh             ; config_get_bool wifi_mesh         wireless    "wifi_mesh"        1
-	local ath9k_clients         ; config_get_bool ath9k_clients     wireless    "wifi_clients"     0
-	local ath9k_mesh            ; config_get_bool ath9k_mesh        wireless    "wifi_mesh"        1
-	local madwifi_clients       ; config_get_bool madwifi_clients   wireless    "wifi_clients"     0
-	local madwifi_mesh          ; config_get_bool madwifi_mesh      wireless    "wifi_mesh"        1
-	local countrycode           ; config_get countrycode            wireless    "countrycode"
-	local mesh2channel          ; config_get mesh2channel           wireless    "wifi_channel"
-	local meshSSID              ; config_get meshSSID               wireless    "meshSSID"         "www.ninux.org"
-	local meshBSSID             ; config_get meshBSSID              wireless    "meshBSSID"        "02:aa:bb:cc:dd:ee"
-	local meshMcastRate         ; config_get meshMcastRate          wireless    "meshMcastRate"
-	local apSSID                ; config_get apSSID                 wireless    "apSSID"
-	local apKEY                 ; config_get apKEY                  wireless    "apKEY"
-	local apMaxClients          ; config_get apMaxClients           wireless    "apMaxClients"
-
-	local eth_mesh              ; config_get_bool eth_mesh          wired       "eth_mesh"         1
-	local eth_clients           ; config_get_bool eth_clients       wired       "eth_clients"      1
-
+local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 	uci set system.@system[0].hostname=$hostName
+	uci set system.@system[0].timezone=$TimeZone
+	uci del system.ntp
+	uci set system.ntp=timeserver
+	uci set system.ntp.enable_server=1
+	uci set system.ntp.server=timeserver.ninux.org
 
 	/etc/init.d/firewall disable
+	/etc/init.d/olsrd disable
 
 	echo -e "$(cat /etc/sysctl.conf | grep -v net.ipv6.conf.all.autoconf) \n net.ipv6.conf.all.autoconf=0" > /etc/sysctl.conf
-
-	echo "config 'mesh' 'bat0'" > $CONF_DIR/batman-adv
 
 	rm -rf /etc/resolv.conf
 	for dns in $resolvers
 	do
 		echo nameserver $dns >> /etc/resolv.conf
 	done
-	/etc/init.d/dnsmasq disable
+	
+	/etc/init.d/dnsmasq enable
 
 	config_load wireless
 	config_foreach del_wifi_iface wifi-iface
@@ -205,41 +240,68 @@ configureNetwork()
 	uci set network.loopback.netmask="255.0.0.0"
 	uci set network.loopback.ip6addr="0::1/128"
 
-	uci set batman-adv.bat0.fragmentation=1
-	uci set batman-adv.bat0.gw_mode="client"
-
-	if [ $accept_clients -eq 1 ]
+	uci set network.lan=interface
+	uci set network.lan.proto=static
+	uci set network.lan.type=bridge
+	uci set network.lan.ip6addr=$ip6addr_lan
+	uci set network.lan.ipaddr=$ip4addr_lan
+	uci set network.lan.netmask=$netmask_lan
+	
+	if [ $model == TL-WR741ND ]
 		then
-			uci set network.clients=interface
-			uci set network.clients.proto=static
-			uci set network.clients.type=bridge
-			uci add_list network.clients.ifname="bat0"
-			if [ "void$ip6addr" == "void" ]
-				then
-					#Assuming that we have eth0 onboard
-					uci set network.clients.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
-				else
-					uci set network.clients.ip6addr=$ip6addr
-			fi
-			uci set network.clients.ip6gw=$ip6gw
-			uci set network.clients.ipaddr=$ipaddr
-			uci set network.clients.netmask=$netmask
-			uci set network.clients.gateway=$gateway
-		else
-			uci set network.bat0=interface
-			uci set network.bat0.proto=static
-			uci set network.bat0.ifname="bat0"
-			if [ "void$ip6addr" == "void" ]
-				then
-					#Assuming that we have eth0 onboard
-					uci set network.bat0.ip6addr=$mesh6Prefix$(mac6ize $(get_mac eth0))/64
-				else
-					uci set network.bat0.ip6addr=$ip6addr
-			fi
-			uci set network.bat0.ip6gw=$ip6gw
-			uci set network.bat0.ipaddr=$ipaddr
-			uci set network.bat0.netmask=$netmask
-			uci set network.bat0.gateway=$gateway
+		uci add_list network.lan.ifname=eth0
+		uci set network.@switch[0]=switch
+		uci set network.@switch[0].name=eth0
+		uci set network.@switch[0].reset=1
+		uci set network.@switch[0].enable_vlan=1
+		uci set network.@switch_vlan[0]=switch_vlan
+		uci set network.@switch_vlan[0].device=eth0
+		uci set network.@switch_vlan[0].vlan=1
+		uci set network.@switch_vlan[0].ports=0 1 2 3 4
+		if [ $wan_set -eq 1 ]
+			then
+			uci set network.wan=interface
+			uci set network.wan.ifname=eth1
+			uci set network.wan.proto=static
+			uci set network.wan.ipaddr=$ip4_wan
+			uci set network.wan.netmask=$wan_mask
+			uci set network.wan.dns=$resolvers
+			else
+			uci set network.wan=interface
+			uci set network.wan.ifname=eth1
+			uci set network.wan.proto=dhcp
+		fi
+	elif [ $model == TL-WR1043ND ]
+		then
+		uci add_list network.lan.ifname=eth0.2
+		uci set network.@switch[0]=switch
+		uci set network.@switch[0].name=rtl8366rb
+		uci set network.@switch[0].reset=1
+		uci set network.@switch[0].enable_vlan=1
+		uci set network.@switch[0].enable_vlan4k=1
+		uci set network.@switch_vlan[0]=switch_vlan
+		uci set network.@switch_vlan[0].device=rtl8366rb
+		uci set network.@switch_vlan[0].vlan=1
+		uci set network.@switch_vlan[0].ports=0 5t
+		uci set network.@switch_vlan[1]=switch_vlan
+		uci set network.@switch_vlan[1].device=rtl8366rb
+		uci set network.@switch_vlan[1].vlan=2
+		uci set network.@switch_vlan[1].ports=1 2 3 4 5t
+		if [ $wan_set -eq 1 ]
+			then
+			uci set network.wan=interface
+			uci set network.wan.ifname=eth0.1
+			uci set network.wan.proto=static
+			uci set network.wan.ipaddr=$ip4_wan
+			uci set network.wan.netmask=$wan_mask
+			uci set network.wan.dns=$resolvers
+			else	
+			uci set network.wan=interface
+			uci set network.wan.ifname=eth0.1
+			uci set network.wan.proto=dhcp
+		fi				
+	else
+		uci add_list network.lan.ifname=eth0
 	fi
 
 	for device in $(scan_devices)
@@ -248,64 +310,37 @@ configureNetwork()
 		devindex=$(echo $device | sed -e 's/.*\([0-9]\)/\1/')
 
 		case $devtype in
-			"eth")
-				if [ $accept_clients -eq 1 ] && [ $eth_clients -eq 1 ]
-				then
-				{
-					uci add_list network.clients.ifname=$device
-				} && [ $eth_mesh -eq 1 ] &&
-				{
-					uci add_list batman-adv.bat0.interfaces="clients"
-				}
-				else
-				{
-					uci set network.$device=interface
-					uci set network.$device.ifname=$device
-					uci set network.$device.proto=static
-					uci set network.$device.ip6addr=eeab:$(mac6ize $(get_mac $device))::1/64
-					uci set network.$device.ipaddr=192.168.$((10 + $devindex)).21
-					uci set network.$device.netmask=255.255.255.0
-				} && [ $eth_mesh -eq 1 ] &&
-				{
-					uci add_list batman-adv.bat0.interfaces="$device"
-				}
-				fi
-			;;
-
 			"wifi")
 				uci set wireless.$device.channel=$mesh2channel
 				uci set wireless.$device.disabled=0
-				uci set wireless.$device.txpower=30
-#				uci set wireless.$device.country=$countrycode
+				uci set wireless.$device.txpower=$tx_power
+				uci set wireless.$device.country=$countrycode
 
 				[ $madwifi_mesh -eq 1 ] &&
 				{
 					uci set wireless.mesh$device=wifi-iface
 					uci set wireless.mesh$device.device=$device
 					uci set wireless.mesh$device.network=nmesh$device
-					uci set wireless.mesh$device.sw_merge=1
 					uci set wireless.mesh$device.mode=adhoc
 					uci set wireless.mesh$device.bssid=$meshBSSID
 					uci set wireless.mesh$device.ssid=$meshSSID
 					uci set wireless.mesh$device.encryption=none
 					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
-
+										
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
 					uci set network.nmesh$device.mtu=1528
-					uci set network.nmesh$device.ip6addr=eeab:$(mac6ize $(get_mac $device))::1/64
-					uci set network.nmesh$device.ipaddr=192.168.$((20 + $devindex)).21
-					uci set network.nmesh$device.netmask=255.255.255.0
-
-					uci add_list batman-adv.bat0.interfaces="nmesh$device"
+					uci set network.nmesh$device.ip6addr=$ip6addr_mesh
+					uci set network.nmesh$device.ipaddr=$ip4addr_mesh
+					uci set network.nmesh$device.netmask=$netmask_mesh
+					ifname_mesh=nmesh$device
 				}
 
 				[ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
 				{
 					uci set wireless.ap$device=wifi-iface
 					uci set wireless.ap$device.device=$device
-					uci set wireless.ap$device.network=clients
-					uci set wireless.ap$device.sw_merge=1
+					uci set wireless.ap$device.network=lan
 					uci set wireless.ap$device.mode=ap
 					uci set wireless.ap$device.ssid=$apSSID
 					[ ${#apKEY} -lt 8 ] &&
@@ -323,37 +358,34 @@ configureNetwork()
 			"radio")
 				uci set wireless.$device.channel=$mesh2channel
 				uci set wireless.$device.disabled=0
-				uci set wireless.$device.txpower=30
-#				uci set wireless.$device.country=$countrycode ## Seems newer hardware doest permit change country
+				uci set wireless.$device.txpower=$tx_power
+				uci set wireless.$device.country=$countrycode ## Seems newer hardware doest permit change country
 
 				[ $ath9k_mesh -eq 1 ] &&
 				{
 					uci set wireless.mesh$device=wifi-iface
 					uci set wireless.mesh$device.device=$device
 					uci set wireless.mesh$device.network=nmesh$device
-					uci set wireless.mesh$device.sw_merge=1
 					uci set wireless.mesh$device.mode=adhoc
 					uci set wireless.mesh$device.bssid=$meshBSSID
 					uci set wireless.mesh$device.ssid=$meshSSID
 					uci set wireless.mesh$device.encryption=none
 					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
-
+					
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
 					uci set network.nmesh$device.mtu=1528
-					uci set network.nmesh$device.ip6addr=eeab:$(mac6ize $(get_mac $device))::1/64
-					uci set network.nmesh$device.ipaddr=192.168.$((30 + $devindex)).21
-					uci set network.nmesh$device.netmask=255.255.255.0
-
-					uci add_list batman-adv.bat0.interfaces="nmesh$device"
+					uci set network.nmesh$device.ip6addr=$ip6addr_mesh
+					uci set network.nmesh$device.ipaddr=$ip4addr_mesh
+					uci set network.nmesh$device.netmask=$netmask_mesh
+					ifname_mesh=nmesh$device
 				}
 
 				[ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
 				{
 					uci set wireless.ap$device=wifi-iface
 					uci set wireless.ap$device.device=$device
-					uci set wireless.ap$device.network=clients
-					uci set wireless.ap$device.sw_merge=1
+					uci set wireless.ap$device.network=lan
 					uci set wireless.ap$device.mode=ap
 					uci set wireless.ap$device.ssid=$apSSID
 					[ ${#apKEY} -lt 8 ] &&
@@ -369,25 +401,269 @@ configureNetwork()
 			;;
 		esac
 	done
+
+uci commit network
+
+/etc/init.d/network restart
+
+iface_mesh=$(ip -6 a s | grep -B 2 $ip6addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
 }
 
-configureFirewall()
+configureOlsrd4()
 {
-	local firewallEnabled       ; config_get_bool firewallEnabled   firewall     "enabled"         0
-	local disabledModDir="/etc/eigennet/firewall-disabled-modules.d/"
-	local enabledModDir="/etc/modules.d/"
-	local ebtablesModulesExp="*ebtables*"
+local gw=""
+local hna4_full="${hna4} ${netmask_lan}"
+local OLSRD4="/etc/config/olsrd4"
 
-	if [ ${firewallEnabled} -eq 0 ] 
+if [ $gw_announce -eq 1 ]
+	then
+		gw="0.0.0.0 0.0.0.0"
+	else	
+		gw="#"
+fi
+
+cat > $OLSRD4 << EOF
+#Automatically generated for Eigennet
+DebugLevel  0
+IpVersion 4
+
+Pollrate  0.025
+FIBMetric "flat"
+
+# RtTable 111
+# RtTableDefault 112
+
+UseNiit no
+SmartGateway no
+
+Hna4
+{
+${hna4_full}
+${gw}
+}
+
+#Hna6
+#{
+#}
+
+UseHysteresis no
+TcRedundancy  2
+MprCoverage 7
+
+LinkQualityLevel 2
+LinkQualityAlgorithm    "etx_ff"
+LinkQualityAging 0.05
+LinkQualityFishEye  1
+
+# Don't remove olsrd_txtinfo from this file
+# as this plugin is used by the Webinterface
+# to display the OLSR Info
+LoadPlugin "olsrd_txtinfo.so.0.1"
+{
+   PlParam     "port"   "2006"
+   PlParam     "Accept"   "127.0.0.1"
+}
+
+InterfaceDefaults {
+   HelloInterval 3.0
+   HelloValidityTime 125.0
+   TcInterval 2.0
+   TcValidityTime 500.0
+   MidInterval 25.0
+   MidValidityTime 500.0
+   HnaInterval 10.0
+   HnaValidityTime 125.0
+}
+
+Interface "${iface_mesh}"
+{
+    Mode "mesh"
+}
+
+EOF
+
+chmod a+x $OLSRD4
+echo "olsrd -f /etc/config/olsrd4 -d 0" > /etc/init.d/olsrd4
+chmod a+x /etc/init.d/olsrd4
+ln -s /etc/init.d/olsrd4 /etc/rc.d/S65olsrd4
+}
+
+configureOlsrd6()
+{
+local OLSRD6="/etc/config/olsrd6"
+local hna6_full="${hna6} ${lan6prefix}"
+
+cat > $OLSRD6 << EOF
+#Automatically generated for Eigennet
+DebugLevel  0
+
+IpVersion 6
+
+Pollrate  0.025
+FIBMetric "flat"
+UseNiit no
+SmartGateway no
+
+
+Hna6
+{
+${hna6_full}
+}
+
+UseHysteresis no
+TcRedundancy  2
+
+MprCoverage 7
+
+LinkQualityLevel 2
+LinkQualityAlgorithm    "etx_ff"
+LinkQualityAging 0.05
+LinkQualityFishEye  1
+
+LoadPlugin "olsrd_txtinfo.so.0.1"
+{
+   PlParam     "port"   "2007"
+   PlParam     "Accept"   "::"
+}
+
+InterfaceDefaults {
+   HelloInterval 3.0
+   HelloValidityTime 125.0
+   TcInterval 2.0
+   TcValidityTime 500.0
+   MidInterval 25.0
+   MidValidityTime 500.0
+   HnaInterval 10.0
+   HnaValidityTime 125.0
+}
+
+Interface "${iface_mesh}"
+{
+    Mode "mesh"
+    IPv6Multicast FF02::6D
+
+}
+
+EOF
+
+chmod a+x $OLSRD6
+echo "olsrd -f /etc/config/olsrd6 -d 0" > /etc/init.d/olsrd6
+chmod a+x /etc/init.d/olsrd6
+ln -s /etc/init.d/olsrd6 /etc/rc.d/S65olsrd6
+}
+
+configureRadvd()
+{
+local RADVD="/etc/config/radvd"
+local radvd_prefix ; config_get		radvd_prefix	network	"radvd_prefix"		"2001:4c00:893b:cab::/64"
+
+cat > $RADVD << EOF
+#Automatically generated for Eigennet
+config interface
+	option interface	'lan'
+	option AdvSendAdvert	1
+	option AdvManagedFlag	1
+	option AdvOtherConfigFlag 1
+	option AdvLinkMTU	1280
+	option ignore		0
+
+config prefix
+	option interface	'lan'
+	list prefix		'${radvd_prefix}'
+	option AdvOnLink	1
+	option AdvAutonomous	1
+	option AdvRouterAddr	1
+	option ignore		0
+	
+EOF
+
+chmod a+x $RADVD
+/etc/init.d/radvd enable
+}
+
+configureDhcp()
+{
+local maxclient=""
+local DHCP="/etc/config/dhcp"
+
+if [ -n $apMaxClients ]
+	then
+	maxclient=$(($apMaxClients+20))
+	else
+	maxclient=20
+fi
+
+cat > $DHCP << EOF
+#Automatically generated for Eigennet
+config dnsmasq
+	option domainneeded '1'
+	option boguspriv '1'
+	option filterwin2k '0'
+	option localise_queries '1'
+	option rebind_protection '0'
+	option rebind_localhost '1'
+	option local '/lan/'
+	option domain 'lan'
+	option expandhosts '1'
+	option nonegcache '0'
+	option authoritative '1'
+	option readethers '1'
+	option leasefile '/tmp/dhcp.leases'
+	option resolvfile '/etc/resolv.conf'
+
+config dhcp 'lan'
+	option interface 'lan'
+	option leasetime '12h'
+	option start '50'
+	option limit '${maxclient}'
+
+config dhcp '${ifname_mesh}'
+	option interface '${ifname_mesh}'
+	option ignore '1'
+
+EOF
+
+chmod a+x $DHCP
+/etc/init.d/dnsmasq enable
+}
+
+configureSnmp()
+{
+local SNMP="/etc/config/mini_snmpd"
+	local snmpEnable	; config_get_bool	snmpEnable	snmp	"Enable" 1
+	local snmpContact	; config_get		snmpContact	snmp	"Contact"	"contatti@ninux.org"
+	local snmpLocation	; config_get		snmpLocation	snmp	"Location"
+
+	if [ $snmpEnable -eq 1 ]
 		then
-			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
-			cd "${enabledModDir}"
-			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${disabledModDir}"
-		else
-			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
-			cd "${disabledModDir}"
-			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${enabledModDir}"
+			snmpEnable="1"
+		else	
+			snmpEnable="0"
 	fi
+
+cat > $SNMP << EOF
+#Automatically generated for Eigennet
+config mini_snmpd
+	option enabled ${snmpEnable}
+	option ipv6 ${snmpEnable}
+	option community 'public'
+	option contact '${snmpContact}'
+	option location '${snmpLocation}'
+
+	# enable basic disk usage statistics on specified mountpoint
+	list disks '/overlay'
+	list disks '/tmp'
+
+	# enable basic network statistics on specified interface
+	# 4 interfaces maximum, as named in /etc/config/network
+	list interfaces 'loopback'
+	list interfaces 'br-lan'
+	list interfaces '${ifname_mesh}'
+
+EOF
+
+chmod a+x $SNMP
+/etc/init.d/mini_snmpd enable
 }
 
 configureUhttpd()
@@ -438,7 +714,7 @@ configureBWTestClient()
 configureDropbear()
 {
 	local sshEnabled                ; config_get_bool sshEnabled            sshserver         "enabled"               1
-	local passwdAuth                ; config_get_bool passwdAuth            sshserver         "passwdAuth"            0
+	local passwdAuth                ; config_get_bool passwdAuth            sshserver         "passwdAuth"            1
 	local sshAuthorizedKeys         ; config_get      sshAuthorizedKeys     sshserver         "sshAuthorizedKeys"
 
 	if [ $sshEnabled -eq 1 ]
@@ -448,7 +724,7 @@ configureDropbear()
 			uci set dropbear.@dropbear[0].PasswordAuth=$passwdAuth
 			uci set dropbear.@dropbear[0].RootPasswordAuth=$passwdAuth
 		else
-			/etc/init.d/dropbear disable
+			/etc/init.d/dropbear enable
 	fi
 }
 
@@ -479,7 +755,11 @@ start()
 		configurePointing
 		configureDropbear
 		configureNetwork
-		configureFirewall
+		configureOlsrd4
+		configureOlsrd6
+		configureRadvd
+		configureDhcp
+		configureSnmp
 
 		uci set eigennet.general.bootmode=2
 
@@ -495,25 +775,11 @@ start()
 	{
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-		local accept_clients
-		config_get_bool accept_clients network "accept_clients"  1
-		[ $accept_clients -eq 1 ] && ip link set dev br-clients up
+		local accept_clients config_get_bool accept_clients network "accept_clients"  1
+		[ $accept_clients -eq 1 ] && ip link set dev br-lan up
 
-		ip link set dev bat0 up
-
-		batman-adv restart #added as workaround of batman-adv eth hotplug bug
-
-		local isolateDHCP     ; config_get_bool isolateDHCP       firewall     "isolateDHCP"      0
-		local firewallEnabled ; config_get_bool firewallEnabled   firewall     "enabled"          0
 		local accept_clients  ; config_get_bool accept_clients    network      "accept_clients"   1
-		local eth_clients     ; config_get_bool eth_clients       wired        "eth_clients"      1
-		local wifi_clients    ; config_get_bool wifi_clients      wireless     "wifi_clients"     0
-		[ ${isolateDHCP} -eq 1 ] && [ ${firewallEnabled} -eq 1 ] &&
-		[ ${accept_clients} ] && $( [ ${eth_clients} -eq 1 ] || [ ${wifi_clients} -eq 1 ] ) &&
-		{
-			ebtables -A FORWARD --out-if bat0 --protocol IPv4 --ip-protocol udp --ip-source-port 68 -j DROP
-			ebtables -A FORWARD --in-if  bat0 --protocol IPv4 --ip-protocol udp --ip-source-port 67 -j DROP
-		}
+		local wifi_clients    ; config_get_bool wifi_clients      wireless     "wifi_clients"     1
 
 		return 0
 	}
@@ -530,3 +796,4 @@ restart()
 	sleep 2s
 	start
 }
+
