@@ -714,6 +714,7 @@ configureBWTestClient()
 configureDropbear()
 {
 	local sshEnabled                ; config_get_bool sshEnabled            sshserver         "enabled"               1
+	local root_enable		; config_get_bool root_enable		sshserver	  "root_enable"		  1
 	local passwdAuth                ; config_get_bool passwdAuth            sshserver         "passwdAuth"            1
 	local sshAuthorizedKeys         ; config_get      sshAuthorizedKeys     sshserver         "sshAuthorizedKeys"
 
@@ -722,7 +723,7 @@ configureDropbear()
 			/etc/init.d/dropbear enable
 			echo "$sshAuthorizedKeys" > "/etc/dropbear/authorized_keys" 
 			uci set dropbear.@dropbear[0].PasswordAuth=$passwdAuth
-			uci set dropbear.@dropbear[0].RootPasswordAuth=$passwdAuth
+			uci set dropbear.@dropbear[0].RootPasswordAuth=$root_enable
 		else
 			/etc/init.d/dropbear enable
 	fi
