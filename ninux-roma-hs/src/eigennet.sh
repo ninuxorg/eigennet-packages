@@ -441,9 +441,9 @@ iface_olsrd=""
 
 if [ $supernode -eq 1 ]
 	then
-		iface_olsrd=echo "${iface_mesh}" "br-lan"
+		iface_olsrd=$(echo "${iface_mesh}" '"br-lan"')
 	else
-		iface_olsrd=echo "${iface_mesh}"
+		iface_olsrd=$(echo "${iface_mesh}")
 fi
 }
 
