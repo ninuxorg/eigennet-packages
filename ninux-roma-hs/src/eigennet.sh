@@ -365,11 +365,17 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
                                 {
                                         uci set wireless.hs$device=wifi-iface
                                         uci set wireless.hs$device.device=$device
-                                        uci set wireless.hs$device.network=hotspot
+                                        uci set wireless.hs$device.network=hot$device
                                         uci set wireless.hs$device.mode=ap
                                         uci set wireless.hs$device.ssid=$hsSSID
                                         uci set wireless.hs$device.encryption=none
                                         uci set wireless.hs$device.maxassoc=$hsMaxClients
+					
+					uci set network.hot$device=interface
+					uci set network.hot$device.proto=static
+					uci set network.hot$device.ipaddr=$ip4addr_hs
+					uci set network.hot$device.netmask=$netmask_hs
+					ifname_hs=hot$device
                                 }
 			;;
 
@@ -421,11 +427,17 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
                                 {
                                         uci set wireless.hs$device=wifi-iface
                                         uci set wireless.hs$device.device=$device
-                                        uci set wireless.hs$device.network=hotspot
+                                        uci set wireless.hs$device.network=hot$device
                                         uci set wireless.hs$device.mode=ap
                                         uci set wireless.hs$device.ssid=$hsSSID
                                         uci set wireless.hs$device.encryption=none
                                         uci set wireless.hs$device.maxassoc=$hsMaxClients
+					
+					uci set network.hot$device=interface
+					uci set network.hot$device.proto=static
+					uci set network.hot$device.ipaddr=$ip4addr_hs
+					uci set network.hot$device.netmask=$netmask_hs
+					ifname_hs=hot$device
                                 }
 			;;
 		esac
@@ -662,6 +674,18 @@ config dhcp '${ifname_mesh}'
 EOF
 
 chmod a+x $DHCP
+
+if [ $hs_enable -eq 1 ]
+	then
+		uci set dhcp.$ifname_hs=dhcp
+		uci set dhcp.$ifname_hs.interface=$ifname_hs
+		uci set dhcp.$ifname_hs.leasetime=12h
+		uci set dhcp.$ifname_hs.start=10
+		uci set dhcp.$ifname_hs.limit=$hsMaxClients
+		uci commit dhcp
+	else
+		uci commit dhcp
+
 /etc/init.d/dnsmasq enable
 }
 
