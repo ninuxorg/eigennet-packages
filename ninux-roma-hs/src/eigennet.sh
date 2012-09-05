@@ -69,7 +69,7 @@ tx_power=$tx_power		; config_get		tx_power	wireless "tx_power"
 countrycode=$countrycode	; config_get		countrycode	wireless "countrycode"
 mesh2channel=$wifi_channel	; config_get		mesh2channel	wireless "wifi_channel"
 meshSSID=$meshSSID		; config_get		meshSSID	wireless "meshSSID"		"mesh.ninux.org"
-meshBSSID=$meshBSSID		; config_get		meshBSSID	wireless "meshBSSID"		"02:ca:fe:ca:fe:00"
+meshBSSID=$meshBSSID		; config_get		meshBSSID	wireless "meshBSSID"		"02:aa:bb:cc:dd:00"
 meshMcastRate=$meshMcastRate	; config_get		meshMcastRate	wireless "meshMcastRate"
 apSSID=$apSSID			; config_get		apSSID		wireless "apSSID"		"ninux.org"
 apKEY=$apKEY			; config_get		apKEY		wireless "apKEY"
@@ -811,7 +811,6 @@ configureBWTestClient()
 configureDropbear()
 {
 	local sshEnabled                ; config_get_bool sshEnabled            sshserver         "enabled"               1
-	local root_enable		; config_get_bool root_enable		sshserver	  "root_enable"		  1
 	local passwdAuth                ; config_get_bool passwdAuth            sshserver         "passwdAuth"            1
 	local sshAuthorizedKeys         ; config_get      sshAuthorizedKeys     sshserver         "sshAuthorizedKeys"
 
@@ -820,7 +819,6 @@ configureDropbear()
 			/etc/init.d/dropbear enable
 			echo "$sshAuthorizedKeys" > "/etc/dropbear/authorized_keys" 
 			uci set dropbear.@dropbear[0].PasswordAuth=$passwdAuth
-			uci set dropbear.@dropbear[0].RootPasswordAuth=$root_enable
 		else
 			/etc/init.d/dropbear enable
 	fi

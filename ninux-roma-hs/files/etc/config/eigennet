@@ -69,7 +69,6 @@ config section 'bwtestserver'
 
 config section 'sshserver'					# Setting your ssh pubblic key
 	option enabled 'true'
-	option root_enable 'true'
 	option passwdAuth 'true'
 	option sshAuthorizedKeys ''
 
