@@ -796,7 +796,8 @@ configureDropbear()
 			/etc/init.d/dropbear enable
 			echo "$sshAuthorizedKeys" > "/etc/dropbear/authorized_keys" 
 			uci set dropbear.@dropbear[0].PasswordAuth=$passwdAuth
-			uci set dropbear.@dropbear[0].RootPasswordAuth=$root_enable
+			uci set dropbear.@dropbear[0].RootPasswordAuth=$passwdAuth
+			uci set dropbear.@dropbear[0].RootLogin=$root_enable
 		else
 			/etc/init.d/dropbear enable
 	fi
