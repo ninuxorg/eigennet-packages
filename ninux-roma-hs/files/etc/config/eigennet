@@ -48,7 +48,7 @@ config section 'hotspot'
 	option hsMaxClients '50'
 	option hsSSID 'www.ninux.org'
 	option ip4addr_hs '192.168.10.1'
-	option netmask_lan '255.255.255.0'
+	option netmask_hs '255.255.255.0'
 
 config section 'gw4server'					# TODO
 	option enabled 'false'
