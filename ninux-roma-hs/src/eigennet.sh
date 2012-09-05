@@ -685,7 +685,7 @@ if [ $hs_enable -eq 1 ]
 		uci commit dhcp
 	else
 		uci commit dhcp
-
+fi
 /etc/init.d/dnsmasq enable
 }
 
