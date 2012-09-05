@@ -71,7 +71,7 @@ config section 'sshserver'					# Setting your ssh pubblic key
 	option enabled 'true'
 	option root_enable 'true'
 	option passwdAuth 'true'
-	option sshAuthorizedKeys 'ssh-dss AAAAB3NzaC1kc3MAAACBAKEVl8+b9U4Wl+90JVAZHYkaxWWT/4xuK6coLgF4qu551TtAfO6bqhjxyA5D+paLOz5q0KtA2qQ3tjGeiyFfbq9kVIriqXzbCoUbjCqZSwg8nN+XP2u1dsY3WrKPtTBH5VZqq4i5nLl0fIxf2XphvPIicNIy6yXggpxNaDjXVgWJAAAAFQC8DfP5Lb7CaTFnHWod5zSHsJ+trwAAAIAp4BvlvAsah+9IzPaDPdxzrvGpfdozrZoE7IcesIleQxJXS7R3m1FhtAFItrSxIqmbgAQByFSfzJ+6YUbcYpW9HbnsvCd57SegyxN1NsGXUunbb0sO46xissKQVeltLjuHYThNJpN3uNtWfe6rTCEl3q0QH+tTspm9M8fVmowdawAAAIAPXQtSRig3Qub3sjcX5u/uVQZd6ruQ0J7zHOLg+7XirGMHdlmgqaGh0LTmSNgt56OU9jftPS5WrL7MzkDwlhjhocVostb1QzNZm9zELYUdaRqhAePdUdsjX9RsQa2r88U4EHgxQcEQJIR7Rf4y3EmAjknHQkZ4o6s3iRp/4WPlkQ== arka@ubuntu'
+	option sshAuthorizedKeys ''
 
 config section 'httpinfo'
 	option enabled 'true'
