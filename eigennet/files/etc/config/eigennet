@@ -49,7 +49,7 @@ config section bwtestserver
 config section sshserver
 	option enabled           'true'
 	option passwdAuth        'false'
-	option sshAuthorizedKeys 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAyLK+91TbZOFGC4Psdmoe/vImeTXFDekcaDuKJbAILoVitTZUeXToSCrtihwmcTmoyL/8QtwoBTMa+6fRlWYWmba8I2erwxT+WqHgrh4mwVCDmyVRnoOMgjiWjmzs+cgqV/ECJgx8D3qlACO0ZlJWkYCqc8tBWMM7sBTBwSCGsL1lxwn449myHj9w3iNfy0a11+7d/eVsSGRmNHJ9Tz1+88OJA2FI3riI7cUiKHbHt0Mlr8ggUS74jP+XbyeKq7pPbCgmNzL7uDeqJgzDW28ALRznOSqSYP8Q2IJfPaTn2Re+F8VsljMHcUD0YoT3q9WMHBYNA8cOuB9lmM/1i+0YKQ== www-data@eigenserver'
+	option sshAuthorizedKeys 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCTnWV14LoW9k90ekOIUHS6AhamdmbuhtU2ffafpkVzuWr/v8g+SGIVPw8hZr18k+xDbQon4Doi4n3jWBtWREGJtVmWCOgCp9vyk4Y7TaDwxf7Byrqq1al8w1o2+DLSIcYMYkmK06+XDkwI8MXsCo6RutgS0ZIHt9I4p0TdJ0gG47LDL00hUPqBFs5S7PhjjYGZgm8Y7CYRHCCX6HONsZ5wCOx+zVGNu1mOG8HMF4nZH+bMlzTwVjp582x2PTjkGpFgH9B1kfB9FYz0w3TdCDBlHOLsU8mUo19c/ltcL8qlu5mXlLtSYIFPLgvsXwT12i2gDtGC8f1eYVZemd9PYebn gioacchino@G10h4ckLab'
 
 config section firewall
 	option enabled           'false'                                # Enable ebtables firewalling SUGGESTION: Disable this as soon as you don't need it for better performance
