@@ -448,16 +448,6 @@ uci commit network
 
 /etc/init.d/network restart
 
-iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
-iface_hs=$(ip -4 a s | grep -B 2 $ip4addr_hs | sed -n 2p | awk '{print $2}' | sed 's/://')
-iface_olsrd=""
-
-if [ $supernode -eq 1 ]
-	then
-		iface_olsrd=$(echo '"'${iface_mesh}'"' '"br-lan"')
-	else
-		iface_olsrd=$(echo '"'${iface_mesh}'"')
-fi
 }
 
 configureOlsrd4()
@@ -465,6 +455,14 @@ configureOlsrd4()
 local gw=""
 local hna4_full="${hna4} ${netmask_lan}"
 local OLSRD4="/etc/config/olsrd4"
+local iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
+
+if [ $supernode -eq 1 ]
+	then
+		local iface_olsrd=$(echo '"'${iface_mesh}'"' '"br-lan"')
+	else
+		local iface_olsrd=$(echo '"'${iface_mesh}'"')
+fi
 
 if [ $gw_enable -eq 1 ]
 	then
@@ -536,13 +534,20 @@ EOF
 chmod a+x $OLSRD4
 echo "olsrd -f /etc/config/olsrd4 -d 0" > /etc/init.d/olsrd4
 chmod a+x /etc/init.d/olsrd4
-ln -s /etc/init.d/olsrd4 /etc/rc.d/S65olsrd4
 }
 
 configureOlsrd6()
 {
 local OLSRD6="/etc/config/olsrd6"
 local hna6_full="${hna6} ${lan6prefix}"
+local iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
+
+if [ $supernode -eq 1 ]
+	then
+		local iface_olsrd=$(echo '"'${iface_mesh}'"' '"br-lan"')
+	else
+		local iface_olsrd=$(echo '"'${iface_mesh}'"')
+fi
 
 cat > $OLSRD6 << EOF
 #Automatically generated for Eigennet
@@ -600,7 +605,6 @@ EOF
 chmod a+x $OLSRD6
 echo "olsrd -f /etc/config/olsrd6 -d 0" > /etc/init.d/olsrd6
 chmod a+x /etc/init.d/olsrd6
-ln -s /etc/init.d/olsrd6 /etc/rc.d/S65olsrd6
 }
 
 configureRadvd()
@@ -745,6 +749,8 @@ configureSplash()
 {
 #local splah_enable	; config_get_bool	splah_enable	hotspot	"enabled"	0
 local SPLASH=/etc/nodogsplash/nodogsplash.conf
+local iface_hs=$(ip -4 a s | grep -B 2 $ip4addr_hs | sed -n 2p | awk '{print $2}' | sed 's/://')
+
 if [ $hs_enable -eq 1 ]
 	then
 		/etc/init.d/nodogsplash enable
@@ -771,6 +777,7 @@ FirewallRuleSet users-to-router {
 
 EOF
 chmod a+x $SPLASH
+/etc/init.d/nodogsplash start
 	else
 		/etc/init.d/nodogsplash disable
 fi
@@ -864,12 +871,12 @@ start()
 		configurePointing
 		configureDropbear
 		configureNetwork
-		configureOlsrd4
-		configureOlsrd6
+#		configureOlsrd4
+#		configureOlsrd6
 		configureRadvd
 		configureDhcp
 		configureSnmp
-		configureSplash
+#		configureSplash
 
 		uci set eigennet.general.bootmode=2
 
@@ -890,6 +897,13 @@ start()
 
 		local accept_clients  ; config_get_bool accept_clients    network      "accept_clients"   1
 		local wifi_clients    ; config_get_bool wifi_clients      wireless     "wifi_clients"     1
+		
+		configureOlsrd4
+		configureOlsrd6
+		configureSplash
+		
+		ln -s /etc/init.d/olsrd4 /etc/rc.d/S65olsrd4
+		ln -s /etc/init.d/olsrd6 /etc/rc.d/S65olsrd6
 
 		return 0
 	}
