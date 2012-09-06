@@ -534,6 +534,7 @@ EOF
 chmod a+x $OLSRD4
 echo "olsrd -f /etc/config/olsrd4 -d 0" > /etc/init.d/olsrd4
 chmod a+x /etc/init.d/olsrd4
+ln -s /etc/init.d/olsrd4 /etc/rc.d/S70olsrd4
 }
 
 configureOlsrd6()
@@ -605,6 +606,7 @@ EOF
 chmod a+x $OLSRD6
 echo "olsrd -f /etc/config/olsrd6 -d 0" > /etc/init.d/olsrd6
 chmod a+x /etc/init.d/olsrd6
+ln -s /etc/init.d/olsrd6 /etc/rc.d/S75olsrd6
 }
 
 configureRadvd()
@@ -871,12 +873,9 @@ start()
 		configurePointing
 		configureDropbear
 		configureNetwork
-#		configureOlsrd4
-#		configureOlsrd6
 		configureRadvd
 		configureDhcp
 		configureSnmp
-#		configureSplash
 
 		uci set eigennet.general.bootmode=2
 
@@ -902,8 +901,8 @@ start()
 		configureOlsrd6
 		configureSplash
 		
-		ln -s /etc/init.d/olsrd4 /etc/rc.d/S65olsrd4
-		ln -s /etc/init.d/olsrd6 /etc/rc.d/S65olsrd6
+		/etc/init.d/olsrd4
+		/etc/init.d/olsrd6
 
 		return 0
 	}
