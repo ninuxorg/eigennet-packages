@@ -1,7 +1,7 @@
 
 config section 'general'
 	option debugLevel '0'
-	option bootmode '0'	# 0 First boot, 1 Run Autoconfig (you should set 1 each time you edit this file), 2 Auto Configured, 3 or greater added custom configuration.
+	option bootmode '0'	# 0 First boot, 1 Run Autoconfig (you should set 1 each time you edit this file), 2 Current configuration.
 
 config section 'network'
 	option accept_clients 'true'				# Default true, setting false for disable AP and MeshNetwork
