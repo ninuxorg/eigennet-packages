@@ -728,10 +728,10 @@ EOF
 if [ $hs_enable -eq 1 ]
         then
                 uci del mini_snmpd.@mini_snmpd[0].interfaces
-                uci set mini_snmpd.@mini_snmpd[0].interfaces=loopback
-                uci set mini_snmpd.@mini_snmpd[0].interfaces=br-lan
-                uci set mini_snmpd.@mini_snmpd[0].interfaces=${ifname_mesh}
-                uci set mini_snmpd.@mini_snmpd[0].interfaces=${ifname_hs}
+                uci add_list mini_snmpd.@mini_snmpd[0].interfaces=loopback
+                uci add_list mini_snmpd.@mini_snmpd[0].interfaces=br-lan
+                uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_mesh}
+                uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_hs}
                 uci commit mini_snmpd
         else
                 uci commit mini_snmpd
