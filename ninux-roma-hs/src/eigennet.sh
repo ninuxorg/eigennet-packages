@@ -75,7 +75,7 @@ apSSID=$apSSID			; config_get		apSSID		wireless "apSSID"		"ninux.org"
 apKEY=$apKEY			; config_get		apKEY		wireless "apKEY"
 apMaxClients=$apMaxClients	; config_get		apMaxClients	wireless "apMaxClients"
 
-gw_announce=$gw_announce	; config_get_bool	gw_announce	olsrd "gw_announce"		0
+gw_enable=$gw_enable		; config_get_bool	gw_enable	olsrd "gw_enable"		0
 
 lan6prefix=$lan6prefix		; config_get		lan6prefix	olsrd "lan6prefix"		"64"
 
@@ -466,7 +466,7 @@ local gw=""
 local hna4_full="${hna4} ${netmask_lan}"
 local OLSRD4="/etc/config/olsrd4"
 
-if [ $gw_announce -eq 1 ]
+if [ $gw_enable -eq 1 ]
 	then
 		gw="0.0.0.0 0.0.0.0"
 	else	
