@@ -4,7 +4,7 @@ and improvement for a simple autoconfiguration of your device.
 
 To use this repo in your OpenWRT buildroot simple add this line to the feeds:
 
-src-git autoninux git://gitorious.org/~arkanet/eigennet/arkanets-packages.git;roma-hs
+src-git autoninux git://gitorious.org/~arkanet/eigennet/arkanets-packages.git;roma
 
 Then use the follow commands to update/install packages from the new repo:
 openwrt$ ./scripts/feeds update -a
