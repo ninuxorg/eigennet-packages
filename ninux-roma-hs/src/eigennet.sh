@@ -724,6 +724,18 @@ config mini_snmpd
 
 EOF
 
+if [ $hs_enable -eq 1 ]
+        then
+                uci del mini_snmpd.@mini_snmpd[0].interfaces
+                uci set mini_snmpd.@mini_snmpd[0].interfaces=loopback
+                uci set mini_snmpd.@mini_snmpd[0].interfaces=br-lan
+                uci set mini_snmpd.@mini_snmpd[0].interfaces=${ifname_mesh}
+                uci set mini_snmpd.@mini_snmpd[0].interfaces=${ifname_hs}
+                uci commit mini_snmpd
+        else
+                uci commit mini_snmpd
+fi
+
 chmod a+x $SNMP
 /etc/init.d/mini_snmpd enable
 }
