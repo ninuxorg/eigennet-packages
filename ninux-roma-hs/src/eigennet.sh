@@ -223,6 +223,7 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 
 	/etc/init.d/firewall disable
 	/etc/init.d/olsrd disable
+	rm -rf /etc/config/olsrd
 
 	echo -e "$(cat /etc/sysctl.conf | grep -v net.ipv6.conf.all.autoconf) \n net.ipv6.conf.all.autoconf=0" > /etc/sysctl.conf
 
