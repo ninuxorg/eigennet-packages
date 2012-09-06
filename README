@@ -9,3 +9,5 @@ src-git autoninux git://gitorious.org/~arkanet/eigennet/arkanets-packages.git;ro
 Then use the follow commands to update/install packages from the new repo:
 openwrt$ ./scripts/feeds update -a
 openwrt$ ./scripts/feeds install -a -d y -p autoninux
+openwrt$ make menuconfig
+Enter in section Administration and in eigennet select all packages.
