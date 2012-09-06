@@ -448,7 +448,7 @@ uci commit network
 
 /etc/init.d/network restart
 
-iface_mesh=$(ip -6 a s | grep -B 2 $ip6addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
+iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
 iface_hs=$(ip -4 a s | grep -B 2 $ip4addr_hs | sed -n 2p | awk '{print $2}' | sed 's/://')
 iface_olsrd=""
 
