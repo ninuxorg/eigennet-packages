@@ -34,11 +34,11 @@ config section 'wireless'
 	option wifi_clients 'true'				# Default true, setting false for disable Access Point
 	option wifi_mesh 'true'					# Default true, setting false for disable Mesh Network
 	option countrycode 'US'
-	option wifi_channel '13'				# 1-14
+	option wifi_channel '11'				# 1-14
 	option meshSSID 'mesh.ninux.org'			# Default mesh SSID "mesh.ninux.org"
 	option meshBSSID '02:aa:bb:cc:dd:00'			# Default mesh BSSID "02:aa:bb:cc:dd:00"
 	option meshMcastRate '6000'				# Default mesh MCS rate "6000"
-	option apSSID 'ninux.org'				# Default AP SSID
+	option apSSID 'ap.ninux.org'				# Default AP SSID
 	option apKEY 'none'					# Default not setting
 	option apMaxClients '25'				# Default clients AP number "25" (max lan client n+20)
 	option tx_power '10'					# Default tx power "10" (10-30)

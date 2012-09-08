@@ -71,7 +71,7 @@ mesh2channel=$wifi_channel	; config_get		mesh2channel	wireless "wifi_channel"
 meshSSID=$meshSSID		; config_get		meshSSID	wireless "meshSSID"		"mesh.ninux.org"
 meshBSSID=$meshBSSID		; config_get		meshBSSID	wireless "meshBSSID"		"02:aa:bb:cc:dd:00"
 meshMcastRate=$meshMcastRate	; config_get		meshMcastRate	wireless "meshMcastRate"
-apSSID=$apSSID			; config_get		apSSID		wireless "apSSID"		"ninux.org"
+apSSID=$apSSID			; config_get		apSSID		wireless "apSSID"		"ap.ninux.org"
 apKEY=$apKEY			; config_get		apKEY		wireless "apKEY"
 apMaxClients=$apMaxClients	; config_get		apMaxClients	wireless "apMaxClients"
 
@@ -182,13 +182,9 @@ mac6ize()
 
 scan_devices()
 {
-	model=""
 	eth=""
 	radio=""
 	wifi=""
-	
-	# Getting router model
-	model=$(cat /proc/cpuinfo |grep machine|awk '{print $4}')
 	
 	# Getting wired interfaces
 	eth=$(cat /proc/net/dev | sed -n -e 's/:.*//' -e 's/[ /t]*//' -e '/^eth[0-9]$/p')
@@ -213,6 +209,9 @@ scan_devices()
   
 configureNetwork()
 {
+# Getting router model
+local model=$(cat /proc/cpuinfo | grep machine | awk '{print $4}')
+	
 local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 	uci set system.@system[0].hostname=$hostName
 	uci set system.@system[0].timezone=$TimeZone
@@ -255,9 +254,8 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 	uci set network.lan.ipaddr=$ip4addr_lan
 	uci set network.lan.netmask=$netmask_lan
 	
-	if [ $model == TL-WR741ND ]
-		then
-		uci add_list network.lan.ifname=eth0
+if [ $model = TL-WR741ND ]
+	then
 		uci set network.@switch[0]=switch
 		uci set network.@switch[0].name=eth0
 		uci set network.@switch[0].reset=1
@@ -266,52 +264,54 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 		uci set network.@switch_vlan[0].device=eth0
 		uci set network.@switch_vlan[0].vlan=1
 		uci set network.@switch_vlan[0].ports=0 1 2 3 4
-		if [ $wan_set -eq 1 ]
-			then
-			uci set network.wan=interface
-			uci set network.wan.ifname=eth1
-			uci set network.wan.proto=static
-			uci set network.wan.ipaddr=$ip4_wan
-			uci set network.wan.netmask=$wan_mask
-			uci set network.wan.dns=$resolvers
-			else
-			uci set network.wan=interface
-			uci set network.wan.ifname=eth1
-			uci set network.wan.proto=dhcp
-		fi
-	elif [ $model == TL-WR1043ND ]
-		then
-		uci add_list network.lan.ifname=eth0.2
+			if [ $wan_set -eq 1 ]
+				then
+					uci set network.wan=interface
+					uci set network.wan.ifname=eth1
+					uci set network.wan.proto=static
+					uci set network.wan.ipaddr=$ip4_wan
+					uci set network.wan.netmask=$wan_mask
+					uci set network.wan.dns=$resolvers
+				else
+					uci set network.wan=interface
+					uci set network.wan.ifname=eth1
+					uci set network.wan.proto=dhcp
+			fi
+		uci add_list network.lan.ifname=eth0
+		uci commit network
+elif [ $model = TL-WR1043ND ]
+	then
 		uci set network.@switch[0]=switch
 		uci set network.@switch[0].name=rtl8366rb
 		uci set network.@switch[0].reset=1
 		uci set network.@switch[0].enable_vlan=1
-		uci set network.@switch[0].enable_vlan4k=1
 		uci set network.@switch_vlan[0]=switch_vlan
 		uci set network.@switch_vlan[0].device=rtl8366rb
 		uci set network.@switch_vlan[0].vlan=1
-		uci set network.@switch_vlan[0].ports=0 5t
+		uci set network.@switch_vlan[0].ports=1 2 3 4 5t
 		uci set network.@switch_vlan[1]=switch_vlan
 		uci set network.@switch_vlan[1].device=rtl8366rb
 		uci set network.@switch_vlan[1].vlan=2
-		uci set network.@switch_vlan[1].ports=1 2 3 4 5t
-		if [ $wan_set -eq 1 ]
-			then
-			uci set network.wan=interface
-			uci set network.wan.ifname=eth0.1
-			uci set network.wan.proto=static
-			uci set network.wan.ipaddr=$ip4_wan
-			uci set network.wan.netmask=$wan_mask
-			uci set network.wan.dns=$resolvers
-			else	
-			uci set network.wan=interface
-			uci set network.wan.ifname=eth0.1
-			uci set network.wan.proto=dhcp
-		fi				
+		uci set network.@switch_vlan[1].ports=0 5t
+			if [ $wan_set -eq 1 ]
+				then
+					uci set network.wan=interface
+					uci set network.wan.ifname=eth0.2
+					uci set network.wan.proto=static
+					uci set network.wan.ipaddr=$ip4_wan
+					uci set network.wan.netmask=$wan_mask
+					uci set network.wan.dns=$resolvers
+				else	
+					uci set network.wan=interface
+					uci set network.wan.ifname=eth0.2
+					uci set network.wan.proto=dhcp
+			fi
+		uci add_list network.lan.ifname=eth0.1
+		uci commit network
 	else
 		uci add_list network.lan.ifname=eth0
-	fi
-
+fi
+	
 	for device in $(scan_devices)
 	do
 		devtype=$(echo $device | sed -e 's/[0-9]*$//')
@@ -337,7 +337,6 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 										
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
-					uci set network.nmesh$device.mtu=1528
 					uci set network.nmesh$device.ip6addr=$ip6addr_mesh
 					uci set network.nmesh$device.ipaddr=$ip4addr_mesh
 					uci set network.nmesh$device.netmask=$netmask_mesh
@@ -399,7 +398,6 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 					
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
-					uci set network.nmesh$device.mtu=1528
 					uci set network.nmesh$device.ip6addr=$ip6addr_mesh
 					uci set network.nmesh$device.ipaddr=$ip4addr_mesh
 					uci set network.nmesh$device.netmask=$netmask_mesh
@@ -891,11 +889,7 @@ start()
 	{
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-		local accept_clients config_get_bool accept_clients network "accept_clients"  1
-		[ $accept_clients -eq 1 ] && ip link set dev br-lan up
-
-		local accept_clients  ; config_get_bool accept_clients    network      "accept_clients"   1
-		local wifi_clients    ; config_get_bool wifi_clients      wireless     "wifi_clients"     1
+		ip link set up dev br-lan
 		
 		configureOlsrd4
 		configureOlsrd6
