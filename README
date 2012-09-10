@@ -1,0 +1,13 @@
+This git repo contains the ninux trunk OpenWRT packages with custom fixes
+and improvement for a simple autoconfiguration of your device.
+
+
+To use this repo in your OpenWRT buildroot simple add this line to the feeds:
+
+src-git autoninux git://github.com/arkanet/nnx-trunk-auto.git
+
+Then use the follow commands to update/install packages from the new repo:
+openwrt$ ./scripts/feeds update -a
+openwrt$ ./scripts/feeds install -a
+openwrt$ make menuconfig
+Enter in section Administration and in eigennet select all packages.
