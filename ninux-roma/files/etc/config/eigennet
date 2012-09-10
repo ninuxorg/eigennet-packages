@@ -4,7 +4,6 @@ config section 'general'
 	option bootmode '0'	# 0 First boot, 1 Run Autoconfig (you should set 1 each time you edit this file), 2 Current configuration.
 
 config section 'network'
-	option accept_clients 'true'				# Default true, setting false for disable AP and MeshNetwork
 	option ip6addr_mesh '2001:4c00:893b:1:cab::1/128'	# Insert your IPv6 wireless address conforms with radio subnet at "http://wiki.ninux.org/GestioneIndirizzi"
 	option ip6addr_lan '2001:4c00:893b:cab::1/64'		# Insert your IPv6 lan address previously declared at "http://wiki.ninux.org/GestioneIndirizzi"
 	option radvd_prefix '2001:4c00:893b:cab::/64'		# Insert your IPv6 subnet for radvd configuration conforms at 2001:4c00:893b:SUBNET::/64
@@ -12,32 +11,37 @@ config section 'network'
 	option netmask_mesh '255.255.0.0'			# Insert your IPv4 wireless subnet conforms with radio subnet IP at "http://wiki.ninux.org/GestioneIndirizzi"
 	option ip4addr_lan '192.168.1.21'			# Insert your IPv4 lan address conforms with ninux rule at "http://wiki.ninux.org/GestioneIndirizzi" ex: 10.CAP.XYZ.ABC
 	option netmask_lan '255.255.255.0'			# Insert your IPv4 lan subnet previously declared at "http://wiki.ninux.org/GestioneIndirizzi" ex: declared "10.171.5.0/24" insert 255.255.255.0
+	option dhcp_enable '1'					# Default enable; setting false for siable lan (and AP) dhcp assignment
+	option dhcp_lan_init '10'				# Setting your prefer value of initial dhcp assignment
 	list resolvers '160.80.221.11 8.8.8.8'			# Change (if you want) nameserver for your custom or prefered dns
 	option hostName 'nome_device'				# Insert device name in format "aB09" without special characters
-	option wan_set 'false'					# Setting 'true' if your device is a TP-LINK (or another with a wan port) and you want customize your wan ip
+	option wan_set '0'					# Setting 'true' if your device is a TP-LINK (or another with a wan port) and you want customize your wan ip
 	option ip4_wan '0.0.0.0'				# Insert your custom wan ip
 	option wan_mask '0.0.0.0'				# Insert the subnet of your custom wan ip
 
 config section 'olsrd'
+	option supernode '0'					# Default false, is true when you have more device on your (super)node
 	option hna6 '2001:4c00:893b:cab::'			# Insert your IPv6 subnet for olsrd configuration (like to radvd) without prefix
 	option lan6prefix '64'					# Insert your IPv6 prefix for olsrd configuration
 	option hna4 '192.168.1.0'				# Insert your IPv4 subnet for olsrd configuration ex: 192.168.1.21/24 insert 192.168.1.0
-	option gw_enable 'false'				# Default false, setting true for gateway announce
+	option gw_enable '0'					# Default false, setting true for gateway announce
 
 config section 'snmp'
-	option Enable 'true'					# Default true, setting false for disable this service
-	option Contact 'contatti@ninux.org'			# Insert (if you want) your custom email
-	option Location 'ninux'					# Insert your Node Name 
+	option enable '1'					# Default true, setting false for disable this service
+	option contact 'contatti@ninux.org'			# Insert (if you want) your custom email
+	option location 'node_name'				# Insert your Node Name 
 
 config section 'wireless'
-	option supernode 'false'				# Default false, is true when you have more device on your (super)node
-	option wifi_clients 'true'				# Default true, setting false for disable Access Point
-	option wifi_mesh 'true'					# Default true, setting false for disable Mesh Network
+	option wifi_mesh '1'					# Default true, setting false for disable Mesh Network
+	option mesh_mode 'adhoc'				# setting your prefer mode adhoc or ap or sta
 	option countrycode 'US'
 	option wifi_channel '11'				# 1-14
 	option meshSSID 'mesh.ninux.org'			# Default mesh SSID "mesh.ninux.org"
 	option meshBSSID '02:aa:bb:cc:dd:00'			# Default mesh BSSID "02:aa:bb:cc:dd:00"
 	option meshMcastRate '6000'				# Default mesh MCS rate "6000"
+	option station_mac '00:00:00:00:00:00'			# Setting the mac address of your AP (only in STA mode)
+	option ap_staSSID 'ninux.org'				# Default AP-STA SSID is 'ninux.org'
+	option ap_enable '0'					# Default true, setting false for disable AP	
 	option apSSID 'ap.ninux.org'				# Default AP SSID
 	option apKEY 'none'					# Default not setting
 	option apMaxClients '25'				# Default clients AP number "25" (max lan client n+20)
@@ -51,28 +55,28 @@ config section 'hotspot'
 	option netmask_hs '255.255.255.0'
 
 config section 'gw4server'					# TODO
-	option enabled 'false'
-	option strictCheck 'false'
+	option enabled '0'
+	option strictCheck '0'
 	option checkInterval '10s'
 	option bandwidth '2000/512'
 	list checkHosts '8.8.8.8'
 	list checkHosts '8.8.4.4'
 
 config section 'pointing'
-	option enabled 'true'
+	option enabled '1'
 
 config section 'bwtestclient'
-	option enabled 'true'
+	option enabled '1'
 
 config section 'bwtestserver'
-	option enabled 'true'
+	option enabled '1'
 
 config section 'sshserver'					# Setting your ssh pubblic key
-	option enabled 'true'
-	option passwdAuth 'true'
+	option enabled '1'
+	option passwdAuth '1'
 	option sshAuthorizedKeys ''
 
 config section 'httpinfo'
-	option enabled 'true'
+	option enabled '1'
 
 
