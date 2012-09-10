@@ -36,52 +36,7 @@ config_get debugLevel general "debugLevel" 0
 #[Doc] var=$var ; config_* var module "var"
 #[Doc]
 
-accept_clients=$accept_clients	; config_get_bool	accept_clients	network	"accept_clients"	1
-ip6addr_mesh=$ip6addr_mesh	; config_get		ip6addr_mesh	network	"ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
-ip4addr_mesh=$ip4addr_mesh	; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
-netmask_mesh=$netmask_mesh	; config_get		netmask_mesh	network	"netmask_mesh"		"255.255.0.0"
 
-ip6addr_lan=$ip6addr_lan	; config_get		ip6addr_lan	network	"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
-ip4addr_lan=$ip4addr_lan	; config_get		ip4addr_lan	network	"ip4addr_lan"		"192.168.1.21"
-netmask_lan=$netmask_lan	; config_get		netmask_lan	network	"netmask_lan"		"255.255.255.0"
-
-hs_enable=$hs_enable		; config_get_bool	hs_enable	hotspot "hs_enable"		0
-ip4addr_hs=$ip4addr_hs		; config_get            ip4addr_hs      hotspot "ip4addr_hs"            "192.168.10.1"
-netmask_hs=$netmask_hs  	; config_get            netmask_hs      hotspot "netmask_hs"            "255.255.255.0"
-hsSSID=$hsSSID			; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
-hsMaxClients=$hsMaxClients	; config_get		hsMaxClients	hotspot "hsMaxClients"		"50"
-
-wan_set=$wan_set		; config_get		wan_set		network	"wan_set"		0
-ip4_wan=$ip4_wan		; config_get		ip4_wan		network	"ip4_wan"		"0.0.0.0"
-wan_mask=$wan_mask		; config_get		wan_mask	network	"wan_mask"		"0.0.0.0"
-
-hostName=$hostName		; config_get		hostName	network	"hostName"		"node_device"
-resolvers=$resolvers		; config_get		resolvers	network	"resolvers"		"160.80.221.11 8.8.8.8"
-
-wifi_clients=$wifi_clients	; config_get_bool	wifi_clients	wireless "wifi_clients"		1
-wifi_mesh=$wifi_mesh		; config_get_bool	wifi_mesh	wireless "wifi_mesh"		1
-ath9k_clients=$wifi_clients	; config_get_bool	ath9k_clients	wireless "wifi_clients"		1
-ath9k_mesh=$wifi_mesh		; config_get_bool	ath9k_mesh	wireless "wifi_mesh"		1
-madwifi_clients=$wifi_clients	; config_get_bool	madwifi_clients	wireless "wifi_clients"		1
-madwifi_mesh=$wifi_mesh		; config_get_bool	madwifi_mesh	wireless "wifi_mesh"		1
-
-tx_power=$tx_power		; config_get		tx_power	wireless "tx_power"
-countrycode=$countrycode	; config_get		countrycode	wireless "countrycode"
-mesh2channel=$wifi_channel	; config_get		mesh2channel	wireless "wifi_channel"
-meshSSID=$meshSSID		; config_get		meshSSID	wireless "meshSSID"		"mesh.ninux.org"
-meshBSSID=$meshBSSID		; config_get		meshBSSID	wireless "meshBSSID"		"02:aa:bb:cc:dd:00"
-meshMcastRate=$meshMcastRate	; config_get		meshMcastRate	wireless "meshMcastRate"
-apSSID=$apSSID			; config_get		apSSID		wireless "apSSID"		"ap.ninux.org"
-apKEY=$apKEY			; config_get		apKEY		wireless "apKEY"
-apMaxClients=$apMaxClients	; config_get		apMaxClients	wireless "apMaxClients"
-
-gw_enable=$gw_enable		; config_get_bool	gw_enable	olsrd "gw_enable"		0
-
-lan6prefix=$lan6prefix		; config_get		lan6prefix	olsrd "lan6prefix"		"64"
-
-hna6=$hna6			; config_get		hna6		olsrd "hna6"			"2001:4c00:893b:abcd::"
-hna4=$hna4			; config_get		hna4		olsrd "hna4"			"192.168.1.0"
-supernode=$supernode            ; config_get_bool       supernode       olsrd "supernode"               0
 
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
@@ -211,8 +166,43 @@ configureNetwork()
 {
 # Getting router model
 local model=$(cat /proc/cpuinfo | grep machine | awk '{print $4}')
-	
 local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
+
+	ip4addr_mesh	; config_get		ip4addr_mesh	network "ip4addr_mesh"		"172.16.0.1"
+	netmask_lan	; config_get		netmask_lan	network	"netmask_lan"		"255.255.255.0"
+	hs_enable	; config_get_bool	hs_enable	hotspot "hs_enable"		0
+	ip4addr_hs	; config_get		ip4addr_hs	hotspot "ip4addr_hs"		"192.168.10.1"
+	hsMaxClients	; config_get		hsMaxClients	hotspot "hsMaxClients"		"50"
+	apMaxClients	; config_get		apMaxClients	wireless "apMaxClients"
+
+local accept_clients	; config_get_bool	accept_clients	network	"accept_clients"	1
+local ip6addr_mesh	; config_get		ip6addr_mesh	network	"ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
+local netmask_mesh	; config_get		netmask_mesh	network	"netmask_mesh"		"255.255.0.0"
+local ip6addr_lan	; config_get		ip6addr_lan	network	"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
+local ip4addr_lan	; config_get		ip4addr_lan	network	"ip4addr_lan"		"192.168.1.21"
+local wan_set		; config_get		wan_set		network	"wan_set"		0
+local ip4_wan		; config_get		ip4_wan		network	"ip4_wan"		"0.0.0.0"
+local wan_mask		; config_get		wan_mask	network	"wan_mask"		"0.0.0.0"
+local hostName		; config_get		hostName	network	"hostName"		"node_device"
+local resolvers		; config_get		resolvers	network	"resolvers"		"160.80.221.11 8.8.8.8"
+
+local wifi_clients	; config_get_bool	wifi_clients	wireless "wifi_clients"		1
+local wifi_mesh		; config_get_bool	wifi_mesh	wireless "wifi_mesh"		1
+local ath9k_clients	; config_get_bool	ath9k_clients	wireless "wifi_clients"		1
+local ath9k_mesh	; config_get_bool	ath9k_mesh	wireless "wifi_mesh"		1
+local madwifi_clients	; config_get_bool	madwifi_clients	wireless "wifi_clients"		1
+local madwifi_mesh	; config_get_bool	madwifi_mesh	wireless "wifi_mesh"		1
+local tx_power		; config_get		tx_power	wireless "tx_power"
+local countrycode	; config_get		countrycode	wireless "countrycode"
+local mesh2channel	; config_get		mesh2channel	wireless "wifi_channel"
+local meshSSID		; config_get		meshSSID	wireless "meshSSID"		"mesh.ninux.org"
+local meshBSSID		; config_get		meshBSSID	wireless "meshBSSID"		"02:aa:bb:cc:dd:00"
+local meshMcastRate	; config_get		meshMcastRate	wireless "meshMcastRate"
+local apSSID		; config_get		apSSID		wireless "apSSID"		"ap.ninux.org"
+local apKEY		; config_get		apKEY		wireless "apKEY"
+local netmask_hs  	; config_get            netmask_hs      hotspot "netmask_hs"            "255.255.255.0"
+local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
+
 	uci set system.@system[0].hostname=$hostName
 	uci set system.@system[0].timezone=$TimeZone
 	uci del system.ntp
@@ -254,63 +244,46 @@ local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 	uci set network.lan.ipaddr=$ip4addr_lan
 	uci set network.lan.netmask=$netmask_lan
 	
-if [ $model = TL-WR741ND ]
-	then
-		uci set network.@switch[0]=switch
-		uci set network.@switch[0].name=eth0
-		uci set network.@switch[0].reset=1
-		uci set network.@switch[0].enable_vlan=1
-		uci set network.@switch_vlan[0]=switch_vlan
-		uci set network.@switch_vlan[0].device=eth0
-		uci set network.@switch_vlan[0].vlan=1
-		uci set network.@switch_vlan[0].ports=0 1 2 3 4
-			if [ $wan_set -eq 1 ]
-				then
-					uci set network.wan=interface
-					uci set network.wan.ifname=eth1
-					uci set network.wan.proto=static
-					uci set network.wan.ipaddr=$ip4_wan
-					uci set network.wan.netmask=$wan_mask
-					uci set network.wan.dns=$resolvers
-				else
-					uci set network.wan=interface
-					uci set network.wan.ifname=eth1
-					uci set network.wan.proto=dhcp
-			fi
-		uci add_list network.lan.ifname=eth0
-		uci commit network
-elif [ $model = TL-WR1043ND ]
-	then
-		uci set network.@switch[0]=switch
-		uci set network.@switch[0].name=rtl8366rb
-		uci set network.@switch[0].reset=1
-		uci set network.@switch[0].enable_vlan=1
-		uci set network.@switch_vlan[0]=switch_vlan
-		uci set network.@switch_vlan[0].device=rtl8366rb
-		uci set network.@switch_vlan[0].vlan=1
-		uci set network.@switch_vlan[0].ports=1 2 3 4 5t
-		uci set network.@switch_vlan[1]=switch_vlan
-		uci set network.@switch_vlan[1].device=rtl8366rb
-		uci set network.@switch_vlan[1].vlan=2
-		uci set network.@switch_vlan[1].ports=0 5t
-			if [ $wan_set -eq 1 ]
-				then
-					uci set network.wan=interface
-					uci set network.wan.ifname=eth0.2
-					uci set network.wan.proto=static
-					uci set network.wan.ipaddr=$ip4_wan
-					uci set network.wan.netmask=$wan_mask
-					uci set network.wan.dns=$resolvers
-				else	
-					uci set network.wan=interface
-					uci set network.wan.ifname=eth0.2
-					uci set network.wan.proto=dhcp
-			fi
-		uci add_list network.lan.ifname=eth0.1
-		uci commit network
+	if [ $model = TL-WR741ND ]
+		then
+			[ $wan_set -eq 1 ] &&
+			{
+				uci set network.wan=interface
+				uci set network.wan.ifname=eth1
+				uci set network.wan.proto=static
+				uci set network.wan.ipaddr=$ip4_wan
+				uci set network.wan.netmask=$wan_mask
+				uci set network.wan.dns=$resolvers
+			}
+			[ $wan_set -eq 0 ] &&
+			{
+				uci set network.wan=interface
+				uci set network.wan.ifname=eth1
+				uci set network.wan.proto=dhcp
+			}
+			uci add_list network.lan.ifname=eth0
+
+	elif [ $model = TL-WR1043ND ]
+		then
+			[ $wan_set -eq 1 ] &&
+			{
+				uci set network.wan=interface
+				uci set network.wan.ifname=eth0.2
+				uci set network.wan.proto=static
+				uci set network.wan.ipaddr=$ip4_wan
+				uci set network.wan.netmask=$wan_mask
+				uci set network.wan.dns=$resolvers
+			}
+			[ $wan_set -eq 0 ] &&
+			{
+				uci set network.wan=interface
+				uci set network.wan.ifname=eth0.2
+				uci set network.wan.proto=dhcp
+			}
+			uci add_list network.lan.ifname=eth0.1
 	else
 		uci add_list network.lan.ifname=eth0
-fi
+	fi
 	
 	for device in $(scan_devices)
 	do
@@ -454,6 +427,9 @@ local gw=""
 local hna4_full="${hna4} ${netmask_lan}"
 local OLSRD4="/etc/config/olsrd4"
 local iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
+local gw_enable		; config_get_bool	gw_enable	olsrd	"gw_enable"		0
+local hna4		; config_get		hna4		olsrd	"hna4"			"192.168.1.0"
+local supernode		; config_get_bool	supernode	olsrd	"supernode"		0
 
 if [ $supernode -eq 1 ]
 	then
@@ -540,6 +516,9 @@ configureOlsrd6()
 local OLSRD6="/etc/config/olsrd6"
 local hna6_full="${hna6} ${lan6prefix}"
 local iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
+local lan6prefix	; config_get		lan6prefix	olsrd	"lan6prefix"		"64"
+local hna6		; config_get		hna6		olsrd	"hna6"			"2001:4c00:893b:abcd::"
+local supernode		; config_get_bool	supernode	olsrd	"supernode"		0
 
 if [ $supernode -eq 1 ]
 	then
