@@ -250,8 +250,9 @@ scan_devices()
 configureNetwork()
 {
 		ip4addr_lan	; config_get		ip4addr_lan	network  "ip4addr_lan"		"192.168.1.21"
+		ip6addr_lan	; config_get		ip6addr_lan	network  "ip6addr_lan"		"2001:4c00:893b:cab::123/64"
 		
-	local ip6addr_lan	; config_get		ip6addr_lan	network  "ip6addr_lan"		"2001:4c00:893b:cab::123/64"
+#	local ip6addr_lan	; config_get		ip6addr_lan	network  "ip6addr_lan"		"2001:4c00:893b:cab::123/64"
 #	local ip4addr_lan	; config_get		ip4addr_lan	network  "ip4addr_lan"		"192.168.1.21"
 	local ip6addr_mesh	; config_get		ip6addr_mesh	network  "ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
 	local netmask_mesh	; config_get		netmask_mesh	network  "netmask_mesh"		"255.255.0.0"
@@ -621,8 +622,10 @@ EOF
 
 configureOlsrd6()
 {
-	local lan6prefix	; config_get		lan6prefix	olsrd "lan6prefix"		"64"
-	local hna6		; config_get		hna6		olsrd "hna6"			"2001:4c00:893b:abcd::"
+#	local lan6prefix	; config_get		lan6prefix	olsrd "lan6prefix"		"64"
+#	local hna6		; config_get		hna6		olsrd "hna6"			"2001:4c00:893b:abcd::"
+	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
+	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
 	local OLSRD6="/etc/config/olsrd6"
 	local hna6_full="${hna6} ${lan6prefix}"
 	
@@ -699,8 +702,10 @@ EOF
 
 configureRadvd()
 {
-	local RADVD="/etc/config/radvd"
-	local radvd_prefix ; config_get		radvd_prefix	network	"radvd_prefix"		"2001:4c00:893b:cab::/64"
+#	local radvd_prefix ; config_get		radvd_prefix	network	"radvd_prefix"		"2001:4c00:893b:cab::/64"
+	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
+	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
+	local radvd_prefix=$(echo ${hna6}/${lan6prefix})  
 
 	uci del radvd.@interface[0]
 	uci del radvd.@prefix[0]
