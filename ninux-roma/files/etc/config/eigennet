@@ -23,7 +23,7 @@ config section 'olsrd'
 	option supernode '0'					# Default false, is true when you have more device on your (super)node
 	option hna6 '2001:4c00:893b:cab::'			# Insert your IPv6 subnet for olsrd configuration (like to radvd) without prefix
 	option lan6prefix '64'					# Insert your IPv6 prefix for olsrd configuration
-	option hna4 '192.168.1.0'				# Insert your IPv4 subnet for olsrd configuration ex: 192.168.1.21/24 insert 192.168.1.0
+#	option hna4 '192.168.1.0'				# Insert your IPv4 subnet for olsrd configuration ex: 192.168.1.21/24 insert 192.168.1.0
 	option gw_enable '0'					# Default false, setting true for gateway announce
 
 config section 'snmp'

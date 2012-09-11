@@ -35,6 +35,10 @@ config_get debugLevel general "debugLevel" 0
 #[Doc]
 #[Doc] var=$var ; config_* var module "var"
 #[Doc]
+#[Doc] ip4addr_mesh		; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
+#[Doc]
+#[Doc] local ip4addr_mesh	; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
+#[Doc]
 
 ip4addr_mesh		; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
 netmask_lan		; config_get		netmask_lan	network	"netmask_lan"		"255.255.255.0"
@@ -61,6 +65,78 @@ eigenDebug()
 	{
 		echo "Debug: $@" >> /tmp/eigenlog
 	}
+}
+
+#[Doc]
+#[Doc] IpCalc for calculate IP4 address and his characteristic
+#[Doc]
+#[Doc] usage: ipCalc [IP4] space [SUBNET]
+#[Doc]
+#[Doc] ex: ipCalc 192.168.1.21 255.255.255.0
+#[Doc]
+
+ipCalc()
+{
+	awk -f - $* <<EOF
+function bitcount(c) {
+	c=and(rshift(c, 1),0x55555555)+and(c,0x55555555)
+	c=and(rshift(c, 2),0x33333333)+and(c,0x33333333)
+	c=and(rshift(c, 4),0x0f0f0f0f)+and(c,0x0f0f0f0f)
+	c=and(rshift(c, 8),0x00ff00ff)+and(c,0x00ff00ff)
+	c=and(rshift(c,16),0x0000ffff)+and(c,0x0000ffff)
+	return c
+}
+
+function ip2int(ip) {
+	for (ret=0,n=split(ip,a,"\."),x=1;x<=n;x++) ret=or(lshift(ret,8),a[x]) 
+	return ret
+}
+
+function int2ip(ip,ret,x) {
+	ret=and(ip,255)
+	ip=rshift(ip,8)
+	for(;x<3;ret=and(ip,255)"."ret,ip=rshift(ip,8),x++);
+	return ret
+}
+
+BEGIN {
+	slpos=index(ARGV[1],"/")
+	if (slpos == 0) {
+		ipaddr=ip2int(ARGV[1])
+		netmask=ip2int(ARGV[2])
+	} else {
+		ipaddr=ip2int(substr(ARGV[1],0,slpos-1))
+		netmask=compl(2**(32-int(substr(ARGV[1],slpos+1)))-1)
+		ARGV[4]=ARGV[3]
+		ARGV[3]=ARGV[2]
+	}
+
+	network=and(ipaddr,netmask)
+	broadcast=or(network,compl(netmask))
+
+	start=or(network,and(ip2int(ARGV[3]),compl(netmask)))
+	limit=network+1
+	if (start<limit) start=limit
+
+	end=start+ARGV[4]
+	limit=or(network,compl(netmask))-1
+	if (end>limit) end=limit
+
+	print "IP="int2ip(ipaddr)
+	print "NETMASK="int2ip(netmask)
+	print "BROADCAST="int2ip(broadcast)
+	print "NETWORK="int2ip(network)
+	print "PREFIX="32-bitcount(compl(netmask))
+
+	# range calculations:
+	# ipcalc <ip> <netmask> <start> <num>
+
+	if (ARGC > 3) {
+		print "START="int2ip(start)
+		print "END="int2ip(end)
+	}
+}
+EOF
 }
 
 #[Doc]
@@ -173,8 +249,10 @@ scan_devices()
   
 configureNetwork()
 {
+		ip4addr_lan	; config_get		ip4addr_lan	network  "ip4addr_lan"		"192.168.1.21"
+		
 	local ip6addr_lan	; config_get		ip6addr_lan	network  "ip6addr_lan"		"2001:4c00:893b:cab::123/64"
-	local ip4addr_lan	; config_get		ip4addr_lan	network  "ip4addr_lan"		"192.168.1.21"
+#	local ip4addr_lan	; config_get		ip4addr_lan	network  "ip4addr_lan"		"192.168.1.21"
 	local ip6addr_mesh	; config_get		ip6addr_mesh	network  "ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
 	local netmask_mesh	; config_get		netmask_mesh	network  "netmask_mesh"		"255.255.0.0"
 	local netmask_hs	; config_get		netmask_hs	hotspot  "netmask_hs"		"255.255.255.0"
@@ -442,11 +520,20 @@ configureNetwork()
 
 configureOlsrd4()
 {
-	local hna4		; config_get		hna4		olsrd  "hna4"			"192.168.1.0"
+#	local hna4		; config_get		hna4		olsrd  "hna4"			"192.168.1.0"
 	local gw_enable		; config_get_bool	gw_enable	olsrd  "gw_enable"		0
 	local gw=""
-	local hna4_full="${hna4} ${netmask_lan}"
+#	local hna4_full="${hna4} ${netmask_lan}"
 	local OLSRD4="/etc/config/olsrd4"
+	
+	if [ -e /bin/ipcalc.sh ]
+		then
+			local hna4=$(ipcalc.sh ${ip4addr_lan} ${netmask_lan} | grep NETWORK | sed 's/NETWORK=//')
+		else
+			local hna4=$(ipCalc ${ip4addr_lan} ${netmask_lan} | grep NETWORK | sed 's/NETWORK=//')
+	fi	
+	
+	local hna4_full="${hna4} ${netmask_lan}"
 	
 	rm -rf /etc/init.d/olsrd4
 	cat > $OLSRD4 << EOF
