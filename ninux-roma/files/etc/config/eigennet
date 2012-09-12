@@ -6,7 +6,6 @@ config section 'general'
 config section 'network'
 	option ip6addr_mesh '2001:4c00:893b:1:cab::1/128'	# Insert your IPv6 wireless address conforms with radio subnet at "http://wiki.ninux.org/GestioneIndirizzi"
 	option ip6addr_lan '2001:4c00:893b:cab::1/64'		# Insert your IPv6 lan address previously declared at "http://wiki.ninux.org/GestioneIndirizzi"
-#	option radvd_prefix '2001:4c00:893b:cab::/64'		# Insert your IPv6 subnet for radvd configuration conforms at 2001:4c00:893b:SUBNET::/64
 	option ip4addr_mesh '172.16.0.1'			# Insert your IPv4 wireless address conforms with radio IP at "http://wiki.ninux.org/GestioneIndirizzi" ex: 172.16.CAP.XYZ
 	option netmask_mesh '255.255.0.0'			# Insert your IPv4 wireless subnet conforms with radio subnet IP at "http://wiki.ninux.org/GestioneIndirizzi"
 	option ip4addr_lan '192.168.1.21'			# Insert your IPv4 lan address conforms with ninux rule at "http://wiki.ninux.org/GestioneIndirizzi" ex: 10.CAP.XYZ.ABC
@@ -21,9 +20,6 @@ config section 'network'
 
 config section 'olsrd'
 	option supernode '0'					# Default false, is true when you have more device on your (super)node
-#	option hna6 '2001:4c00:893b:cab::'			# Insert your IPv6 subnet for olsrd configuration (like to radvd) without prefix
-#	option lan6prefix '64'					# Insert your IPv6 prefix for olsrd configuration
-#	option hna4 '192.168.1.0'				# Insert your IPv4 subnet for olsrd configuration ex: 192.168.1.21/24 insert 192.168.1.0
 	option gw_enable '0'					# Default false, setting true for gateway announce
 
 config section 'snmp'
