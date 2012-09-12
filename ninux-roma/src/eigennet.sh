@@ -35,8 +35,23 @@ config_get debugLevel general "debugLevel" 0
 #[Doc]
 #[Doc] var=$var ; config_* var module "var"
 #[Doc]
+#[Doc] ip4addr_mesh		; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
+#[Doc]
+#[Doc] local ip4addr_mesh	; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
+#[Doc]
 
+ip4addr_lan		; config_get		ip4addr_lan	network  "ip4addr_lan"		"192.168.1.21"
+ip6addr_lan		; config_get		ip6addr_lan	network  "ip6addr_lan"		"2001:4c00:893b:cab::123/64"
+ip4addr_mesh		; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
+netmask_lan		; config_get		netmask_lan	network	"netmask_lan"		"255.255.255.0"
+hs_enable		; config_get_bool	hs_enable	hotspot "hs_enable"		0
+ip4addr_hs		; config_get            ip4addr_hs      hotspot "ip4addr_hs"            "192.168.10.1"
+hsMaxClients		; config_get		hsMaxClients	hotspot "hsMaxClients"		"50"
+wifi_mesh		; config_get_bool	wifi_mesh	wireless "wifi_mesh"		1
+apMaxClients		; config_get		apMaxClients	wireless "apMaxClients"		"25"
+supernode		; config_get_bool	supernode	olsrd "supernode"		0
 
+iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
 
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
@@ -164,45 +179,34 @@ scan_devices()
   
 configureNetwork()
 {
-# Getting router model
-local model=$(cat /proc/cpuinfo | grep machine | awk '{print $4}')
-local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
+	local ip6addr_mesh	; config_get		ip6addr_mesh	network  "ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
+	local netmask_mesh	; config_get		netmask_mesh	network  "netmask_mesh"		"255.255.0.0"
+	local netmask_hs	; config_get		netmask_hs	hotspot  "netmask_hs"		"255.255.255.0"
+	local hsSSID		; config_get		hsSSID		hotspot  "hsSSID"		"www.ninux.org"
+	local wan_set		; config_get_bool	wan_set		network  "wan_set"		0
+	local ip4_wan		; config_get		ip4_wan		network  "ip4_wan"		"0.0.0.0"
+	local wan_mask		; config_get		wan_mask	network  "wan_mask"		"0.0.0.0"
+	local hostName		; config_get		hostName	network  "hostName"		"node_device"
+	local resolvers		; config_get		resolvers	network  "resolvers"		"160.80.221.11 8.8.8.8"
+	local ath9k_mesh	; config_get_bool	ath9k_mesh	wireless  "wifi_mesh"		1
+	local madwifi_mesh	; config_get_bool	madwifi_mesh	wireless  "wifi_mesh"		1
+	local mesh_mode		; config_get		mesh_mode	wireless  "mesh_mode"		"adhoc"
+	local mac_sta		; config_get		mac_sta		wireless  "station_mac"		"0"
+	local tx_power		; config_get		tx_power	wireless  "tx_power"		"10"
+	local countrycode	; config_get		countrycode	wireless  "countrycode"		"US"
+	local mesh2channel	; config_get		mesh2channel	wireless  "wifi_channel"		"1"
+	local meshSSID		; config_get		meshSSID	wireless  "meshSSID"		"mesh.ninux.org"
+	local meshBSSID		; config_get		meshBSSID	wireless  "meshBSSID"		"02:aa:bb:cc:dd:00"
+	local meshMcastRate	; config_get		meshMcastRate	wireless  "meshMcastRate"	"6000"
+	local ap_staSSID	; config_get		ap_staSSID	wireless  "ap_staSSID"		"ninux.org"
+	local ap_enable		; config_get_bool	ap_enable	wireless  "ap_enable"		1
+	local apSSID		; config_get		apSSID		wireless  "apSSID"		"ap.ninux.org"
+	local apKEY		; config_get		apKEY		wireless  "apKEY"
+	
+	# Getting router model
+	local model=$(cat /proc/cpuinfo |grep machine|awk '{print $4}')
 
-	ip4addr_mesh	; config_get		ip4addr_mesh	network "ip4addr_mesh"		"172.16.0.1"
-	netmask_lan	; config_get		netmask_lan	network	"netmask_lan"		"255.255.255.0"
-	hs_enable	; config_get_bool	hs_enable	hotspot "hs_enable"		0
-	ip4addr_hs	; config_get		ip4addr_hs	hotspot "ip4addr_hs"		"192.168.10.1"
-	hsMaxClients	; config_get		hsMaxClients	hotspot "hsMaxClients"		"50"
-	apMaxClients	; config_get		apMaxClients	wireless "apMaxClients"
-
-local accept_clients	; config_get_bool	accept_clients	network	"accept_clients"	1
-local ip6addr_mesh	; config_get		ip6addr_mesh	network	"ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
-local netmask_mesh	; config_get		netmask_mesh	network	"netmask_mesh"		"255.255.0.0"
-local ip6addr_lan	; config_get		ip6addr_lan	network	"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
-local ip4addr_lan	; config_get		ip4addr_lan	network	"ip4addr_lan"		"192.168.1.21"
-local wan_set		; config_get		wan_set		network	"wan_set"		0
-local ip4_wan		; config_get		ip4_wan		network	"ip4_wan"		"0.0.0.0"
-local wan_mask		; config_get		wan_mask	network	"wan_mask"		"0.0.0.0"
-local hostName		; config_get		hostName	network	"hostName"		"node_device"
-local resolvers		; config_get		resolvers	network	"resolvers"		"160.80.221.11 8.8.8.8"
-
-local wifi_clients	; config_get_bool	wifi_clients	wireless "wifi_clients"		1
-local wifi_mesh		; config_get_bool	wifi_mesh	wireless "wifi_mesh"		1
-local ath9k_clients	; config_get_bool	ath9k_clients	wireless "wifi_clients"		1
-local ath9k_mesh	; config_get_bool	ath9k_mesh	wireless "wifi_mesh"		1
-local madwifi_clients	; config_get_bool	madwifi_clients	wireless "wifi_clients"		1
-local madwifi_mesh	; config_get_bool	madwifi_mesh	wireless "wifi_mesh"		1
-local tx_power		; config_get		tx_power	wireless "tx_power"
-local countrycode	; config_get		countrycode	wireless "countrycode"
-local mesh2channel	; config_get		mesh2channel	wireless "wifi_channel"
-local meshSSID		; config_get		meshSSID	wireless "meshSSID"		"mesh.ninux.org"
-local meshBSSID		; config_get		meshBSSID	wireless "meshBSSID"		"02:aa:bb:cc:dd:00"
-local meshMcastRate	; config_get		meshMcastRate	wireless "meshMcastRate"
-local apSSID		; config_get		apSSID		wireless "apSSID"		"ap.ninux.org"
-local apKEY		; config_get		apKEY		wireless "apKEY"
-local netmask_hs  	; config_get            netmask_hs      hotspot "netmask_hs"            "255.255.255.0"
-local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
-
+	local TimeZone="CET-1CEST,M3.5.0,M10.5.0/3"
 	uci set system.@system[0].hostname=$hostName
 	uci set system.@system[0].timezone=$TimeZone
 	uci del system.ntp
@@ -284,7 +288,7 @@ local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
 	else
 		uci add_list network.lan.ifname=eth0
 	fi
-	
+
 	for device in $(scan_devices)
 	do
 		devtype=$(echo $device | sed -e 's/[0-9]*$//')
@@ -302,12 +306,22 @@ local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
 					uci set wireless.mesh$device=wifi-iface
 					uci set wireless.mesh$device.device=$device
 					uci set wireless.mesh$device.network=nmesh$device
-					uci set wireless.mesh$device.mode=adhoc
-					uci set wireless.mesh$device.bssid=$meshBSSID
-					uci set wireless.mesh$device.ssid=$meshSSID
+					uci set wireless.mesh$device.mode=$mesh_mode
 					uci set wireless.mesh$device.encryption=none
 					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
-										
+					if [ $mesh_mode = adhoc ]
+						then
+						uci set wireless.mesh$device.bssid=$meshBSSID
+						uci set wireless.mesh$device.ssid=$meshSSID
+					elif [ $mesh_mode = sta ]
+						then
+						uci set wireless.mesh$device.bssid=$mac_sta
+						uci set wireless.mesh$device.ssid=$ap_staSSID
+					elif [ $mesh_mode = ap ]
+						then
+						uci set wireless.mesh$device.ssid=$ap_staSSID
+					fi					
+								
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
 					uci set network.nmesh$device.ip6addr=$ip6addr_mesh
@@ -315,8 +329,8 @@ local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
 					uci set network.nmesh$device.netmask=$netmask_mesh
 					ifname_mesh=nmesh$device
 				}
-
-				[ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
+				
+				[ $ap_enable -eq 1 ] &&
 				{
 					uci set wireless.ap$device=wifi-iface
 					uci set wireless.ap$device.device=$device
@@ -333,8 +347,8 @@ local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
 					}
 					uci set wireless.ap$device.maxassoc=$apMaxClients
 				}
-
-                                [ $accept_clients -eq 1 ] && [ $hs_enable -eq 1 ] &&
+				
+                                [ $hs_enable -eq 1 ] &&
                                 {
                                         uci set wireless.hs$device=wifi-iface
                                         uci set wireless.hs$device.device=$device
@@ -363,12 +377,22 @@ local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
 					uci set wireless.mesh$device=wifi-iface
 					uci set wireless.mesh$device.device=$device
 					uci set wireless.mesh$device.network=nmesh$device
-					uci set wireless.mesh$device.mode=adhoc
-					uci set wireless.mesh$device.bssid=$meshBSSID
-					uci set wireless.mesh$device.ssid=$meshSSID
+					uci set wireless.mesh$device.mode=$mesh_mode
 					uci set wireless.mesh$device.encryption=none
 					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
-					
+					if [ $mesh_mode = adhoc ]
+						then
+						uci set wireless.mesh$device.bssid=$meshBSSID
+						uci set wireless.mesh$device.ssid=$meshSSID
+					elif [ $mesh_mode = sta ]
+						then
+						uci set wireless.mesh$device.bssid=$mac_sta
+						uci set wireless.mesh$device.ssid=$ap_staSSID
+					elif [ $mesh_mode = ap ]
+						then
+						uci set wireless.mesh$device.ssid=$ap_staSSID
+					fi					
+										
 					uci set network.nmesh$device=interface
 					uci set network.nmesh$device.proto=static
 					uci set network.nmesh$device.ip6addr=$ip6addr_mesh
@@ -376,8 +400,8 @@ local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
 					uci set network.nmesh$device.netmask=$netmask_mesh
 					ifname_mesh=nmesh$device
 				}
-
-				[ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
+				
+				[ $ap_enable -eq 1 ] &&
 				{
 					uci set wireless.ap$device=wifi-iface
 					uci set wireless.ap$device.device=$device
@@ -395,7 +419,7 @@ local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
 					uci set wireless.ap$device.maxassoc=$apMaxClients
 				}
 
-				[ $accept_clients -eq 1 ] && [ $hs_enable -eq 1 ] &&
+				[ $hs_enable -eq 1 ] &&
                                 {
                                         uci set wireless.hs$device=wifi-iface
                                         uci set wireless.hs$device.device=$device
@@ -415,37 +439,38 @@ local hsSSID		; config_get		hsSSID		hotspot "hsSSID"		"www.ninux.org"
 		esac
 	done
 
-uci commit network
-
-/etc/init.d/network restart
-
+	uci commit network
+	/etc/init.d/network restart
 }
 
 configureOlsrd4()
 {
-local gw=""
-local hna4_full="${hna4} ${netmask_lan}"
-local OLSRD4="/etc/config/olsrd4"
-local iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
-local gw_enable		; config_get_bool	gw_enable	olsrd	"gw_enable"		0
-local hna4		; config_get		hna4		olsrd	"hna4"			"192.168.1.0"
-local supernode		; config_get_bool	supernode	olsrd	"supernode"		0
+	local gw_enable		; config_get_bool	gw_enable	olsrd  "gw_enable"		0
+	local gw=""
+	local OLSRD4="/etc/config/olsrd4"
+	local hna4=$(ipcalc.sh ${ip4addr_lan} ${netmask_lan} | grep NETWORK | sed 's/NETWORK=//')
+	local hna4_full="${hna4} ${netmask_lan}"
+	
+	rm -rf /etc/init.d/olsrd4
+	cat > $OLSRD4 << EOF
+	#Automatically generated for Eigennet
+EOF
+	[ $wifi_mesh -eq 1 ] &&
+	{
+		if [ $supernode -eq 1 ]
+			then
+				local iface_olsrd=$(echo '"'${iface_mesh}'"' '"br-lan"')
+			else
+				local iface_olsrd=$(echo '"'${iface_mesh}'"')
+		fi
+		if [ $gw_enable -eq 1 ]
+			then
+				local gw="0.0.0.0 0.0.0.0"
+			else
+				local gw="#"
+		fi
 
-if [ $supernode -eq 1 ]
-	then
-		local iface_olsrd=$(echo '"'${iface_mesh}'"' '"br-lan"')
-	else
-		local iface_olsrd=$(echo '"'${iface_mesh}'"')
-fi
-
-if [ $gw_enable -eq 1 ]
-	then
-		gw="0.0.0.0 0.0.0.0"
-	else	
-		gw="#"
-fi
-
-cat > $OLSRD4 << EOF
+		cat > $OLSRD4 << EOF
 #Automatically generated for Eigennet
 DebugLevel  0
 IpVersion 4
@@ -504,30 +529,33 @@ Interface ${iface_olsrd}
 }
 
 EOF
-
-chmod a+x $OLSRD4
-echo "olsrd -f /etc/config/olsrd4 -d 0" > /etc/init.d/olsrd4
-chmod a+x /etc/init.d/olsrd4
-ln -s /etc/init.d/olsrd4 /etc/rc.d/S70olsrd4
+		echo "olsrd -f /etc/config/olsrd4 -d 0" > /etc/init.d/olsrd4
+		chmod a+x /etc/init.d/olsrd4
+		ln -s /etc/init.d/olsrd4 /etc/rc.d/S70olsrd4
+	}
 }
 
 configureOlsrd6()
 {
-local OLSRD6="/etc/config/olsrd6"
-local hna6_full="${hna6} ${lan6prefix}"
-local iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
-local lan6prefix	; config_get		lan6prefix	olsrd	"lan6prefix"		"64"
-local hna6		; config_get		hna6		olsrd	"hna6"			"2001:4c00:893b:abcd::"
-local supernode		; config_get_bool	supernode	olsrd	"supernode"		0
+	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
+	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
+	local OLSRD6="/etc/config/olsrd6"
+	local hna6_full="${hna6} ${lan6prefix}"
+	
+	rm -rf /etc/init.d/olsrd6
+	cat > $OLSRD6 << EOF
+	#Automatically generated for Eigennet
+EOF
+	[ $wifi_mesh -eq 1 ] &&
+	{
+		if [ $supernode -eq 1 ]
+			then
+				local iface_olsrd=$(echo '"'${iface_mesh}'"' '"br-lan"')
+			else
+				local iface_olsrd=$(echo '"'${iface_mesh}'"')
+		fi
 
-if [ $supernode -eq 1 ]
-	then
-		local iface_olsrd=$(echo '"'${iface_mesh}'"' '"br-lan"')
-	else
-		local iface_olsrd=$(echo '"'${iface_mesh}'"')
-fi
-
-cat > $OLSRD6 << EOF
+		cat > $OLSRD6 << EOF
 #Automatically generated for Eigennet
 DebugLevel  0
 
@@ -579,160 +607,171 @@ Interface ${iface_olsrd}
 }
 
 EOF
-
-chmod a+x $OLSRD6
-echo "olsrd -f /etc/config/olsrd6 -d 0" > /etc/init.d/olsrd6
-chmod a+x /etc/init.d/olsrd6
-ln -s /etc/init.d/olsrd6 /etc/rc.d/S75olsrd6
+		echo "olsrd -f /etc/config/olsrd6 -d 0" > /etc/init.d/olsrd6
+		chmod a+x /etc/init.d/olsrd6
+		ln -s /etc/init.d/olsrd6 /etc/rc.d/S75olsrd6
+	}
 }
 
 configureRadvd()
 {
-local RADVD="/etc/config/radvd"
-local radvd_prefix ; config_get		radvd_prefix	network	"radvd_prefix"		"2001:4c00:893b:cab::/64"
+	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
+	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
+	local radvd_prefix=$(echo ${hna6}/${lan6prefix})  
 
-cat > $RADVD << EOF
-#Automatically generated for Eigennet
-config interface
-	option interface	'lan'
-	option AdvSendAdvert	1
-	option AdvManagedFlag	1
-	option AdvOtherConfigFlag 1
-	option AdvLinkMTU	1280
-	option ignore		0
+	uci del radvd.@interface[0]
+	uci del radvd.@prefix[0]
+	uci del radvd.@rdnss[0]
+	uci del radvd.@route[0]
+	uci del radvd.@dnssl[0]
 
-config prefix
-	option interface	'lan'
-	list prefix		'${radvd_prefix}'
-	option AdvOnLink	1
-	option AdvAutonomous	1
-	option AdvRouterAddr	1
-	option ignore		0
+	uci add radvd interface
+	uci add radvd prefix
 	
-EOF
-
-chmod a+x $RADVD
-/etc/init.d/radvd enable
+	uci set radvd.@interface[0]=interface
+	uci set radvd.@interface[0].interface=lan
+	uci set radvd.@interface[0].AdvSendAdvert=1
+	uci set radvd.@interface[0].AdvManagedFlag=1
+	uci set radvd.@interface[0].AdvOtherConfigFlag=1
+	uci set radvd.@interface[0].AdvLinkMTU=1280
+	uci set radvd.@interface[0].ignore=0
+	uci set radvd.@prefix[0]=prefix
+	uci set radvd.@prefix[0].interface=lan
+	uci set radvd.@prefix[0].prefix=${radvd_prefix}
+	uci set radvd.@prefix[0].AdvOnLink=1
+	uci set radvd.@prefix[0].AdvAutonomous=1
+	uci set radvd.@prefix[0].AdvRouterAddr=1
+	uci set radvd.@prefix[0].ignore=0
+	
+	uci commit radvd
+	
+	/etc/init.d/radvd enable
 }
 
 configureDhcp()
 {
-local maxclient=""
-local DHCP="/etc/config/dhcp"
+	local max_client=""
+	local dhcp_enable=$dhcp_enable		; config_get_bool	dhcp_enable	network		"dhcp_enable"	"1"
+	local dhcp_lan_init=$dhcp_lan_init	; config_get		dhcp_lan_init	network		"dhcp_lan_init"	"10"
+	local DHCP="/etc/config/dhcp"
 
-if [ -n $apMaxClients ]
-	then
-	maxclient=$(($apMaxClients+20))
-	else
-	maxclient=20
-fi
+	uci del dhcp.@dnsmasq[0]
+	uci del dhcp.lan
+	uci del dhcp.wan
 
-cat > $DHCP << EOF
-#Automatically generated for Eigennet
-config dnsmasq
-	option domainneeded '1'
-	option boguspriv '1'
-	option filterwin2k '0'
-	option localise_queries '1'
-	option rebind_protection '0'
-	option rebind_localhost '1'
-	option local '/lan/'
-	option domain 'lan'
-	option expandhosts '1'
-	option nonegcache '0'
-	option authoritative '1'
-	option readethers '1'
-	option leasefile '/tmp/dhcp.leases'
-	option resolvfile '/etc/resolv.conf'
+	uci add dhcp dnsmasq
 
-config dhcp 'lan'
-	option interface 'lan'
-	option leasetime '12h'
-	option start '50'
-	option limit '${maxclient}'
-
-config dhcp '${ifname_mesh}'
-	option interface '${ifname_mesh}'
-	option ignore '1'
-
-EOF
-
-chmod a+x $DHCP
-
-if [ $hs_enable -eq 1 ]
-	then
+	uci set dhcp.@dnsmasq[0]=dnsmasq
+	uci set dhcp.@dnsmasq[0].domainneeded=1
+	uci set dhcp.@dnsmasq[0].boguspriv=1
+	uci set dhcp.@dnsmasq[0].localise_queries=1
+	uci set dhcp.@dnsmasq[0].rebind_protection=0
+	uci set dhcp.@dnsmasq[0].local=/lan/
+	uci set dhcp.@dnsmasq[0].domain=lan
+	uci set dhcp.@dnsmasq[0].expandhosts=1
+	uci set dhcp.@dnsmasq[0].authoritative=1
+	uci set dhcp.@dnsmasq[0].readethers=1
+	uci set dhcp.@dnsmasq[0].leasefile=/tmp/dhcp.leases
+	uci set dhcp.@dnsmasq[0].resolvfile=/etc/resolv.conf
+	
+	[ $wifi_mesh -eq 1 ] &&
+	{
+		uci set dhcp.$ifname_mesh=dhcp
+		uci set dhcp.$ifname_mesh.interface=$ifname_mesh
+		uci set dhcp.$ifname_mesh.ignore=1
+	}
+	
+	[ $hs_enable -eq 1 ] &&
+	{
 		uci set dhcp.$ifname_hs=dhcp
 		uci set dhcp.$ifname_hs.interface=$ifname_hs
 		uci set dhcp.$ifname_hs.leasetime=12h
 		uci set dhcp.$ifname_hs.start=10
 		uci set dhcp.$ifname_hs.limit=$hsMaxClients
-		uci commit dhcp
-	else
-		uci commit dhcp
-fi
-/etc/init.d/dnsmasq enable
+	}
+
+	[ $dhcp_enable -eq 1 ] &&
+	{
+		if [ -n $apMaxClients ]
+			then
+				local max_client=$(($apMaxClients+20))
+			else
+				local max_client=20
+		fi
+
+		uci set dhcp.lan=dhcp
+		uci set dhcp.lan.interface=lan
+		uci set dhcp.lan.start=${dhcp_lan_init}
+		uci set dhcp.lan.limit=${max_client}
+		uci set dhcp.lan.leasetime=12h
+		uci set dhcp.lan.force=1
+	}
+
+	uci dhcp commit
+	/etc/init.d/dnsmasq enable
 }
 
 configureSnmp()
 {
-local SNMP="/etc/config/mini_snmpd"
-	local snmpEnable	; config_get_bool	snmpEnable	snmp	"Enable" 1
-	local snmpContact	; config_get		snmpContact	snmp	"Contact"	"contatti@ninux.org"
-	local snmpLocation	; config_get		snmpLocation	snmp	"Location"
+	local snmpEnable	; config_get_bool	snmpEnable	snmp	"enable" 1
+	local snmpContact	; config_get		snmpContact	snmp	"contact"	"contatti@ninux.org"
+	local snmpLocation	; config_get		snmpLocation	snmp	"location"
 
-	if [ $snmpEnable -eq 1 ]
-		then
-			snmpEnable="1"
-		else	
-			snmpEnable="0"
-	fi
+	[ $snmpEnable -eq 1 ] &&
+	{
+		uci del mini_snmpd.@mini_snmpd[0]
+		
+		uci add mini_snmpd mini_snmpd
 
-cat > $SNMP << EOF
-#Automatically generated for Eigennet
-config mini_snmpd
-	option enabled ${snmpEnable}
-	option ipv6 ${snmpEnable}
-	option community 'public'
-	option contact '${snmpContact}'
-	option location '${snmpLocation}'
+		uci set mini_snmpd.@mini_snmpd[0]=mini_snmpd
+		uci set mini_snmpd.@mini_snmpd[0].enabled=${snmpEnable}
+		uci set mini_snmpd.@mini_snmpd[0].ipv6=${snmpEnable}
+		uci set mini_snmpd.@mini_snmpd[0].community=public
+		uci set mini_snmpd.@mini_snmpd[0].contact=${snmpContact}
+		uci set mini_snmpd.@mini_snmpd[0].location=${snmpLocation}
+		uci add_list mini_snmpd.@mini_snmpd[0].disks=/overlay
+		uci add_list mini_snmpd.@mini_snmpd[0].disks=/tmp
+		uci add_list mini_snmpd.@mini_snmpd[0].interfaces=br-lan
 
-	# enable basic disk usage statistics on specified mountpoint
-	list disks '/overlay'
-	list disks '/tmp'
+		[ $wifi_mesh -eq 1 ] && [ $hs_enable -eq 0 ] &&
+		{
+			uci del mini_snmpd.@mini_snmpd[0].interfaces
+		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=br-lan
+		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_mesh}
+		}
 
-	# enable basic network statistics on specified interface
-	# 4 interfaces maximum, as named in /etc/config/network
-	list interfaces 'loopback'
-	list interfaces 'br-lan'
-	list interfaces '${ifname_mesh}'
+		[ $wifi_mesh -eq 0 ] && [ $hs_enable -eq 1 ] && 
+		{
+		        uci del mini_snmpd.@mini_snmpd[0].interfaces
+		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=br-lan
+		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_hs}
+		}
 
-EOF
+		[ $wifi_mesh -eq 1 ] && [ $hs_enable -eq 1 ] &&
+		{
+			uci del mini_snmpd.@mini_snmpd[0].interfaces
+		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=br-lan
+			uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_hs}
+		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_mesh}
+		}
 
-if [ $hs_enable -eq 1 ]
-        then
-                uci del mini_snmpd.@mini_snmpd[0].interfaces
-                uci add_list mini_snmpd.@mini_snmpd[0].interfaces=loopback
-                uci add_list mini_snmpd.@mini_snmpd[0].interfaces=br-lan
-                uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_mesh}
-                uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_hs}
-                uci commit mini_snmpd
-        else
-                uci commit mini_snmpd
-fi
+		uci commit mini_snmpd
 
-chmod a+x $SNMP
-/etc/init.d/mini_snmpd enable
+		/etc/init.d/mini_snmpd enable
+	}
 }
 
 configureSplash()
 {
-#local splah_enable	; config_get_bool	splah_enable	hotspot	"enabled"	0
-local SPLASH=/etc/nodogsplash/nodogsplash.conf
-local iface_hs=$(ip -4 a s | grep -B 2 $ip4addr_hs | sed -n 2p | awk '{print $2}' | sed 's/://')
+	local SPLASH=/etc/nodogsplash/nodogsplash.conf
+	local iface_hs=$(ip -4 a s | grep -B 2 $ip4addr_hs | sed -n 2p | awk '{print $2}' | sed 's/://')
 
-if [ $hs_enable -eq 1 ]
-	then
+	/etc/init.d/nodogsplash disable
+
+	[ $hs_enable -eq 1 ] &&
+	{
 		/etc/init.d/nodogsplash enable
+		chmod a+x $SPLASH
 		cat > $SPLASH << EOF
 #Automatically generated for Eigennet
 GatewayInterface ${iface_hs}
@@ -755,11 +794,8 @@ FirewallRuleSet users-to-router {
 }
 
 EOF
-chmod a+x $SPLASH
-/etc/init.d/nodogsplash start
-	else
-		/etc/init.d/nodogsplash disable
-fi
+		/etc/init.d/nodogsplash start
+	}
 }
 
 configureUhttpd()
@@ -869,13 +905,18 @@ start()
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
 		ip link set up dev br-lan
+
+		sleep 10s
 		
 		configureOlsrd4
 		configureOlsrd6
 		configureSplash
 		
-		/etc/init.d/olsrd4
-		/etc/init.d/olsrd6
+		[ $wifi_mesh -eq 1 ] &&
+		{
+			/etc/init.d/olsrd4
+			/etc/init.d/olsrd6
+		}
 
 		return 0
 	}
