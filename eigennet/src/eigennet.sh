@@ -859,6 +859,22 @@ configureDropbear()
 	fi
 }
 
+configureGateway()
+{
+	local ip4_gw_lan		; config_get	ip4_gw_lan		network		"ip4_gw_lan"
+	local ip6_gw_lan		; config_get	ip6_gw_lan		network		"ip6_gw_lan"
+	[ $supernode -eq 0 ] &&
+	{
+		ip -4 a r default via $ip4_gw_lan dev br-lan
+		ip -6 a r default via $ip6_gw_lan dev br-lan
+	}
+	
+	[ $hs_enable -eq 1 ] &&
+	{
+		iptables -t nat -A POSTROUTING -o br-lan -j MASQUERADE
+	}
+}
+
 start()
 {
 	eigenDebug 0 "Starting"
@@ -911,6 +927,7 @@ start()
 		configureOlsrd4
 		configureOlsrd6
 		configureSplash
+		configureGateway
 		
 		[ $wifi_mesh -eq 1 ] &&
 		{

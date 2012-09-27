@@ -6,10 +6,12 @@ config section 'general'
 config section 'network'
 	option ip6addr_mesh '2001:4c00:893b:1:cab::1/128'	# Insert your IPv6 wireless address conforms with radio subnet at "http://wiki.ninux.org/GestioneIndirizzi"
 	option ip6addr_lan '2001:4c00:893b:cab::1/64'		# Insert your IPv6 lan address previously declared at "http://wiki.ninux.org/GestioneIndirizzi"
+	option ip6_gw_lan '2001:4c00:893b:cab::10'		# Insert your IPv6 lan gateway (IP of the master router, if you have a master router)
 	option ip4addr_mesh '172.16.0.1'			# Insert your IPv4 wireless address conforms with radio IP at "http://wiki.ninux.org/GestioneIndirizzi" ex: 172.16.CAP.XYZ
 	option netmask_mesh '255.255.0.0'			# Insert your IPv4 wireless subnet conforms with radio subnet IP at "http://wiki.ninux.org/GestioneIndirizzi"
 	option ip4addr_lan '192.168.1.21'			# Insert your IPv4 lan address conforms with ninux rule at "http://wiki.ninux.org/GestioneIndirizzi" ex: 10.CAP.XYZ.ABC
 	option netmask_lan '255.255.255.0'			# Insert your IPv4 lan subnet previously declared at "http://wiki.ninux.org/GestioneIndirizzi" ex: declared "10.171.5.0/24" insert 255.255.255.0
+	option ip4_gw_lan '192.168.1.1'				# Insert your IPv4 lan gateway (IP of the master router, if you have a master router)
 	option dhcp_enable '1'					# Default enable; setting false for siable lan (and AP) dhcp assignment
 	option dhcp_lan_init '10'				# Setting your prefer value of initial dhcp assignment
 	list resolvers '160.80.221.11 8.8.8.8'			# Change (if you want) nameserver for your custom or prefered dns
