@@ -865,8 +865,8 @@ configureGateway()
 	local ip6_gw_lan		; config_get	ip6_gw_lan		network		"ip6_gw_lan"
 	[ $supernode -eq 0 ] &&
 	{
-		ip -4 a r default via $ip4_gw_lan dev br-lan
-		ip -6 a r default via $ip6_gw_lan dev br-lan
+		ip -4 r a default via $ip4_gw_lan dev br-lan
+		ip -6 r a default via $ip6_gw_lan dev br-lan
 	}
 	
 	[ $hs_enable -eq 1 ] &&
