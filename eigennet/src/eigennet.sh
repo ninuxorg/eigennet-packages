@@ -23,6 +23,7 @@ START=95
 STOP=10
 
 CONF_DIR="/etc/config/"
+PKG_NAME="eigennet"
 
 config_load eigennet
 
@@ -41,6 +42,21 @@ eigenDebug()
 	{
 		echo "Debug: $@" >> /tmp/eigenlog
 	}
+}
+
+#[Doc]
+#[Doc] Check if given package is installed
+#[Doc]
+#[Doc] usage:
+#[Doc] is_package_installed package_name
+#[Doc]
+#[Doc] example:
+#[Doc] is_package_installed eigennet-autoconf
+#[Doc]
+is_package_installed()
+{
+	opkg status "$1" | grep Status | grep installed &> /dev/null
+	return $?
 }
 
 #[Doc]
@@ -373,66 +389,81 @@ configureNetwork()
 
 configureFirewall()
 {
-	local firewallEnabled       ; config_get_bool firewallEnabled   firewall     "enabled"         0
-	local disabledModDir="/etc/eigennet/firewall-disabled-modules.d/"
-	local enabledModDir="/etc/modules.d/"
-	local ebtablesModulesExp="*ebtables*"
+	is_package_installed $PKG_NAME-firewall &&
+	{
+		local firewallEnabled       ; config_get_bool firewallEnabled   firewall     "enabled"         0
+		local disabledModDir="/etc/eigennet/firewall-disabled-modules.d/"
+		local enabledModDir="/etc/modules.d/"
+		local ebtablesModulesExp="*ebtables*"
 
-	if [ ${firewallEnabled} -eq 0 ] 
-		then
-			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
-			cd "${enabledModDir}"
-			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${disabledModDir}" || true
-		else
-			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
-			cd "${disabledModDir}"
-			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${enabledModDir}" || true
-	fi
+		if [ ${firewallEnabled} -eq 0 ] 
+			then
+				[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
+				cd "${enabledModDir}"
+				ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${disabledModDir}"
+			else
+				[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
+				cd "${disabledModDir}"
+				ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${enabledModDir}"
+		fi
+	}
 }
 
 configureUhttpd()
 {
-	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
-	local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
-	local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                0
+	is_package_installed uhttpd &&
+	{
+		local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
+		local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
+		local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                0
 
-	if [ $pointingEnabled -eq 0 ] && [ $bwClientEnabled -eq 0 ] && [ $httpInfoEnabled -eq 0 ]
-		then
-			/etc/init.d/uhttpd disable &> /dev/null || true
-		else
-			/etc/init.d/uhttpd enable
-			uci set      uhttpd.main.listen_http="0.0.0.0:80"
-			uci add_list uhttpd.main.listen_http="[::]:80"
-	fi
+		if [ $pointingEnabled -eq 0 ] && [ $bwClientEnabled -eq 0 ] && [ $httpInfoEnabled -eq 0 ]
+			then
+				/etc/init.d/uhttpd disable &> /dev/null || true
+			else
+				/etc/init.d/uhttpd enable
+				uci set      uhttpd.main.listen_http="0.0.0.0:80"
+				uci add_list uhttpd.main.listen_http="[::]:80"
+		fi
+	}
 }
 
 configureHttpInfo()
 {
-	local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                0
-	if [ $httpInfoEnabled eq 1 ]
-		then
-			chmod 777 /www/cgi-bin/getdBm.cgi
-			chmod 777 /www/cgi-bin/ifstat.cgi
-		else
-			chmod 750 /www/cgi-bin/getdBm.cgi &> /dev/null || true
-			chmod 750 /www/cgi-bin/ifstat.cgi &> /dev/null || true
-	fi
+	is_package_installed $PKG_NAME-httpinfo &&
+	{
+		local httpInfoEnabled           ; config_get_bool httpInfoEnabled       httpinfo         "enabled"                0
+		if [ $httpInfoEnabled eq 1 ]
+			then
+				chmod 777 /www/cgi-bin/getdBm.cgi
+				chmod 777 /www/cgi-bin/ifstat.cgi
+			else
+				chmod 750 /www/cgi-bin/getdBm.cgi
+				chmod 750 /www/cgi-bin/ifstat.cgi
+		fi
+	}
 }
 
 configurePointing()
 {
-	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
+	is_package_installed $PKG_NAME-pointing-webui &&
+	{
+		local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
 
-	[ $pointingEnabled -eq 1 ] && chmod 777 /www/cgi-bin/pointing.cgi
-	[ $pointingEnabled -eq 0 ] && chmod 750 /www/cgi-bin/pointing.cgi &> /dev/null || true
+		[ $pointingEnabled -eq 1 ] && chmod 777 /www/cgi-bin/pointing.cgi
+		[ $pointingEnabled -eq 0 ] && chmod 750 /www/cgi-bin/pointing.cgi
+	}
 }
 
 configureBWTestClient()
 {
-	local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
+	is_package_installed $PKG_NAME-bwtest-webui &&
+	{
+		local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
 
-	[ $bwClientEnabled -eq 1 ] && chmod 777 /www/cgi-bin/bwtclient.cgi && chmod 777 /www/cgi-bin/startbwt.cgi
-	[ $bwClientEnabled -eq 0 ] && chmod 750 /www/cgi-bin/bwtclient.cgi &> /dev/null && chmod 750 /www/cgi-bin/startbwt.cgi &> /dev/null || true
+		[ $bwClientEnabled -eq 1 ] && chmod 777 /www/cgi-bin/bwtclient.cgi && chmod 777 /www/cgi-bin/startbwt.cgi
+		[ $bwClientEnabled -eq 0 ] && chmod 750 /www/cgi-bin/bwtclient.cgi && chmod 750 /www/cgi-bin/startbwt.cgi
+	}
 }
 
 configureDropbear()
@@ -503,16 +534,19 @@ start()
 
 		batman-adv restart #added as workaround of batman-adv eth hotplug bug
 
-		local isolateDHCP     ; config_get_bool isolateDHCP       firewall     "isolateDHCP"      0
-		local firewallEnabled ; config_get_bool firewallEnabled   firewall     "enabled"          0
-		local accept_clients  ; config_get_bool accept_clients    network      "accept_clients"   1
-		local eth_clients     ; config_get_bool eth_clients       wired        "eth_clients"      1
-		local wifi_clients    ; config_get_bool wifi_clients      wireless     "wifi_clients"     0
-		[ ${isolateDHCP} -eq 1 ] && [ ${firewallEnabled} -eq 1 ] &&
-		[ ${accept_clients} ] && $( [ ${eth_clients} -eq 1 ] || [ ${wifi_clients} -eq 1 ] ) &&
+		is_package_installed $PKG_NAME-firewall &&
 		{
-			ebtables -A FORWARD --out-if bat0 --protocol IPv4 --ip-protocol udp --ip-source-port 68 -j DROP
-			ebtables -A FORWARD --in-if  bat0 --protocol IPv4 --ip-protocol udp --ip-source-port 67 -j DROP
+			local isolateDHCP     ; config_get_bool isolateDHCP       firewall     "isolateDHCP"      0
+			local firewallEnabled ; config_get_bool firewallEnabled   firewall     "enabled"          0
+			local accept_clients  ; config_get_bool accept_clients    network      "accept_clients"   1
+			local eth_clients     ; config_get_bool eth_clients       wired        "eth_clients"      1
+			local wifi_clients    ; config_get_bool wifi_clients      wireless     "wifi_clients"     0
+			[ ${isolateDHCP} -eq 1 ] && [ ${firewallEnabled} -eq 1 ] &&
+			[ ${accept_clients} ] && $( [ ${eth_clients} -eq 1 ] || [ ${wifi_clients} -eq 1 ] ) &&
+			{
+				ebtables -A FORWARD --out-if bat0 --protocol IPv4 --ip-protocol udp --ip-source-port 68 -j DROP
+				ebtables -A FORWARD --in-if  bat0 --protocol IPv4 --ip-protocol udp --ip-source-port 67 -j DROP
+			}
 		}
 
 		return 0
