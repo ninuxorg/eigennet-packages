@@ -382,11 +382,11 @@ configureFirewall()
 		then
 			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
 			cd "${enabledModDir}"
-			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${disabledModDir}"
+			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${disabledModDir}" || true
 		else
 			[ -d "${disabledModDir}" ] || mkdir -p "${disabledModDir}"
 			cd "${disabledModDir}"
-			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${enabledModDir}"
+			ls ${ebtablesModulesExp} &> /dev/null && mv ${ebtablesModulesExp} "${enabledModDir}" || true
 	fi
 }
 
@@ -398,7 +398,7 @@ configureUhttpd()
 
 	if [ $pointingEnabled -eq 0 ] && [ $bwClientEnabled -eq 0 ] && [ $httpInfoEnabled -eq 0 ]
 		then
-			/etc/init.d/uhttpd disable
+			/etc/init.d/uhttpd disable &> /dev/null || true
 		else
 			/etc/init.d/uhttpd enable
 			uci set      uhttpd.main.listen_http="0.0.0.0:80"
