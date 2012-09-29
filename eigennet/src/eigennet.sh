@@ -414,8 +414,8 @@ configureHttpInfo()
 			chmod 777 /www/cgi-bin/getdBm.cgi
 			chmod 777 /www/cgi-bin/ifstat.cgi
 		else
-			chmod 750 /www/cgi-bin/getdBm.cgi
-			chmod 750 /www/cgi-bin/ifstat.cgi
+			chmod 750 /www/cgi-bin/getdBm.cgi &> /dev/null || true
+			chmod 750 /www/cgi-bin/ifstat.cgi &> /dev/null || true
 	fi
 }
 
@@ -424,7 +424,7 @@ configurePointing()
 	local pointingEnabled           ; config_get_bool pointingEnabled       pointing         "enabled"                0
 
 	[ $pointingEnabled -eq 1 ] && chmod 777 /www/cgi-bin/pointing.cgi
-	[ $pointingEnabled -eq 0 ] && chmod 750 /www/cgi-bin/pointing.cgi
+	[ $pointingEnabled -eq 0 ] && chmod 750 /www/cgi-bin/pointing.cgi &> /dev/null || true
 }
 
 configureBWTestClient()
@@ -432,7 +432,7 @@ configureBWTestClient()
 	local bwClientEnabled           ; config_get_bool bwClientEnabled       bwtestclient     "enabled"                0
 
 	[ $bwClientEnabled -eq 1 ] && chmod 777 /www/cgi-bin/bwtclient.cgi && chmod 777 /www/cgi-bin/startbwt.cgi
-	[ $bwClientEnabled -eq 0 ] && chmod 750 /www/cgi-bin/bwtclient.cgi && chmod 750 /www/cgi-bin/startbwt.cgi
+	[ $bwClientEnabled -eq 0 ] && chmod 750 /www/cgi-bin/bwtclient.cgi &> /dev/null && chmod 750 /www/cgi-bin/startbwt.cgi &> /dev/null || true
 }
 
 configureDropbear()
