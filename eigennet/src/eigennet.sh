@@ -194,10 +194,10 @@ configureNetwork()
 	local mac_sta		; config_get		mac_sta		wireless  "station_mac"		"0"
 	local tx_power		; config_get		tx_power	wireless  "tx_power"		"10"
 	local countrycode	; config_get		countrycode	wireless  "countrycode"		"US"
-	local mesh2channel	; config_get		mesh2channel	wireless  "wifi_channel"		"1"
+	local mesh2channel	; config_get		mesh2channel	wireless  "wifi_channel"	"1"
 	local meshSSID		; config_get		meshSSID	wireless  "meshSSID"		"mesh.ninux.org"
 	local meshBSSID		; config_get		meshBSSID	wireless  "meshBSSID"		"02:aa:bb:cc:dd:00"
-	local meshMcastRate	; config_get		meshMcastRate	wireless  "meshMcastRate"	"6000"
+	local meshMcastRate	; config_get		meshMcastRate	wireless  "meshMcastRate"	""
 	local ap_staSSID	; config_get		ap_staSSID	wireless  "ap_staSSID"		"ninux.org"
 	local ap_enable		; config_get_bool	ap_enable	wireless  "ap_enable"		1
 	local apSSID		; config_get		apSSID		wireless  "apSSID"		"ap.ninux.org"
@@ -308,11 +308,11 @@ configureNetwork()
 					uci set wireless.mesh$device.network=nmesh$device
 					uci set wireless.mesh$device.mode=$mesh_mode
 					uci set wireless.mesh$device.encryption=none
-					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
 					if [ $mesh_mode = adhoc ]
 						then
 						uci set wireless.mesh$device.bssid=$meshBSSID
 						uci set wireless.mesh$device.ssid=$meshSSID
+						uci set wireless.mesh$device.mcast_rate=$meshMcastRate						
 					elif [ $mesh_mode = sta ]
 						then
 						uci set wireless.mesh$device.bssid=$mac_sta
@@ -379,11 +379,11 @@ configureNetwork()
 					uci set wireless.mesh$device.network=nmesh$device
 					uci set wireless.mesh$device.mode=$mesh_mode
 					uci set wireless.mesh$device.encryption=none
-					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
 					if [ $mesh_mode = adhoc ]
 						then
 						uci set wireless.mesh$device.bssid=$meshBSSID
 						uci set wireless.mesh$device.ssid=$meshSSID
+						uci set wireless.mesh$device.mcast_rate=$meshMcastRate						
 					elif [ $mesh_mode = sta ]
 						then
 						uci set wireless.mesh$device.bssid=$mac_sta
