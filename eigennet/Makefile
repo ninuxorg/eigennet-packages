@@ -52,7 +52,7 @@ endef
 define Package/$(PKG_NAME)-crda
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=Customized CRDA ( DEPRECATED )
-	DEPENDS:=crda
+	DEPENDS:=+crda
 endef
 
 define Package/$(PKG_NAME)-firewall
