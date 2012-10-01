@@ -561,6 +561,11 @@ start()
 			}
 		}
 
+		is_package_installed $PKG_NAME-gw4server &&
+		{
+			( (/usr/bin/gw4server start)& )
+		}
+
 		return 0
 	}
 }
@@ -568,6 +573,11 @@ start()
 stop()
 {
 	eigenDebug 0 "Stopping"
+
+	is_package_installed $PKG_NAME-gw4server &&
+	{
+		( (/usr/bin/gw4server stop)& )
+	}
 }
 
 restart()

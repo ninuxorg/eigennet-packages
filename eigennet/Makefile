@@ -123,9 +123,9 @@ define Package/$(PKG_NAME)-firewall/install
 endef
 
 define Package/$(PKG_NAME)-gw4server/install
-	@mkdir -p $(1)/etc/init.d || true
-	$(CP) build/gw4server $(1)/etc/init.d/gw4server
-	@chmod +x $(1)/etc/init.d/gw4server
+	@mkdir -p $(1)/usr/bin || true
+	$(CP) build/gw4server $(1)/usr/bin/gw4server
+	@chmod +x $(1)/usr/bin/gw4server
 endef
 
 define Package/$(PKG_NAME)-httpinfo/install

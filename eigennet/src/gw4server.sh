@@ -1,7 +1,4 @@
-#!/bin/sh /etc/rc.common
-
-START=96
-STOP=9
+#!/bin/sh
 
 CONF_DIR="/etc/config/"
 
@@ -11,9 +8,12 @@ start()
 {
 	[ -f ${pidFile} ] ||
 	{
+		. /lib/functions.sh
+
 		config_load eigennet
+
 		config_get_bool  gw4Enabled      gw4server "enabled"  0
-		config_get       bootmode        general  "bootmode" 1
+		config_get       bootmode        general   "bootmode" 1
 
 		[ $gw4Enabled -eq 1 ] && [ $bootmode -ge 2 ] &&
 		{
@@ -59,3 +59,5 @@ restart()
 	sleep 2s
 	start
 }
+
+$1
