@@ -905,6 +905,9 @@ start()
 		configureRadvd
 		configureDhcp
 		configureSnmp
+		configureOlsrd4
+		configureOlsrd6
+		configureSplash
 
 		uci set eigennet.general.bootmode=2
 
@@ -923,10 +926,7 @@ start()
 		ip link set up dev br-lan
 
 		sleep 10s
-		
-		configureOlsrd4
-		configureOlsrd6
-		configureSplash
+
 		configureGateway
 		
 		[ $wifi_mesh -eq 1 ] &&
