@@ -70,6 +70,19 @@ eigenDebug()
 }
 
 #[Doc]
+#[Doc] Reboot safely ( sync non volatile memory before reboot )
+#[Doc]
+#[Doc] usage: safe_reboot
+#[Doc]
+safe_reboot()
+{
+		sleep 1s
+		sync
+		sleep 2s
+		reboot
+}
+
+#[Doc]
 #[Doc] Del given uci interface from network file 
 #[Doc]
 #[Doc] usage:
@@ -888,7 +901,7 @@ start()
 		uci set eigennet.general.bootmode=1
 		uci commit eigennet
 
-		reboot	
+		safe_reboot
 
 		return 0
 	}
@@ -902,6 +915,9 @@ start()
 		configurePointing
 		configureDropbear
 		configureNetwork
+
+		sleep 5s
+
 		configureRadvd
 		configureDhcp
 		configureSnmp
@@ -913,8 +929,7 @@ start()
 
 		uci commit
 
-		sleep 2s
-		reboot
+		safe_reboot
 
 		return 0
 	}
