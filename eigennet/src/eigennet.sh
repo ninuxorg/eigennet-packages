@@ -938,7 +938,7 @@ start()
 	{
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-		ip link set up dev br-lan
+		/etc/init.d/network restart
 
 		sleep 10s
 
