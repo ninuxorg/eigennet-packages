@@ -14,11 +14,11 @@ config section 'network'
 	option ip4_gw_lan '192.168.1.1'				# Insert your IPv4 lan gateway (IP of the master router, if you have a master router)
 	option dhcp_enable '1'					# Default enable; setting false for siable lan (and AP) dhcp assignment
 	option dhcp_lan_init '10'				# Setting your prefer value of initial dhcp assignment
-	list resolvers '160.80.221.11 8.8.8.8'			# Change (if you want) nameserver for your custom or prefered dns
 	option hostName 'nome_device'				# Insert device name in format "aB09" without special characters
 	option wan_set '0'					# Setting 'true' if your device is a TP-LINK (or another with a wan port) and you want customize your wan ip
 	option ip4_wan '0.0.0.0'				# Insert your custom wan ip
 	option wan_mask '0.0.0.0'				# Insert the subnet of your custom wan ip
+	list resolvers '160.80.221.11 8.8.8.8'			# Change (if you want) nameserver for your custom or prefered dns
 
 config section 'olsrd'
 	option supernode '0'					# Default false, is true when you have more device on your (super)node
