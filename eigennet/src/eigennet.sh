@@ -51,8 +51,6 @@ wifi_mesh		; config_get_bool	wifi_mesh	wireless "wifi_mesh"		1
 apMaxClients		; config_get		apMaxClients	wireless "apMaxClients"		"25"
 supernode		; config_get_bool	supernode	olsrd "supernode"		0
 
-iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
-
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
 #[Doc]
@@ -67,6 +65,19 @@ eigenDebug()
 	{
 		echo "Debug: $@" >> /tmp/eigenlog
 	}
+}
+
+#[Doc]
+#[Doc] Reboot safely ( sync non volatile memory before reboot )
+#[Doc]
+#[Doc] usage: safe_reboot
+#[Doc]
+safe_reboot()
+{
+		sleep 1s
+		sync
+		sleep 2s
+		reboot
 }
 
 #[Doc]
@@ -441,6 +452,8 @@ configureNetwork()
 
 	uci commit network
 	/etc/init.d/network restart
+
+	iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
 }
 
 configureOlsrd4()
@@ -888,7 +901,7 @@ start()
 		uci set eigennet.general.bootmode=1
 		uci commit eigennet
 
-		reboot	
+		safe_reboot
 
 		return 0
 	}
@@ -902,16 +915,21 @@ start()
 		configurePointing
 		configureDropbear
 		configureNetwork
+
+		sleep 5s
+
 		configureRadvd
 		configureDhcp
 		configureSnmp
+		configureOlsrd4
+		configureOlsrd6
+		configureSplash
 
 		uci set eigennet.general.bootmode=2
 
 		uci commit
 
-		sleep 2s
-		reboot
+		safe_reboot
 
 		return 0
 	}
@@ -920,13 +938,10 @@ start()
 	{
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-		ip link set up dev br-lan
+		/etc/init.d/network restart
 
 		sleep 10s
-		
-		configureOlsrd4
-		configureOlsrd6
-		configureSplash
+
 		configureGateway
 		
 		[ $wifi_mesh -eq 1 ] &&
