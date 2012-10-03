@@ -51,8 +51,6 @@ wifi_mesh		; config_get_bool	wifi_mesh	wireless "wifi_mesh"		1
 apMaxClients		; config_get		apMaxClients	wireless "apMaxClients"		"25"
 supernode		; config_get_bool	supernode	olsrd "supernode"		0
 
-iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
-
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
 #[Doc]
@@ -454,6 +452,8 @@ configureNetwork()
 
 	uci commit network
 	/etc/init.d/network restart
+
+	iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
 }
 
 configureOlsrd4()
