@@ -464,7 +464,6 @@ configureOlsrd()
 	local ntw4=$(ipcalc.sh ${ip4addr_lan} ${netmask_lan} | grep NETWORK | sed 's/NETWORK=//')
 	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
 	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
-	local ifname_mesh=$(uci show network | grep nmesh | grep interface | awk 'BEGIN { FS = "." } ; { print $2 }' | awk 'BEGIN { FS = "=" } ; { print $1 }')
 
 	/etc/init.d/olsrd disable
 	/etc/init.d/olsrd stop
@@ -498,14 +497,10 @@ EOF
 		uci add olsrd LoadPlugin
 		uci set olsrd.@LoadPlugin[0]=LoadPlugin
 		uci set olsrd.@LoadPlugin[0].library=olsrd_txtinfo.so.0.1
-		uci set olsrd.@LoadPlugin[0].port=2006
-		uci set olsrd.@LoadPlugin[0].accept="0.0.0.0"
-
-		uci add olsrd LoadPlugin
-		uci set olsrd.@LoadPlugin[1]=LoadPlugin
-		uci set olsrd.@LoadPlugin[1].library=olsrd_txtinfo.so.0.1
-		uci set olsrd.@LoadPlugin[1].port=2007
-		uci set olsrd.@LoadPlugin[1].accept="::"
+		uci add_list olsrd.@LoadPlugin[0].port=2006
+		uci add_list olsrd.@LoadPlugin[0].accept="0.0.0.0"
+		uci add_list olsrd.@LoadPlugin[0].port=2007
+		uci add_list olsrd.@LoadPlugin[0].accept="::"
 
 		uci add olsrd Interface
 		uci set olsrd.@Interface[-1]=InterfaceDefaults
@@ -523,13 +518,11 @@ EOF
 				uci add olsrd Interface
 				uci set olsrd.@Interface[-1].interface="${ifname_mesh}"
 				uci set olsrd.@Interface[-1].Mode="mesh"
-				uci set olsrd.@Interface[-1].IPv6Multicast=FF02::6D
 			else
 				uci add olsrd Interface
 				uci add_list olsrd.@Interface[-1].interface="${ifname_mesh}"
 				uci add_list olsrd.@Interface[-1].interface="lan"
 				uci add_list olsrd.@Interface[-1].Mode="mesh"
-				uci set olsrd.@Interface[-1].IPv6Multicast=FF02::6D
 		fi
 
 		uci add olsrd Hna4
@@ -676,7 +669,7 @@ configureSnmp()
 
 		[ $wifi_mesh -eq 1 ] && [ $hs_enable -eq 0 ] &&
 		{
-				uci del mini_snmpd.@mini_snmpd[0].interfaces
+			uci del mini_snmpd.@mini_snmpd[0].interfaces
 		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=br-lan
 		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_mesh}
 		}
@@ -690,9 +683,9 @@ configureSnmp()
 
 		[ $wifi_mesh -eq 1 ] && [ $hs_enable -eq 1 ] &&
 		{
-				uci del mini_snmpd.@mini_snmpd[0].interfaces
+			uci del mini_snmpd.@mini_snmpd[0].interfaces
 		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=br-lan
-				uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_hs}
+			uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_hs}
 		        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=${ifname_mesh}
 		}
 
