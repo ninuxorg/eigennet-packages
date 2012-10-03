@@ -51,7 +51,7 @@ wifi_mesh		; config_get_bool	wifi_mesh	wireless "wifi_mesh"		1
 apMaxClients		; config_get		apMaxClients	wireless "apMaxClients"		"25"
 supernode		; config_get_bool	supernode	olsrd "supernode"		0
 
-# iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
+iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
 
 #[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
@@ -67,19 +67,6 @@ eigenDebug()
 	{
 		echo "Debug: $@" >> /tmp/eigenlog
 	}
-}
-
-#[Doc]
-#[Doc] Reboot safely ( sync non volatile memory before reboot )
-#[Doc]
-#[Doc] usage: safe_reboot
-#[Doc]
-safe_reboot()
-{
-		sleep 1s
-		sync
-		sleep 2s
-		reboot
 }
 
 #[Doc]
@@ -516,12 +503,12 @@ EOF
 		if	[ $supernode -eq 0 ]
 			then
 				uci add olsrd Interface
-				uci set olsrd.@Interface[-1].interface="${ifname_mesh}"
+				uci set olsrd.@Interface[-1].interface="${iface_mesh}"
 				uci set olsrd.@Interface[-1].Mode="mesh"
 			else
 				uci add olsrd Interface
-				uci add_list olsrd.@Interface[-1].interface="${ifname_mesh}"
-				uci add_list olsrd.@Interface[-1].interface="lan"
+				uci add_list olsrd.@Interface[-1].interface="${iface_mesh}"
+				uci add_list olsrd.@Interface[-1].interface="br-lan"
 				uci add_list olsrd.@Interface[-1].Mode="mesh"
 		fi
 
@@ -536,9 +523,9 @@ EOF
 			uci set olsrd.@Hna4[-1].netmask="0.0.0.0"
 		}
 
-		uci add olsrd Hna6
-		uci set olsrd.@Hna6[-1].netaddr="${hna6}"
-		uci set olsrd.@Hna6[-1].prefix="${lan6prefix}"
+		uci add olsrd6 Hna6
+		uci set olsrd6.@Hna6[-1].netaddr="${hna6}"
+		uci set olsrd6.@Hna6[-1].prefix="${lan6prefix}"
 
 		uci commit olsrd
 
@@ -822,7 +809,7 @@ start()
 		uci set eigennet.general.bootmode=1
 		uci commit eigennet
 
-		safe_reboot
+		reboot	
 
 		return 0
 	}
@@ -845,7 +832,7 @@ start()
 		uci commit
 
 		sleep 2s
-		safe_reboot
+		reboot
 
 		return 0
 	}
@@ -854,9 +841,9 @@ start()
 	{
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
-#		ip link set up dev br-lan
+		ip link set up dev br-lan
 
-		sleep 15s
+		sleep 10s
 		
 		configureSplash
 		configureGateway
