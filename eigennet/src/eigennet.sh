@@ -443,94 +443,173 @@ configureNetwork()
 	/etc/init.d/network restart
 }
 
-configureOlsrd()
+configureOlsrd4()
 {
 	local gw_enable		; config_get_bool	gw_enable	olsrd  "gw_enable"		0
-#	local 6_or_4	; config_get	6_or_4	olsrd  "6_or_4"		"6and4"	## FUTURE
-	local OLSRD="/etc/config/olsrd"
-	local ntw4=$(ipcalc.sh ${ip4addr_lan} ${netmask_lan} | grep NETWORK | sed 's/NETWORK=//')
-	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
-	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
-
-	/etc/init.d/olsrd disable
-	/etc/init.d/olsrd stop
-
-	cat > $OLSRD << EOF
-#Automatically generated for Eigennet
+	local gw=""
+	local OLSRD4="/etc/config/olsrd4"
+	local hna4=$(ipcalc.sh ${ip4addr_lan} ${netmask_lan} | grep NETWORK | sed 's/NETWORK=//')
+	local hna4_full="${hna4} ${netmask_lan}"
+	
+	rm -rf /etc/init.d/olsrd4
+	cat > $OLSRD4 << EOF
+	#Automatically generated for Eigennet
 EOF
-
 	[ $wifi_mesh -eq 1 ] &&
 	{
-		rm /etc/config/olsrd
-		touch /etc/config/olsrd
-
-		uci add olsrd olsrd
-		uci set olsrd.@olsrd[0].DebugLevel=0
-		uci set olsrd.@olsrd[0].IpVersion=6and4
-		uci set olsrd.@olsrd[0].Pollrate=0.025
-		uci set olsrd.@olsrd[0].FIBMetric="flat"
-	# uci set olsrd.@olsrd[0].RtTable=111
-	# uci set olsrd.@olsrd[0].RtTableDefault=112
-		uci set olsrd.@olsrd[0].UseNiit=no
-		uci set olsrd.@olsrd[0].SmartGateway=no
-		uci set olsrd.@olsrd[0].UseHysteresis=no
-		uci set olsrd.@olsrd[0].TcRedundancy=2
-		uci set olsrd.@olsrd[0].MprCoverage=7
-		uci set olsrd.@olsrd[0].LinkQualityLevel=2
-		uci set olsrd.@olsrd[0].LinkQualityAlgorithm="etx_ff"
-		uci set olsrd.@olsrd[0].LinkQualityAging=0.05
-		uci set olsrd.@olsrd[0].LinkQualityFishEye=1
-
-		uci add olsrd LoadPlugin
-		uci set olsrd.@LoadPlugin[0]=LoadPlugin
-		uci set olsrd.@LoadPlugin[0].library=olsrd_txtinfo.so.0.1
-		uci add_list olsrd.@LoadPlugin[0].port=2006
-		uci add_list olsrd.@LoadPlugin[0].accept="0.0.0.0"
-		uci add_list olsrd.@LoadPlugin[0].port=2007
-		uci add_list olsrd.@LoadPlugin[0].accept="::"
-
-		uci add olsrd Interface
-		uci set olsrd.@Interface[-1]=InterfaceDefaults
-		uci set olsrd.@InterfaceDefaults[-1].HelloInterval=3.0
-		uci set olsrd.@InterfaceDefaults[-1].HelloValidityTime=125.0
-		uci set olsrd.@InterfaceDefaults[-1].TcInterval=2.0
-		uci set olsrd.@InterfaceDefaults[-1].TcValidityTime=500.0
-		uci set olsrd.@InterfaceDefaults[-1].MidInterval=25.0
-		uci set olsrd.@InterfaceDefaults[-1].MidValidityTime=500.0
-		uci set olsrd.@InterfaceDefaults[-1].HnaInterval=10.0
-		uci set olsrd.@InterfaceDefaults[-1].HnaValidityTime=125.0
-
-		if	[ $supernode -eq 0 ]
+		if [ $supernode -eq 1 ]
 			then
-				uci add olsrd Interface
-				uci set olsrd.@Interface[-1].interface="${iface_mesh}"
-				uci set olsrd.@Interface[-1].Mode="mesh"
+				local iface_olsrd=$(echo '"'${iface_mesh}'"' '"br-lan"')
 			else
-				uci add olsrd Interface
-				uci add_list olsrd.@Interface[-1].interface="${iface_mesh}"
-				uci add_list olsrd.@Interface[-1].interface="br-lan"
-				uci add_list olsrd.@Interface[-1].Mode="mesh"
+				local iface_olsrd=$(echo '"'${iface_mesh}'"')
+		fi
+		if [ $gw_enable -eq 1 ]
+			then
+				local gw="0.0.0.0 0.0.0.0"
+			else
+				local gw="#"
 		fi
 
-		uci add olsrd Hna4
-		uci set olsrd.@Hna4[-1].netaddr="${ntw4}"
-		uci set olsrd.@Hna4[-1].netmask="${netmask_lan}"
+		cat > $OLSRD4 << EOF
+#Automatically generated for Eigennet
+DebugLevel  0
+IpVersion 4
 
-		[ $gw_enable -eq 1 ] &&
-		{
-			uci add olsrd Hna4
-			uci set olsrd.@Hna4[-1].netaddr="0.0.0.0"
-			uci set olsrd.@Hna4[-1].netmask="0.0.0.0"
-		}
+Pollrate  0.025
+FIBMetric "flat"
 
-		uci add olsrd6 Hna6
-		uci set olsrd6.@Hna6[-1].netaddr="${hna6}"
-		uci set olsrd6.@Hna6[-1].prefix="${lan6prefix}"
+# RtTable 111
+# RtTableDefault 112
 
-		uci commit olsrd
+UseNiit no
+SmartGateway no
 
-		/etc/init.d/olsrd enable
-		/etc/init.d/olsrd start
+Hna4
+{
+${hna4_full}
+${gw}
+}
+
+#Hna6
+#{
+#}
+
+UseHysteresis no
+TcRedundancy  2
+MprCoverage 7
+
+LinkQualityLevel 2
+LinkQualityAlgorithm    "etx_ff"
+LinkQualityAging 0.05
+LinkQualityFishEye  1
+
+# Don't remove olsrd_txtinfo from this file
+# as this plugin is used by the Webinterface
+# to display the OLSR Info
+LoadPlugin "olsrd_txtinfo.so.0.1"
+{
+   PlParam     "port"   "2006"
+   PlParam     "Accept"   "127.0.0.1"
+}
+
+InterfaceDefaults {
+   HelloInterval 3.0
+   HelloValidityTime 125.0
+   TcInterval 2.0
+   TcValidityTime 500.0
+   MidInterval 25.0
+   MidValidityTime 500.0
+   HnaInterval 10.0
+   HnaValidityTime 125.0
+}
+
+Interface ${iface_olsrd}
+{
+    Mode "mesh"
+}
+
+EOF
+		echo "olsrd -f /etc/config/olsrd4 -d 0" > /etc/init.d/olsrd4
+		chmod a+x /etc/init.d/olsrd4
+		ln -s /etc/init.d/olsrd4 /etc/rc.d/S70olsrd4
+	}
+}
+
+configureOlsrd6()
+{
+	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
+	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
+	local OLSRD6="/etc/config/olsrd6"
+	local hna6_full="${hna6} ${lan6prefix}"
+	
+	rm -rf /etc/init.d/olsrd6
+	cat > $OLSRD6 << EOF
+	#Automatically generated for Eigennet
+EOF
+	[ $wifi_mesh -eq 1 ] &&
+	{
+		if [ $supernode -eq 1 ]
+			then
+				local iface_olsrd=$(echo '"'${iface_mesh}'"' '"br-lan"')
+			else
+				local iface_olsrd=$(echo '"'${iface_mesh}'"')
+		fi
+
+		cat > $OLSRD6 << EOF
+#Automatically generated for Eigennet
+DebugLevel  0
+
+IpVersion 6
+
+Pollrate  0.025
+FIBMetric "flat"
+UseNiit no
+SmartGateway no
+
+
+Hna6
+{
+${hna6_full}
+}
+
+UseHysteresis no
+TcRedundancy  2
+
+MprCoverage 7
+
+LinkQualityLevel 2
+LinkQualityAlgorithm    "etx_ff"
+LinkQualityAging 0.05
+LinkQualityFishEye  1
+
+LoadPlugin "olsrd_txtinfo.so.0.1"
+{
+   PlParam     "port"   "2007"
+   PlParam     "Accept"   "::"
+}
+
+InterfaceDefaults {
+   HelloInterval 3.0
+   HelloValidityTime 125.0
+   TcInterval 2.0
+   TcValidityTime 500.0
+   MidInterval 25.0
+   MidValidityTime 500.0
+   HnaInterval 10.0
+   HnaValidityTime 125.0
+}
+
+Interface ${iface_olsrd}
+{
+    Mode "mesh"
+    IPv6Multicast FF02::6D
+
+}
+
+EOF
+		echo "olsrd -f /etc/config/olsrd6 -d 0" > /etc/init.d/olsrd6
+		chmod a+x /etc/init.d/olsrd6
+		ln -s /etc/init.d/olsrd6 /etc/rc.d/S75olsrd6
 	}
 }
 
@@ -845,10 +924,17 @@ start()
 
 		sleep 10s
 		
+		configureOlsrd4
+		configureOlsrd6
 		configureSplash
 		configureGateway
-		configureOlsrd
 		
+		[ $wifi_mesh -eq 1 ] &&
+		{
+			/etc/init.d/olsrd4
+			/etc/init.d/olsrd6
+		}
+
 		return 0
 	}
 }
