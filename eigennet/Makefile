@@ -19,7 +19,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eigennet
 PKG_VERSION:=0.5.1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -27,7 +27,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)/template
 	SECTION:=admin
 	CATEGORY:=Administration
-	MAINTAINER:=Gioacchino Mazzurco <gmazzurco89@gmail.com>
+	MAINTAINER:=Gioacchino Mazzurco <gio@eigenlab.org>
 	SUBMENU:=$(PKG_NAME)
 endef
 
@@ -39,13 +39,13 @@ endef
 
 define Package/$(PKG_NAME)-bwtest
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=Bandwidth Measurement Tool (need busybox nc -l)
+	TITLE:=Bandwidth Measurement Tool (needs busybox nc -l)
 	DEPENDS:=+pv
 endef
 
 define Package/$(PKG_NAME)-bwtest-webui
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=Bandwidth Measurement Tool (need busybox nc -l)
+	TITLE:=Bandwidth Measurement Tool Web Interface (needs busybox nc -l)
 	DEPENDS:=+$(PKG_NAME)-bwtest +uhttpd
 endef
 
@@ -57,7 +57,7 @@ endef
 
 define Package/$(PKG_NAME)-firewall
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=EigenNet Firewall
+	TITLE:=Layer 2 Firewall
 	DEPENDS:=+ebtables +kmod-ebtables-ipv4 +kmod-ebtables-ipv6
 endef
 
@@ -80,13 +80,13 @@ endef
 
 define Package/$(PKG_NAME)-pointing-webui
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=eigenNet antenna pointing tools
+	TITLE:=Antenna pointing tools Web Interface
 	DEPENDS:=+$(PKG_NAME)-pointing +uhttpd
 endef
 
 define Package/$(PKG_NAME)-reghack
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=eigenNet regulatory domain unlocker
+	TITLE:=Regulatory domain unlocker
 endef
 
 define Package/$(PKG_NAME)-autoconf/install
