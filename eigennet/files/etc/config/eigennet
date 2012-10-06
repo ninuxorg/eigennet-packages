@@ -14,34 +14,35 @@ config section 'network'
 	option ip4_gw_lan '192.168.1.1'				# Insert your IPv4 lan gateway (IP of the master router, if you have a master router)
 	option dhcp_enable '1'					# Default enable; setting false for siable lan (and AP) dhcp assignment
 	option dhcp_lan_init '10'				# Setting your prefer value of initial dhcp assignment
-	option hostName 'nome_device'				# Insert device name in format "aB09" without special characters
-	option wan_set '0'					# Setting 'true' if your device is a TP-LINK (or another with a wan port) and you want customize your wan ip
+	option hostName 'nome_device'			# Insert device name in format "aB09" without special characters
+	option wan_set '0'						# Setting 'true' if your device is a TP-LINK (or another with a wan port) and you want customize your wan ip
 	option ip4_wan '0.0.0.0'				# Insert your custom wan ip
 	option wan_mask '0.0.0.0'				# Insert the subnet of your custom wan ip
-	list resolvers '160.80.221.11 8.8.8.8'			# Change (if you want) nameserver for your custom or prefered dns
+	list resolvers '160.80.221.11 8.8.8.8'	# Change (if you want) nameserver for your custom or prefered dns
 
 config section 'olsrd'
-	option supernode '0'					# Default false, is true when you have more device on your (super)node
+	option enable '0'						# Default false, true for active OLSRd
+	option supernode '0'					# Default false, is true when you have more device on your (super)node for active OLSRd over the LAN
 	option gw_enable '0'					# Default false, setting true for gateway announce
 
 config section 'snmp'
-	option enable '1'					# Default true, setting false for disable this service
-	option contact 'contatti@ninux.org'			# Insert (if you want) your custom email
+	option enable '1'						# Default true, setting false for disable this service
+	option contact 'contatti@ninux.org'		# Insert (if you want) your custom email
 	option location 'node_name'				# Insert your Node Name 
 
 config section 'wireless'
 	option wifi_mesh '1'					# Default true, setting false for disable Mesh Network
 	option mesh_mode 'adhoc'				# setting your prefer mode adhoc or ap or sta
 	option countrycode 'US'
-	option wifi_channel '11'				# 1-14
-	option meshSSID 'mesh.ninux.org'			# Default mesh SSID "mesh.ninux.org"
-	option meshBSSID '02:aa:bb:cc:dd:00'			# Default mesh BSSID "02:aa:bb:cc:dd:00"
+	option wifi_channel '11'				# 1-14 for 2.4 Ghz 
+	option meshSSID 'mesh.ninux.org'		# Default mesh SSID "mesh.ninux.org"
+	option meshBSSID '02:aa:bb:cc:dd:00'	# Default mesh BSSID "02:aa:bb:cc:dd:00"
 	option meshMcastRate '6000'				# Default mesh MCS rate "6000"
-	option station_mac '00:00:00:00:00:00'			# Setting the mac address of your AP (only in STA mode)
-	option ap_staSSID 'ninux.org'				# Default AP-STA SSID is 'ninux.org'
+	option station_mac '00:00:00:00:00:00'	# Setting the mac address of your AP (only in STA mode)
+	option ap_staSSID 'ninux.org'			# Default AP-STA SSID is 'ninux.org'
 	option ap_enable '0'					# Default true, setting false for disable AP	
-	option apSSID 'ap.ninux.org'				# Default AP SSID
-	option apKEY 'none'					# Default not setting
+	option apSSID 'ap.ninux.org'			# Default AP SSID
+	option apKEY 'none'						# Default not setting
 	option apMaxClients '25'				# Default clients AP number "25" (max lan client n+20)
 	option tx_power '10'					# Default tx power "10" (10-30)
 

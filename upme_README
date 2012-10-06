@@ -1,0 +1,12 @@
+prerequisiti: avere il device connesso alla rete
+scaricare il file 'upme.sh' dal link ""
+copiare il file nel dispositivo
+	[GUIDA]
+	ssh root@IP_DEVICE
+	scp USER_PC@IP_PC:/path/del/file/upme.sh /tmp/
+	[FINE GUIDA]
+entrare nella cartella 'tmp'
+cd /tmp/
+lanciare il file per eseguire la patch
+./upme.sh
+attendere il reboot del device
