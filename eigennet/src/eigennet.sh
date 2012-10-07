@@ -804,9 +804,9 @@ configureSnmp()
 
 	if [ $snmpEnable -eq 1 ]
 		then
-			/etc/init.d/mini_snmpd disable
-		else
 			/etc/init.d/mini_snmpd enable
+		else
+			/etc/init.d/mini_snmpd disable
 	fi
 
 }
