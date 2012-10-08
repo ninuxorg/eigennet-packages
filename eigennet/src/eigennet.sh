@@ -477,6 +477,11 @@ configureOlsrd4()
 	touch $OLSRD4
 	chmod +x $OLSRD4
 
+	[ $wifi_mesh -eq 1 ] &&
+	{
+		local iface_olsrd=$(echo '"'${iface_mesh}'"')
+	}
+
 	[ $olsrd_enable -eq 1 ] &&
 	{
 		[ $wifi_mesh -eq 1 ] && [ $supernode -eq 1 ] &&
@@ -576,6 +581,11 @@ configureOlsrd6()
 	rm -rf /etc/init.d/olsrd6
 	touch $OLSRD6
 	chmod +x $OLSRD6
+
+        [ $wifi_mesh -eq 1 ] &&
+        {
+                local iface_olsrd=$(echo '"'${iface_mesh}'"')
+        }
 
 	[ $olsrd_enable -eq 1 ] &&
 	{
