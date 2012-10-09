@@ -46,6 +46,7 @@ config_get debugLevel general "debugLevel" 0
 	netmask_lan			; config_get		netmask_lan		network		"netmask_lan"		"255.255.255.0"
 	hs_enable			; config_get_bool	hs_enable		hotspot		"hs_enable"			0
 	ip4addr_hs			; config_get		ip4addr_hs		hotspot		"ip4addr_hs"		"192.168.10.1"
+	netmask_hs	; config_get		netmask_hs	hotspot  "netmask_hs"		"255.255.255.0"
 	hsMaxClients		; config_get		hsMaxClients	hotspot 	"hsMaxClients"		"50"
 	wifi_mesh			; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
 	apMaxClients		; config_get		apMaxClients	wireless	"apMaxClients"		"25"
@@ -193,7 +194,6 @@ configureNetwork()
 {
 	local ip6addr_mesh	; config_get		ip6addr_mesh	network  "ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
 	local netmask_mesh	; config_get		netmask_mesh	network  "netmask_mesh"		"255.255.0.0"
-	local netmask_hs	; config_get		netmask_hs	hotspot  "netmask_hs"		"255.255.255.0"
 	local hsSSID		; config_get		hsSSID		hotspot  "hsSSID"		"www.ninux.org"
 	local wan_set		; config_get_bool	wan_set		network  "wan_set"		0
 	local ip4_wan		; config_get		ip4_wan		network  "ip4_wan"		"0.0.0.0"
@@ -946,6 +946,7 @@ configureDropbear()
 
 configureGateway()
 {
+	local ip_source=$(ipcalc.sh ${ip4addr_hs} ${netmask_hs} | grep NETWORK | sed 's/NETWORK=//')
 	local ip4_gw_lan		; config_get	ip4_gw_lan		network		"ip4_gw_lan"
 	local ip6_gw_lan		; config_get	ip6_gw_lan		network		"ip6_gw_lan"
 
@@ -957,7 +958,7 @@ configureGateway()
 	
 	[ $hs_enable -eq 1 ] &&
 	{
-		iptables -t nat -A POSTROUTING -o br-lan -j MASQUERADE
+		iptables -t nat -A POSTROUTING -s ${ip_source} -o br-lan -j MASQUERADE
 	}
 }
 
