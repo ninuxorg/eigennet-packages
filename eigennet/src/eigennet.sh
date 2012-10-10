@@ -29,31 +29,6 @@ config_load eigennet
 config_get debugLevel general "debugLevel" 0
 
 #[Doc]
-#[Doc] Statement of common variables
-#[Doc]
-#[Doc] for to work on config file usage:
-#[Doc]
-#[Doc] var=$var ; config_* var module "var"
-#[Doc]
-#[Doc] ip4addr_mesh		; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
-#[Doc]
-#[Doc] local ip4addr_mesh	; config_get		ip4addr_mesh	network	"ip4addr_mesh"		"172.16.0.1"
-#[Doc]
-
-	ip4addr_lan			; config_get		ip4addr_lan		network		"ip4addr_lan"		"192.168.1.21"
-	ip6addr_lan			; config_get		ip6addr_lan		network		"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
-	ip4addr_mesh		; config_get		ip4addr_mesh	network		"ip4addr_mesh"		"172.16.0.1"
-	netmask_lan			; config_get		netmask_lan		network		"netmask_lan"		"255.255.255.0"
-	hs_enable			; config_get_bool	hs_enable		hotspot		"hs_enable"			0
-	ip4addr_hs			; config_get		ip4addr_hs		hotspot		"ip4addr_hs"		"192.168.10.1"
-	netmask_hs	; config_get		netmask_hs	hotspot  "netmask_hs"		"255.255.255.0"
-	hsMaxClients		; config_get		hsMaxClients	hotspot 	"hsMaxClients"		"50"
-	wifi_mesh			; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
-	apMaxClients		; config_get		apMaxClients	wireless	"apMaxClients"		"25"
-	supernode			; config_get_bool	supernode		olsrd		"supernode"			0
-	olsrd_enable		; config_get_bool	olsrd_enable	olsrd		"enable"			0
-
-#[Doc]
 #[Doc] Print mystring if mydebuglevel is greater or equal then debulLevel 
 #[Doc]
 #[Doc] usage: eigenDebug mydebuglevel mystring 
@@ -192,28 +167,38 @@ scan_devices()
 
 configureNetwork()
 {
-	local ip6addr_mesh	; config_get		ip6addr_mesh	network  "ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
-	local netmask_mesh	; config_get		netmask_mesh	network  "netmask_mesh"		"255.255.0.0"
-	local hsSSID		; config_get		hsSSID		hotspot  "hsSSID"		"www.ninux.org"
-	local wan_set		; config_get_bool	wan_set		network  "wan_set"		0
-	local ip4_wan		; config_get		ip4_wan		network  "ip4_wan"		"0.0.0.0"
-	local wan_mask		; config_get		wan_mask	network  "wan_mask"		"0.0.0.0"
-	local hostName		; config_get		hostName	network  "hostName"		"node_device"
-	local resolvers		; config_get		resolvers	network  "resolvers"		"8.8.8.8 2001:4860:4860::8888"
-	local ath9k_mesh	; config_get_bool	ath9k_mesh	wireless  "wifi_mesh"		1
-	local madwifi_mesh	; config_get_bool	madwifi_mesh	wireless  "wifi_mesh"		1
-	local mesh_mode		; config_get		mesh_mode	wireless  "mesh_mode"		"adhoc"
-	local mac_sta		; config_get		mac_sta		wireless  "station_mac"		"0"
-	local tx_power		; config_get		tx_power	wireless  "tx_power"		"10"
-	local countrycode	; config_get		countrycode	wireless  "countrycode"		"US"
-	local mesh2channel	; config_get		mesh2channel	wireless  "wifi_channel"	"1"
-	local meshSSID		; config_get		meshSSID	wireless  "meshSSID"		"mesh.ninux.org"
-	local meshBSSID		; config_get		meshBSSID	wireless  "meshBSSID"		"02:aa:bb:cc:dd:00"
-	local meshMcastRate	; config_get		meshMcastRate	wireless  "meshMcastRate"	""
-	local ap_staSSID	; config_get		ap_staSSID	wireless  "ap_staSSID"		"ninux.org"
-	local ap_enable		; config_get_bool	ap_enable	wireless  "ap_enable"		1
-	local apSSID		; config_get		apSSID		wireless  "apSSID"		"ap.ninux.org"
-	local apKEY		; config_get		apKEY		wireless  "apKEY"
+	local ip4addr_lan	; config_get		ip4addr_lan		network		"ip4addr_lan"		"192.168.1.21"
+	local netmask_lan	; config_get		netmask_lan		network		"netmask_lan"		"255.255.255.0"
+	local ip6addr_lan	; config_get		ip6addr_lan		network		"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
+	local ip4addr_mesh	; config_get		ip4addr_mesh	network		"ip4addr_mesh"		"172.16.0.1"
+	local netmask_mesh	; config_get		netmask_mesh	network		"netmask_mesh"		"255.255.0.0"
+	local ip6addr_mesh	; config_get		ip6addr_mesh	network 	"ip6addr_mesh"		"2001:4c00:893b:1:cab::/128"
+	local hs_enable		; config_get_bool	hs_enable		hotspot		"hs_enable"			0
+	local ip4addr_hs	; config_get		ip4addr_hs		hotspot		"ip4addr_hs"		"192.168.10.1"
+	local netmask_hs	; config_get		netmask_hs		hotspot 	"netmask_hs"		"255.255.255.0"
+	local hsSSID		; config_get		hsSSID			hotspot 	"hsSSID"			"www.ninux.org"
+	local hsMaxClients	; config_get		hsMaxClients	hotspot 	"hsMaxClients"		"50"
+	local wan_set		; config_get_bool	wan_set			network 	"wan_set"			0
+	local ip4_wan		; config_get		ip4_wan			network 	"ip4_wan"			"0.0.0.0"
+	local wan_mask		; config_get		wan_mask		network 	"wan_mask"			"0.0.0.0"
+	local hostName		; config_get		hostName		network 	"hostName"			"node_device"
+	local resolvers		; config_get		resolvers		network 	"resolvers"			"8.8.8.8 2001:4860:4860::8888"
+	local apMaxClients	; config_get		apMaxClients	wireless	 "apMaxClients"		"25"
+	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	 "wifi_mesh"		1
+	local ath9k_mesh	; config_get_bool	ath9k_mesh		wireless	 "wifi_mesh"		1
+	local madwifi_mesh	; config_get_bool	madwifi_mesh	wireless	 "wifi_mesh"		1
+	local mesh_mode		; config_get		mesh_mode		wireless	 "mesh_mode"		"adhoc"
+	local mac_sta		; config_get		mac_sta			wireless	 "station_mac"		"0"
+	local tx_power		; config_get		tx_power		wireless	 "tx_power"			"10"
+	local countrycode	; config_get		countrycode		wireless	 "countrycode"		"US"
+	local mesh2channel	; config_get		mesh2channel	wireless	 "wifi_channel"		"1"
+	local meshSSID		; config_get		meshSSID		wireless	 "meshSSID"			"mesh.ninux.org"
+	local meshBSSID		; config_get		meshBSSID		wireless	 "meshBSSID"		"02:aa:bb:cc:dd:00"
+	local meshMcastRate	; config_get		meshMcastRate	wireless	 "meshMcastRate"	""
+	local ap_staSSID	; config_get		ap_staSSID		wireless	 "ap_staSSID"		"ninux.org"
+	local ap_enable		; config_get_bool	ap_enable		wireless	 "ap_enable"		1
+	local apSSID		; config_get		apSSID			wireless	 "apSSID"			"ap.ninux.org"
+	local apKEY			; config_get		apKEY			wireless	 "apKEY"
 	
 	# Getting router model
 	local model=$(cat /proc/cpuinfo |grep machine|awk '{print $4}')
@@ -427,6 +412,7 @@ configureNetwork()
 					uci set wireless.ap$device.network=lan
 					uci set wireless.ap$device.mode=ap
 					uci set wireless.ap$device.ssid=$apSSID
+
 					[ ${#apKEY} -lt 8 ] &&
 					{
 						uci set wireless.ap$device.encryption=none
@@ -467,7 +453,12 @@ configureNetwork()
 
 configureOlsrd4()
 {
-	local gw_enable		; config_get_bool	gw_enable	olsrd  "gw_enable"		0
+	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
+	local ip4addr_lan	; config_get		ip4addr_lan		network		"ip4addr_lan"		"192.168.1.21"
+	local netmask_lan	; config_get		netmask_lan		network		"netmask_lan"		"255.255.255.0"
+	local olsrd_enable	; config_get_bool	olsrd_enable	olsrd		"enable"			0
+	local supernode		; config_get_bool	supernode		olsrd		"supernode"			0
+	local gw_enable		; config_get_bool	gw_enable		olsrd		"gw_enable"			0
 	local gw=""
 	local OLSRD4="/etc/config/olsrd4"
 	local hna4=$(ipcalc.sh ${ip4addr_lan} ${netmask_lan} | grep NETWORK | sed 's/NETWORK=//')
@@ -573,6 +564,10 @@ EOF
 
 configureOlsrd6()
 {
+	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
+	local ip6addr_lan	; config_get		ip6addr_lan		network		"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
+	local olsrd_enable	; config_get_bool	olsrd_enable	olsrd		"enable"			0
+	local supernode		; config_get_bool	supernode		olsrd		"supernode"			0
 	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
 	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
 	local OLSRD6="/etc/config/olsrd6"
@@ -664,6 +659,7 @@ EOF
 
 configureRadvd()
 {
+	local ip6addr_lan	; config_get		ip6addr_lan		network		"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
 	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
 	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
 	local radvd_prefix=$(echo ${hna6}/${lan6prefix})
@@ -706,6 +702,9 @@ configureRadvd()
 configureDhcp()
 {
 	local max_client=""
+	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
+	local hs_enable		; config_get_bool	hs_enable		hotspot		"hs_enable"			0
+	local hsMaxClients	; config_get		hsMaxClients	hotspot 	"hsMaxClients"		"50"
 	local dhcp_enable=$dhcp_enable		; config_get_bool	dhcp_enable	network		"dhcp_enable"	"1"
 	local dhcp_lan_init=$dhcp_lan_init	; config_get		dhcp_lan_init	network		"dhcp_lan_init"	"10"
 	local DHCP="/etc/config/dhcp"
@@ -770,9 +769,11 @@ configureDhcp()
 
 configureSnmp()
 {
+	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
 	local snmpEnable	; config_get_bool	snmpEnable	snmp	"enable" 1
 	local snmpContact	; config_get		snmpContact	snmp	"contact"	"contatti@ninux.org"
 	local snmpLocation	; config_get		snmpLocation	snmp	"location"
+	local hs_enable		; config_get_bool	hs_enable		hotspot		"hs_enable"			0
 
 	uci del mini_snmpd.@mini_snmpd[0]
 		
@@ -823,6 +824,8 @@ configureSnmp()
 
 configureSplash()
 {
+	local hs_enable		; config_get_bool	hs_enable		hotspot		"hs_enable"			0
+	local ip4addr_hs	; config_get		ip4addr_hs		hotspot		"ip4addr_hs"		"192.168.10.1"
 	local SPLASH=/etc/nodogsplash/nodogsplash.conf
 	local iface_hs=$(ip -4 a s | grep -B 2 $ip4addr_hs | sed -n 2p | awk '{print $2}' | sed 's/://')
 
@@ -946,9 +949,14 @@ configureDropbear()
 
 configureGateway()
 {
+	local ip4_gw_lan	; config_get		ip4_gw_lan		network		"ip4_gw_lan"
+	local ip6_gw_lan	; config_get		ip6_gw_lan		network		"ip6_gw_lan"
+	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
+	local ip4addr_hs	; config_get		ip4addr_hs		hotspot		"ip4addr_hs"		"192.168.10.1"
+	local netmask_hs	; config_get		netmask_hs		hotspot 	"netmask_hs"		"255.255.255.0"
+	local hs_enable		; config_get_bool	hs_enable		hotspot		"hs_enable"			0
+	local olsrd_enable	; config_get_bool	olsrd_enable	olsrd		"enable"			0
 	local ip_source=$(ipcalc.sh ${ip4addr_hs} ${netmask_hs} | grep NETWORK | sed 's/NETWORK=//')
-	local ip4_gw_lan		; config_get	ip4_gw_lan		network		"ip4_gw_lan"
-	local ip6_gw_lan		; config_get	ip6_gw_lan		network		"ip6_gw_lan"
 
 	[ $olsrd_enable -eq 0 ] && [ $wifi_mesh -eq 0 ] &&
 	{
@@ -1010,6 +1018,7 @@ start()
 
 	[ $bootmode -ge 2 ] &&
 	{
+		local olsrd_enable	; config_get_bool	olsrd_enable	olsrd		"enable"			0
 		sysctl -w net.ipv6.conf.all.autoconf=0
 
 		/etc/init.d/network restart
