@@ -199,7 +199,7 @@ configureNetwork()
 	local ip4_wan		; config_get		ip4_wan		network  "ip4_wan"		"0.0.0.0"
 	local wan_mask		; config_get		wan_mask	network  "wan_mask"		"0.0.0.0"
 	local hostName		; config_get		hostName	network  "hostName"		"node_device"
-	local resolvers		; config_get		resolvers	network  "resolvers"		"160.80.221.11 8.8.8.8"
+	local resolvers		; config_get		resolvers	network  "resolvers"		"8.8.8.8 2001:4860:4860::8888"
 	local ath9k_mesh	; config_get_bool	ath9k_mesh	wireless  "wifi_mesh"		1
 	local madwifi_mesh	; config_get_bool	madwifi_mesh	wireless  "wifi_mesh"		1
 	local mesh_mode		; config_get		mesh_mode	wireless  "mesh_mode"		"adhoc"

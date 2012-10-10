@@ -18,7 +18,7 @@ config section 'network'
 	option wan_set '0'						# Setting 'true' if your device is a TP-LINK (or another with a wan port) and you want customize your wan ip
 	option ip4_wan '0.0.0.0'				# Insert your custom wan ip
 	option wan_mask '0.0.0.0'				# Insert the subnet of your custom wan ip
-	list resolvers '160.80.221.11 8.8.8.8'	# Change (if you want) nameserver for your custom or prefered dns
+	list resolvers '8.8.8.8 2001:4860:4860::8888'	# Change (if you want) nameserver for your custom or prefered dns
 
 config section 'olsrd'
 	option enable '0'						# Default false, true for active OLSRd
