@@ -1024,6 +1024,11 @@ start()
 		/etc/init.d/network restart
 
 		sleep 10s
+                ##                                               
+                ## temporary solution for ipv6 assignment         
+                ##
+                ip -6 a f scope global dev br-lan
+                ip -6 a a ${ip6addr_lan} dev br-lan
 
 		configureGateway
 		
