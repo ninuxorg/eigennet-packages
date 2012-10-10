@@ -950,18 +950,18 @@ configureDropbear()
 configureGateway()
 {
 	local ip4_gw_lan	; config_get		ip4_gw_lan		network		"ip4_gw_lan"
-	local ip6_gw_lan	; config_get		ip6_gw_lan		network		"ip6_gw_lan"
 	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
 	local ip4addr_hs	; config_get		ip4addr_hs		hotspot		"ip4addr_hs"		"192.168.10.1"
 	local netmask_hs	; config_get		netmask_hs		hotspot 	"netmask_hs"		"255.255.255.0"
 	local hs_enable		; config_get_bool	hs_enable		hotspot		"hs_enable"			0
 	local olsrd_enable	; config_get_bool	olsrd_enable	olsrd		"enable"			0
+	local gw_lan		; config_get_bool	gw_lan			network		"gw_lan"			0
 	local ip_source=$(ipcalc.sh ${ip4addr_hs} ${netmask_hs} | grep NETWORK | sed 's/NETWORK=//')
 
-	[ $olsrd_enable -eq 0 ] && [ $wifi_mesh -eq 0 ] &&
+	[ $olsrd_enable -eq 0 ] && [ $wifi_mesh -eq 0 ] || [ $gw_lan -eq 1 ] &&
 	{
-		ip -4 r a default via $ip4_gw_lan dev br-lan
-		ip -6 r a default via $ip6_gw_lan dev br-lan
+		uci set network.lan.gateway=$ip4_gw_lan
+		uci commit network
 	}
 	
 	[ $hs_enable -eq 1 ] &&
@@ -1018,20 +1018,21 @@ start()
 
 	[ $bootmode -ge 2 ] &&
 	{
+		local ip6addr_lan	; config_get		ip6addr_lan		network		"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
 		local olsrd_enable	; config_get_bool	olsrd_enable	olsrd		"enable"			0
 		sysctl -w net.ipv6.conf.all.autoconf=0
+
+		configureGateway
 
 		/etc/init.d/network restart
 
 		sleep 10s
-                ##                                               
-                ## temporary solution for ipv6 assignment         
-                ##
-                ip -6 a f scope global dev br-lan
-                ip -6 a a ${ip6addr_lan} dev br-lan
+##                                               
+## temporary solution for ipv6 br-lan assignment         
+##
+		ip -6 a f scope global dev br-lan
+		ip -6 a a ${ip6addr_lan} dev br-lan
 
-		configureGateway
-		
 		[ $olsrd_enable -eq 1 ] &&
 		{
 			/etc/init.d/olsrd4
