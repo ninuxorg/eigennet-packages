@@ -706,6 +706,7 @@ configureDhcp()
 	local max_client=""
 	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
 	local hs_enable		; config_get_bool	hs_enable		hotspot		"hs_enable"			0
+	local apMaxClients	; config_get		apMaxClients	wireless	 "apMaxClients"		"25"
 	local hsMaxClients	; config_get		hsMaxClients	hotspot 	"hsMaxClients"		"50"
 	local dhcp_enable=$dhcp_enable		; config_get_bool	dhcp_enable	network		"dhcp_enable"	"1"
 	local dhcp_lan_init=$dhcp_lan_init	; config_get		dhcp_lan_init	network		"dhcp_lan_init"	"10"

@@ -3,7 +3,7 @@
 config_load eigennet
 
 local ip4addr_mesh	; config_get	ip4addr_mesh	network	"ip4addr_mesh"
-local iface_mesh=$(ip -4 a s | grep -B2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
+local iface_mesh=$(ip -4 a s | grep "$ip4addr_mesh" | awk '{print $7}')
 
 [ -e /tmp/link_db ]
 {
