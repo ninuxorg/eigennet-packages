@@ -1,0 +1,18 @@
+#!/bin/sh /etc/rc.common
+
+config_load eigennet
+
+local ip4addr_mesh	; config_get	ip4addr_mesh	network	"ip4addr_mesh"
+local iface_mesh=$(ip -4 a s | grep -B2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
+
+[ -e /tmp/link_db ]
+{
+	rm -rf /tmp/link_db
+}
+
+touch /tmp/link_db
+
+iwinfo $iface_mesh a | grep dBm | awk '{ print $1"\t"$2 }' | sed 's/ /\n/g' | sed '/^$/d' > /tmp/link_db
+
+exit 0
+
