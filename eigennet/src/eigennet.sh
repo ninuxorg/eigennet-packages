@@ -447,19 +447,19 @@ configureNetwork()
 	uci commit network
 	uci commit wireless
 	/etc/init.d/network restart
-
-	iface_mesh=$(ip -4 a s | grep -B 2 $ip4addr_mesh | sed -n 2p | awk '{print $2}' | sed 's/://')
 }
 
 configureOlsrd4()
 {
 	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
+	local ip4addr_mesh	; config_get		ip4addr_mesh	network		"ip4addr_mesh"		"172.16.0.1"
 	local ip4addr_lan	; config_get		ip4addr_lan		network		"ip4addr_lan"		"192.168.1.21"
 	local netmask_lan	; config_get		netmask_lan		network		"netmask_lan"		"255.255.255.0"
 	local olsrd_enable	; config_get_bool	olsrd_enable	olsrd		"enable"			0
 	local supernode		; config_get_bool	supernode		olsrd		"supernode"			0
 	local gw_enable		; config_get_bool	gw_enable		olsrd		"gw_enable"			0
 	local gw=""
+	local iface_mesh=$(ip -4 a s | grep "$ip4addr_mesh" | awk '{print $7}')
 	local OLSRD4="/etc/config/olsrd4"
 	local hna4=$(ipcalc.sh ${ip4addr_lan} ${netmask_lan} | grep NETWORK | sed 's/NETWORK=//')
 	local hna4_full="${hna4} ${netmask_lan}"
@@ -565,9 +565,11 @@ EOF
 configureOlsrd6()
 {
 	local wifi_mesh		; config_get_bool	wifi_mesh		wireless	"wifi_mesh"			1
+	local ip4addr_mesh	; config_get		ip4addr_mesh	network		"ip4addr_mesh"		"172.16.0.1"
 	local ip6addr_lan	; config_get		ip6addr_lan		network		"ip6addr_lan"		"2001:4c00:893b:cab::123/64"
 	local olsrd_enable	; config_get_bool	olsrd_enable	olsrd		"enable"			0
 	local supernode		; config_get_bool	supernode		olsrd		"supernode"			0
+	local iface_mesh=$(ip -4 a s | grep "$ip4addr_mesh" | awk '{print $7}')
 	local lan6prefix=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "/" } ; { print $2 }')
 	local hna6=$(echo ${ip6addr_lan} | awk 'BEGIN { FS = "::" } ; { print $1 }' | sed 's/$/::/')
 	local OLSRD6="/etc/config/olsrd6"
@@ -827,7 +829,7 @@ configureSplash()
 	local hs_enable		; config_get_bool	hs_enable		hotspot		"hs_enable"			0
 	local ip4addr_hs	; config_get		ip4addr_hs		hotspot		"ip4addr_hs"		"192.168.10.1"
 	local SPLASH=/etc/nodogsplash/nodogsplash.conf
-	local iface_hs=$(ip -4 a s | grep -B 2 $ip4addr_hs | sed -n 2p | awk '{print $2}' | sed 's/://')
+	local iface_hs=$(ip -4 a s | grep "$ip4addr_hs" | awk '{print $7}')
 
 	chmod a+x $SPLASH
 	cat > $SPLASH << EOF
