@@ -2,7 +2,7 @@
 
 <<COPYRIGHT
 
-Copyright (C) 2010-2012 Gioacchino Mazzurco <gmazzurco89@gmail.com>
+Copyright (C) 2010-2012 Gioacchino Mazzurco <gio@eigenlab.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -239,6 +239,8 @@ configureNetwork()
 
 	if [ $accept_clients -eq 1 ]
 		then
+			uci set batman-adv.bat0.bridge_loop_avoidance=1
+
 			uci set network.clients=interface
 			uci set network.clients.proto=static
 			uci set network.clients.type=bridge
