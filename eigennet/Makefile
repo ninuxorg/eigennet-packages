@@ -40,12 +40,14 @@ endef
 define Package/$(PKG_NAME)-bwtest
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=Bandwidth Measurement Tool (needs busybox nc -l)
+	DESCRIPTION:=Bandwidth Measurement Tool (needs busybox nc -l (Base system > busybox > Networking Utilities > nc > Netcat server options (-l)))
 	DEPENDS:=+pv
 endef
 
 define Package/$(PKG_NAME)-bwtest-webui
 	$(call Package/$(PKG_NAME)/template)
 	TITLE:=Bandwidth Measurement Tool Web Interface (needs busybox nc -l)
+        DESCRIPTION:=Bandwidth Measurement Tool (needs busybox nc -l (Base system > busybox > Networking Utilities > nc > Netcat server options (-l)))
 	DEPENDS:=+$(PKG_NAME)-bwtest +uhttpd
 endef
 
