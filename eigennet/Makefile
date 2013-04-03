@@ -39,22 +39,19 @@ endef
 
 define Package/$(PKG_NAME)-bwtest
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=Bandwidth Measurement Tool (needs busybox nc -l)
+	TITLE:=Bandwidth Measurement Tool
 	DEPENDS:=+pv
 endef
 
-define Package/$(PKG_NAME)-bwtest/description
-	Bandwidth Measurement Tool (needs busybox nc -l (Base system > busybox > Networking Utilities > nc > Netcat server options (-l)))
+define Package/$(PKG_NAME)-bwtest/config
+	select BUSYBOX_CONFIG_NC
+	select BUSYBOX_CONFIG_NC_SERVER
 endef
 
 define Package/$(PKG_NAME)-bwtest-webui
 	$(call Package/$(PKG_NAME)/template)
-	TITLE:=Bandwidth Measurement Tool Web Interface (needs busybox nc -l)
+	TITLE:=Bandwidth Measurement Tool Web Interface
 	DEPENDS:=+$(PKG_NAME)-bwtest +uhttpd
-endef
-
-define Package/$(PKG_NAME)-bwtest-webui/description
-	Bandwidth Measurement Tool Web Interface (needs busybox nc -l (Base system > busybox > Networking Utilities > nc > Netcat server options (-l)))
 endef
 
 define Package/$(PKG_NAME)-crda
