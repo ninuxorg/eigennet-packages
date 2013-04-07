@@ -24,27 +24,30 @@ start()
 		temp="$(echo ${param:7} | grep '^[a-zA-Z0-9.:]\+$')"
 		[ ${#temp} -gt 0 ] && server=${temp}
 
-		echo "" > /tmp/bwtsimc
-		echo "" > /tmp/bwtsims
-		echo "" > /tmp/bwtasims
-		echo "" > /tmp/bwtasimc
+		echo "wait" > /tmp/bwtsimc
+		echo "wait" > /tmp/bwtsims
+		echo "wait" > /tmp/bwtasims
+		echo "wait" > /tmp/bwtasimc
 
 		port=5000
 		((yes $(seq -s , 1 260) | pv $pvOutOption 2> /tmp/bwtsimc | nc ${server} ${port} | pv $pvOutOption 2> /tmp/bwtsims 1>/dev/null)&)
 		sleep $duration
 		kill $(pgrep -f "nc ${server} ${port}")
+                kill $(pgrep -f "yes $(seq -s , 1 260)")
 		sleep 2
 
 		port=5001
 		((yes $(seq -s , 1 260) | pv -q -L 10 | nc ${server} ${port} | pv $pvOutOption 2> /tmp/bwtasims 1>/dev/null)&)
 		sleep $duration
 		kill $(pgrep -f "nc ${server} ${port}")
+		kill $(pgrep -f "yes $(seq -s , 1 260)")
 		sleep 2
 
 		port=5002
 		((yes $(seq -s , 1 260) | pv $pvOutOption 2> /tmp/bwtasimc | nc ${server} ${port} 1>/dev/null)&)
 		sleep $duration
 		kill $(pgrep -f "nc ${server} ${port}")
+                kill $(pgrep -f "yes $(seq -s , 1 260)")
 		sleep 2
 
 		rm -rf $lockFile

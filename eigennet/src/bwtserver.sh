@@ -5,7 +5,7 @@ STOP=9
 
 CONF_DIR="/etc/config/"
 
-pidFile="/var/run/gw4check.pid"
+pidFile="/var/run/bwtserver.pid"
 
 config_load eigennet
 
