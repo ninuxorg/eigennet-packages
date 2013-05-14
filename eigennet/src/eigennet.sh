@@ -301,6 +301,7 @@ configureNetwork()
 					{
 						uci set network.$device.proto=none
 					}
+				}
 				fi
 			;;
 
