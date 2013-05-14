@@ -284,22 +284,23 @@ configureNetwork()
 				then
 				{
 					uci add_list network.clients.ifname=$device
-				} && [ $eth_mesh -eq 1 ] &&
-				{
-					uci add_list batman-adv.bat0.interfaces="clients"
 				}
 				else
 				{
 					uci set network.$device=interface
 					uci set network.$device.ifname=$device
-					uci set network.$device.proto=static
-					uci set network.$device.ip6addr=eeab:$(mac6ize $(get_mac $device))::1/64
-					uci set network.$device.ipaddr=192.168.$((10 + $devindex)).21
-					uci set network.$device.netmask=255.255.255.0
-				} && [ $eth_mesh -eq 1 ] &&
-				{
-					uci add_list batman-adv.bat0.interfaces="$device"
-				}
+					uci set network.$device.auto=1
+
+					if [ $eth_mesh -eq 1 ]
+					then
+					{
+						uci set network.$device.proto=batadv
+						uci set network.$device.mesh=bat0
+					}
+					else
+					{
+						uci set network.$device.proto=none
+					}
 				fi
 			;;
 
@@ -322,13 +323,10 @@ configureNetwork()
 					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
 
 					uci set network.nmesh$device=interface
-					uci set network.nmesh$device.proto=static
+					uci set network.nmesh$device.proto=batadv
+					uci set network.nmesh$device.mesh=bat0
 					uci set network.nmesh$device.mtu=1528
-					uci set network.nmesh$device.ip6addr=eeab:$(mac6ize $(get_mac $device))::1/64
-					uci set network.nmesh$device.ipaddr=192.168.$((20 + $devindex)).21
-					uci set network.nmesh$device.netmask=255.255.255.0
-
-					uci add_list batman-adv.bat0.interfaces="nmesh$device"
+					uci set network.nmesh$device.auto=1
 				}
 
 				[ $accept_clients -eq 1 ] && [ $madwifi_clients -eq 1 ] &&
@@ -370,13 +368,10 @@ configureNetwork()
 					uci set wireless.mesh$device.mcast_rate=$meshMcastRate
 
 					uci set network.nmesh$device=interface
-					uci set network.nmesh$device.proto=static
+					uci set network.nmesh$device.proto=batadv
+					uci set network.nmesh$device.mesh=bat0
 					uci set network.nmesh$device.mtu=1528
-					uci set network.nmesh$device.ip6addr=eeab:$(mac6ize $(get_mac $device))::1/64
-					uci set network.nmesh$device.ipaddr=192.168.$((30 + $devindex)).21
-					uci set network.nmesh$device.netmask=255.255.255.0
-
-					uci add_list batman-adv.bat0.interfaces="nmesh$device"
+					uci set network.nmesh$device.auto=1
 				}
 
 				[ $accept_clients -eq 1 ] && [ $ath9k_clients -eq 1 ] && 
